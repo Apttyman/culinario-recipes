@@ -42,8 +42,27 @@ function Avatar({ src, alt, size = 96, ring = false }: { src?: string | null; al
           ? `0 0 0 6px ${PALETTE.gold}33, 0 0 60px ${PALETTE.gold}aa`
           : `0 0 24px ${PALETTE.gold}55`,
         flexShrink: 0,
+        display: "flex", alignItems: "flex-end", justifyContent: "center",
+        overflow: "hidden",
       }}
-    />
+    >
+      {!src && (
+        <svg
+          viewBox="0 0 64 64"
+          width={size * 0.78}
+          height={size * 0.78}
+          aria-hidden="true"
+          style={{ display: "block", opacity: 0.55 }}
+        >
+          <circle cx="32" cy="22" r="11" fill={PALETTE.gold} opacity="0.55" />
+          <path
+            d="M10 60c0-12 10-20 22-20s22 8 22 20"
+            fill={PALETTE.gold}
+            opacity="0.55"
+          />
+        </svg>
+      )}
+    </div>
   );
 }
 
@@ -236,6 +255,8 @@ function DuelPage() {
 
   const chefA = duel?.chef_a ?? "Chef A";
   const chefB = duel?.chef_b ?? "Chef B";
+  const portraitA: string | null = duel?.chef_a_portrait_url ?? null;
+  const portraitB: string | null = duel?.chef_b_portrait_url ?? null;
   const challenge = duel?.challenge ?? "";
   const host = duel?.host_name ?? "Your Host";
   const verdict = duel?.host_verdict ?? duel?.verdict ?? "";
@@ -243,7 +264,7 @@ function DuelPage() {
   const winnerSlug = (duel?.winner_slug ?? "").toString().toLowerCase();
   const isAWinner = winnerSlug === "a" || winnerSlug === "chef_a" || winnerSlug === (duel?.chef_a_slug ?? "").toLowerCase();
   const winnerName = isAWinner ? chefA : chefB;
-  const winnerImg = isAWinner ? imgA : imgB;
+  const winnerImg = isAWinner ? portraitA : portraitB;
 
   const trashTalk = useMemo<Array<{ speaker: string; text: string; side: "a" | "b" }>>(() => {
     const raw = duel?.trash_talk;
@@ -316,8 +337,8 @@ function DuelPage() {
         >
           {currentActNum === 1 && <Act1Title chefA={chefA} chefB={chefB} onAdvance={advance} />}
           {currentActNum === 2 && <Act2Challenge challenge={challenge} host={host} onAdvance={advance} />}
-          {currentActNum === 3 && <Act3WalkOn name={chefA} bio={duel.walk_on_a} img={imgA} side="left" onAdvance={advance} />}
-          {currentActNum === 4 && <Act3WalkOn name={chefB} bio={duel.walk_on_b} img={imgB} side="right" onAdvance={advance} />}
+          {currentActNum === 3 && <Act3WalkOn name={chefA} bio={duel.walk_on_a} img={portraitA} side="left" onAdvance={advance} />}
+          {currentActNum === 4 && <Act3WalkOn name={chefB} bio={duel.walk_on_b} img={portraitB} side="right" onAdvance={advance} />}
           {currentActNum === 5 && (
             <Act5Dishes
               recipeA={recipeA} recipeB={recipeB} imgA={imgA} imgB={imgB}
@@ -329,7 +350,7 @@ function DuelPage() {
           {currentActNum === 6 && (
             <Act6TrashTalk
               lines={trashTalk} revealed={trashIdx}
-              imgA={imgA} imgB={imgB}
+              imgA={portraitA} imgB={portraitB}
               onAdvance={advance}
             />
           )}
