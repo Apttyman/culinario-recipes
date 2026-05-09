@@ -159,7 +159,7 @@ function ActShell({ children, onAdvance, scrollable = false }: { children: React
         position: "fixed", inset: 0, background: PALETTE.bg, color: PALETTE.ink,
         overflowX: "hidden", overflowY: scrollable ? "auto" : "hidden", cursor: "pointer",
         fontFamily: "Inter, system-ui, sans-serif",
-        display: "flex", alignItems: scrollable ? "flex-start" : "center", justifyContent: "center",
+        display: "flex", alignItems: scrollable ? "flex-start" : "center", justifyContent: scrollable ? "flex-start" : "center",
         padding: scrollable ? "24px 24px 104px" : 24,
         WebkitOverflowScrolling: "touch",
       }}
