@@ -52,7 +52,7 @@ function RecipePage() {
   const [imgLoading, setImgLoading] = useState(false);
   const [imgError, setImgError] = useState<string | null>(null);
   const [imgHover, setImgHover] = useState(false);
-  const [referenceCount, setReferenceCount] = useState<number | null>(null);
+  
 
   const load = async () => {
     const { data: r } = await supabase.from("recipes").select("*").eq("id", id).single();
@@ -101,10 +101,6 @@ function RecipePage() {
       // Edge function already persisted to DB. Mirror returned image_url in local state
       // so the image renders immediately without a re-fetch round-trip.
       const returnedUrl = (data as any)?.image_url ?? null;
-      const returnedRefCount = (data as any)?.reference_count;
-      if (isInverse && typeof returnedRefCount === "number") {
-        setReferenceCount(returnedRefCount);
-      }
       if (isInverse && returnedUrl) {
         setRecipe((r: any) => r ? { ...r, inverse_image_url: returnedUrl } : r);
       }
@@ -260,14 +256,6 @@ function RecipePage() {
               >
                 {imgLoading ? "Composing…" : "Regenerate ↗"}
               </button>
-              {isInverse && referenceCount != null && (
-                <div style={{
-                  fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.2em",
-                  textTransform: "uppercase", color: "var(--fg-muted)",
-                }}>
-                  Generated using {referenceCount} reference photo{referenceCount === 1 ? "" : "s"}.
-                </div>
-              )}
             </>
           )}
           {!imageUrl && imgLoading && (
