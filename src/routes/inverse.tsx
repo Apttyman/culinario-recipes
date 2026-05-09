@@ -264,7 +264,7 @@ function InversePage() {
               minWidth: 0, maxWidth: "100%", boxSizing: "border-box",
             }}
           />
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 12 }}>
+          <div>
             <button
               type="button"
               onClick={conjure}
@@ -285,19 +285,6 @@ function InversePage() {
               }}
             >
               {conjuring ? "Conjuring three dishes…" : results ? "Reconjure their menu ↗" : "Conjure their menu ↗"}
-            </button>
-            <button
-              type="button"
-              onClick={() => setDuelOpen(true)}
-              style={{
-                fontFamily: "var(--font-body)", fontWeight: 600, fontSize: 12,
-                textTransform: "uppercase", letterSpacing: "0.2em",
-                color: "var(--fg)", background: "transparent",
-                border: "1px solid var(--fg)", padding: "14px 22px",
-                minHeight: 48, borderRadius: 0, cursor: "pointer",
-              }}
-            >
-              Generate duel ⚔
             </button>
           </div>
           {error && (
