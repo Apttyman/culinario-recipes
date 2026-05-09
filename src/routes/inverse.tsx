@@ -5,7 +5,6 @@ import { supabase } from "@/lib/supabase-client";
 import { AppHeader } from "@/components/AppHeader";
 
 export const Route = createFileRoute("/inverse")({
-  validateSearch: (s: Record<string, unknown>) => ({ duel: s.duel ? 1 : undefined }) as { duel?: 1 },
   head: () => ({
     meta: [
       { title: "Inverse Mode — Culinario" },
