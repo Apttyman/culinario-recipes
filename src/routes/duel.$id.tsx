@@ -7,6 +7,11 @@ import { useAuth } from "@/lib/auth-context";
 
 export const Route = createFileRoute("/duel/$id")({
   head: () => ({ meta: [{ title: "Tonight's Duel — Culinario" }] }),
+  validateSearch: (search: Record<string, unknown>) => {
+    const raw = Number(search.act);
+    const act = Number.isFinite(raw) && raw >= 0 && raw <= 8 ? Math.floor(raw) : undefined;
+    return { act };
+  },
   component: DuelPage,
 });
 
@@ -241,10 +246,23 @@ function DuelPage() {
   }, [recipeA?.id, recipeB?.id, recipeA?.inverse_image_url, recipeB?.inverse_image_url]);
 
   // ---------- act state ----------
-  const [act, setAct] = useState(0); // 0..8
-  const [trashIdx, setTrashIdx] = useState(0); // 0..4 lines revealed
+  const search = Route.useSearch();
+  const initialAct = typeof search.act === "number" ? search.act : 0;
+  const [act, setAct] = useState(initialAct); // 0..8
+  const [trashIdx, setTrashIdx] = useState(0); // 0..N lines revealed
   const [openRecipe, setOpenRecipe] = useState<any | null>(null);
   const [winSize, setWinSize] = useState({ w: 1200, h: 800 });
+
+  // Sync act -> URL so deep-links and back-navigation resume at the right beat
+  useEffect(() => {
+    navigate({
+      to: "/duel/$id",
+      params: { id },
+      search: { act },
+      replace: true,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [act]);
 
   useEffect(() => {
     const onResize = () => setWinSize({ w: window.innerWidth, h: window.innerHeight });
@@ -293,7 +311,7 @@ function DuelPage() {
       setTrashIdx((n) => n + 1);
       return;
     }
-    setAct((a) => Math.min(a + 1, actOrder.length - 1));
+    setAct((a: number) => Math.min(a + 1, actOrder.length - 1));
   }, [openRecipe, currentActNum, trashIdx, trashTalk.length, actOrder.length]);
 
 
@@ -589,6 +607,7 @@ function Act5Dishes({
 function RecipeModal({ recipe, img, onClose }: { recipe: any; img: string | null; onClose: () => void }) {
   const navigate = useNavigate();
   const { id: duelId } = Route.useParams();
+  const { act: currentAct } = Route.useSearch();
   return (
     <motion.div
       initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
@@ -626,7 +645,7 @@ function RecipeModal({ recipe, img, onClose }: { recipe: any; img: string | null
           )}
           <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
             <button
-              onClick={() => navigate({ to: "/recipes/$id", params: { id: recipe.id }, search: { from: duelId } })}
+              onClick={() => navigate({ to: "/recipes/$id", params: { id: recipe.id }, search: { from: duelId, act: currentAct ?? 0 } })}
               style={{ background: PALETTE.gold, color: "#000", border: 0, padding: "14px 22px", fontSize: 12, fontWeight: 800, letterSpacing: "0.2em", textTransform: "uppercase", cursor: "pointer", borderRadius: 4 }}
             >
               Open recipe ↗
@@ -992,6 +1011,7 @@ function Act9Sendoff({
 }) {
   const navigate = useNavigate();
   const { id: duelId } = Route.useParams();
+  const { act: currentAct } = Route.useSearch();
   return (
     <div
       style={{
@@ -1021,7 +1041,7 @@ function Act9Sendoff({
           {recipeA && (
             <motion.button
               whileHover={{ y: -4 }}
-              onClick={() => navigate({ to: "/recipes/$id", params: { id: recipeA.id }, search: { from: duelId } })}
+              onClick={() => navigate({ to: "/recipes/$id", params: { id: recipeA.id }, search: { from: duelId, act: currentAct ?? 8 } })}
               style={{
                 background: "transparent", color: PALETTE.gold,
                 border: `2px solid ${PALETTE.gold}`,
@@ -1036,7 +1056,7 @@ function Act9Sendoff({
           {recipeB && (
             <motion.button
               whileHover={{ y: -4 }}
-              onClick={() => navigate({ to: "/recipes/$id", params: { id: recipeB.id }, search: { from: duelId } })}
+              onClick={() => navigate({ to: "/recipes/$id", params: { id: recipeB.id }, search: { from: duelId, act: currentAct ?? 8 } })}
               style={{
                 background: PALETTE.red, color: PALETTE.ink,
                 border: `2px solid ${PALETTE.red}`,
