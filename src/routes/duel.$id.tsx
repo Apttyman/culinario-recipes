@@ -363,8 +363,8 @@ function DuelPage() {
         >
           {currentActNum === 1 && <Act1Title chefA={chefA} chefB={chefB} onAdvance={advance} />}
           {currentActNum === 2 && <Act2Challenge challenge={challenge} host={host} onAdvance={advance} />}
-          {currentActNum === 3 && <Act3WalkOn name={chefA} bio={duel.walk_on_a} img={portraitA} side="left" onAdvance={advance} />}
-          {currentActNum === 4 && <Act3WalkOn name={chefB} bio={duel.walk_on_b} img={portraitB} side="right" onAdvance={advance} />}
+          {currentActNum === 3 && <Act3WalkOn name={chefA} bio={duel?.trash_talk?.walk_on_a ?? duel.walk_on_a} img={portraitA} side="left" onAdvance={advance} />}
+          {currentActNum === 4 && <Act3WalkOn name={chefB} bio={duel?.trash_talk?.walk_on_b ?? duel.walk_on_b} img={portraitB} side="right" onAdvance={advance} />}
           {currentActNum === 5 && (
             <Act5Dishes
               recipeA={recipeA} recipeB={recipeB} imgA={imgA} imgB={imgB}
