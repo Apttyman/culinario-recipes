@@ -115,18 +115,18 @@ function RecipePage() {
   // Auto-generate image for inverse recipes that don't yet have one.
   useEffect(() => {
     if (!recipe) return;
-    if (recipe.image_path) return;
+    if (recipe.image_path || recipe.inverse_image_url) return;
     if (imgLoading) return;
     const body = recipe.body ?? {};
     const isInverse = Boolean(recipe.is_inverse ?? body.inverse_celebrity);
     if (!isInverse) return;
     generateImage();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [recipe?.id, recipe?.image_path]);
+  }, [recipe?.id, recipe?.image_path, recipe?.inverse_image_url]);
 
   const regenerateImage = async () => {
     await supabase.from("recipes").update({ image_path: null }).eq("id", id);
-    setRecipe((r: any) => r ? { ...r, image_path: null } : r);
+    setRecipe((r: any) => r ? { ...r, image_path: null, inverse_image_url: null } : r);
     setImageUrl(null);
     await generateImage();
   };
