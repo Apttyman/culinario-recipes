@@ -248,7 +248,7 @@ function DuelPage() {
   const trashTalk = useMemo<Array<{ speaker: string; text: string; side: "a" | "b" }>>(() => {
     const raw = duel?.trash_talk;
     if (!Array.isArray(raw)) return [];
-    return raw.slice(0, 4).map((t: any, i: number) => {
+    return raw.map((t: any, i: number) => {
       const text = (typeof t === "string" ? t : (t?.text ?? t?.line ?? "")).toString();
       const speaker = typeof t === "object" ? (t?.speaker ?? (i % 2 === 0 ? chefA : chefB)) : (i % 2 === 0 ? chefA : chefB);
       const side: "a" | "b" =
@@ -748,15 +748,33 @@ function Act7Verdict({
   verdict: string; winnerName: string; winnerImg: string | null;
   winSize: { w: number; h: number }; onAdvance: () => void;
 }) {
-  const [stage, setStage] = useState(0); // 0: deliberation, 1: verdict text, 2: winner
+  // 0 = "After long deliberation…" (auto → 1 after 2.2s)
+  // 1 = verdict text (tap to advance — user controls reading speed)
+  // 2 = winner reveal + confetti (tap to leave act)
+  const [stage, setStage] = useState(0);
+
   useEffect(() => {
     setStage(0);
-    const t1 = setTimeout(() => setStage(1), 2000);
-    const t2 = setTimeout(() => setStage(2), 4500);
-    return () => { clearTimeout(t1); clearTimeout(t2); };
+    const t1 = setTimeout(() => setStage((s) => (s === 0 ? 1 : s)), 2200);
+    return () => { clearTimeout(t1); };
   }, []);
+
+  const handleTap = () => {
+    if (stage === 0) { setStage(1); return; }      // skip the deliberation pause
+    if (stage === 1) { setStage(2); return; }      // user finished reading verdict
+    onAdvance();                                   // stage 2 → leave act
+  };
+
   return (
-    <ActShell onAdvance={onAdvance}>
+    <div
+      onClick={handleTap}
+      style={{
+        position: "fixed", inset: 0, background: PALETTE.bg, color: PALETTE.ink,
+        overflow: "hidden", cursor: "pointer",
+        display: "flex", alignItems: "center", justifyContent: "center", padding: 24,
+        fontFamily: "Inter, system-ui, sans-serif",
+      }}
+    >
       {stage >= 2 && (
         <Confetti
           width={winSize.w}
@@ -768,7 +786,7 @@ function Act7Verdict({
           style={{ position: "fixed", inset: 0, pointerEvents: "none", zIndex: 5 }}
         />
       )}
-      <div style={{ textAlign: "center", maxWidth: 1000, position: "relative", zIndex: 10 }}>
+      <div style={{ textAlign: "center", maxWidth: 1000, position: "relative", zIndex: 10, width: "100%" }}>
         <AnimatePresence mode="wait">
           {stage === 0 && (
             <motion.div
@@ -791,19 +809,39 @@ function Act7Verdict({
             </motion.div>
           )}
           {stage === 1 && (
-            <motion.p
+            <motion.div
               key="verdict"
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 1.2 }}
-              style={{
-                fontStyle: "italic", fontSize: "clamp(20px, 3vw, 28px)",
-                lineHeight: 1.55, color: PALETTE.ink, maxWidth: 760, margin: "0 auto",
-              }}
+              transition={{ duration: 1.4, ease: "easeOut" }}
+              style={{ width: "100%" }}
             >
-              "{verdict || "The judges hesitate. The room is silent."}"
-            </motion.p>
+              <div style={{
+                fontSize: 12, letterSpacing: "0.4em", color: PALETTE.muted,
+                textTransform: "uppercase", marginBottom: 24,
+              }}>
+                The Verdict
+              </div>
+              <p style={{
+                fontFamily: "Georgia, serif", fontStyle: "italic",
+                fontSize: "clamp(22px, 3.2vw, 32px)",
+                lineHeight: 1.55, color: PALETTE.ink, maxWidth: 820, margin: "0 auto",
+              }}>
+                "{verdict || "The judges hesitate. The room is silent."}"
+              </p>
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: [0.3, 1, 0.3] }}
+                transition={{ duration: 2, repeat: Infinity, delay: 1.6 }}
+                style={{
+                  marginTop: 56, fontSize: 11, letterSpacing: "0.4em",
+                  color: PALETTE.muted, textTransform: "uppercase",
+                }}
+              >
+                Tap when ready · the winner awaits
+              </motion.div>
+            </motion.div>
           )}
           {stage === 2 && (
             <motion.div
@@ -838,7 +876,7 @@ function Act7Verdict({
         </AnimatePresence>
       </div>
       {stage === 2 && <TapHint />}
-    </ActShell>
+    </div>
   );
 }
 
