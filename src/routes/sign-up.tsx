@@ -60,15 +60,11 @@ function SignUp() {
 
   const onGoogle = async () => {
     setError(null);
-    const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin,
+    const { error: err } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: { redirectTo: `${window.location.origin}/onboarding` },
     });
-    if (result.error) {
-      setError(result.error.message ?? "Google sign-in failed");
-      return;
-    }
-    if (result.redirected) return;
-    navigate({ to: "/onboarding" });
+    if (err) setError(err.message ?? "Google sign-in failed");
   };
 
   return (

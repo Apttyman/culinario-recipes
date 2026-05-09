@@ -49,23 +49,11 @@ function SignIn() {
 
   const onGoogle = async () => {
     setError(null);
-    const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin,
+    const { error: err } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: { redirectTo: `${window.location.origin}/today` },
     });
-    if (result.error) {
-      setError(result.error.message ?? "Google sign-in failed");
-      return;
-    }
-    if (result.redirected) return;
-    const { data: { user } } = await supabase.auth.getUser();
-    if (user) {
-      const { data: prof } = await supabase
-        .from("profiles")
-        .select("onboarding_complete")
-        .eq("id", user.id)
-        .maybeSingle();
-      navigate({ to: prof?.onboarding_complete ? "/today" : "/onboarding" });
-    }
+    if (err) setError(err.message ?? "Google sign-in failed");
   };
 
   return (
