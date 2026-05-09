@@ -755,7 +755,7 @@ function Act6TrashTalk({
                   alignItems: "flex-end", gap: 14,
                 }}
               >
-                <Avatar src={avatar} alt={t.speaker} size={64} />
+                <Avatar src={avatar} alt={t.speaker} size={128} zoom ring />
                 <div style={{ maxWidth: "76%" }}>
                   <div style={{
                     fontSize: 11, letterSpacing: "0.22em", textTransform: "uppercase",
@@ -767,12 +767,14 @@ function Act6TrashTalk({
                     style={{
                       background: left ? "#1c1c1c" : PALETTE.red,
                       color: PALETTE.ink,
-                      padding: "16px 22px",
+                      padding: "18px 24px",
                       borderRadius: left ? "22px 22px 22px 4px" : "22px 22px 4px 22px",
                       border: `2px solid ${left ? "#2a2a2a" : "#a82c38"}`,
-                      fontSize: 18,
-                      fontWeight: 500,
-                      lineHeight: 1.45,
+                      fontFamily: '"Bangers", "Comic Sans MS", "Impact", system-ui, sans-serif',
+                      fontSize: 26,
+                      fontWeight: 400,
+                      letterSpacing: "0.04em",
+                      lineHeight: 1.25,
                       boxShadow: "0 6px 18px rgba(0,0,0,0.5)",
                       minHeight: 24,
                     }}
