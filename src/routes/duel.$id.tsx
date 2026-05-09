@@ -284,9 +284,9 @@ function DuelPage() {
   const winnerName = isAWinner ? chefA : chefB;
   const winnerImg = isAWinner ? portraitA : portraitB;
 
-  const trashTalk = useMemo<Array<{ speaker: string; text: string; side: "a" | "b" }>>(() => {
-    const raw = duel?.trash_talk;
-    if (!Array.isArray(raw)) return [];
+  const trashTalk = useMemo<Array<{ speaker: string; text: string; side: "a" | "b"; round: number }>>(() => {
+    const tt = duel?.trash_talk;
+    const raw: any[] = Array.isArray(tt) ? tt : Array.isArray(tt?.volleys) ? tt.volleys : [];
     return raw.map((t: any, i: number) => {
       const text = (typeof t === "string" ? t : (t?.text ?? t?.line ?? "")).toString();
       const speaker = typeof t === "object" ? (t?.speaker ?? (i % 2 === 0 ? chefA : chefB)) : (i % 2 === 0 ? chefA : chefB);
@@ -294,7 +294,8 @@ function DuelPage() {
         speaker === chefA ? "a" :
         speaker === chefB ? "b" :
         (i % 2 === 0 ? "a" : "b");
-      return { speaker, text, side };
+      const round = Number(t?.round) || (Math.floor(i / 2) + 1);
+      return { speaker, text, side, round };
     }).filter((t) => t.text);
   }, [duel?.trash_talk, chefA, chefB]);
 
@@ -667,12 +668,55 @@ function RecipeModal({ recipe, img, onClose }: { recipe: any; img: string | null
 function Act6TrashTalk({
   lines, revealed, imgA, imgB, onAdvance,
 }: {
-  lines: Array<{ speaker: string; text: string; side: "a" | "b" }>;
+  lines: Array<{ speaker: string; text: string; side: "a" | "b"; round: number }>;
   revealed: number;
   imgA: string | null; imgB: string | null;
   onAdvance: () => void;
 }) {
-  const showErupt = revealed >= lines.length;
+  const allDone = revealed >= lines.length;
+  const visible = lines.slice(0, revealed);
+  const latestIdx = visible.length - 1;
+  const latestText = latestIdx >= 0 ? visible[latestIdx].text : "";
+
+  // Typewriter for the latest line
+  const [typedChars, setTypedChars] = useState(0);
+  useEffect(() => {
+    setTypedChars(0);
+    if (!latestText) return;
+    const total = latestText.length;
+    const step = Math.max(12, Math.floor(900 / Math.max(20, total))); // ~0.9s total
+    const id = setInterval(() => {
+      setTypedChars((n) => {
+        if (n >= total) { clearInterval(id); return n; }
+        return n + 1;
+      });
+    }, step);
+    return () => clearInterval(id);
+  }, [latestText, revealed]);
+
+  // "tap for the verdict" prompt — appears 2s after final line is revealed
+  const [showVerdictPrompt, setShowVerdictPrompt] = useState(false);
+  useEffect(() => {
+    setShowVerdictPrompt(false);
+    if (!allDone) return;
+    const t = setTimeout(() => setShowVerdictPrompt(true), 2000);
+    return () => clearTimeout(t);
+  }, [allDone]);
+
+  // Round indicator: appears briefly when entering round 2 or 3
+  const lastLine = visible[latestIdx];
+  const showRound =
+    lastLine && lastLine.round > 1 && visible.filter((l) => l.round === lastLine.round).length === 1
+      ? lastLine.round
+      : null;
+  const [roundVisible, setRoundVisible] = useState(false);
+  useEffect(() => {
+    if (showRound == null) { setRoundVisible(false); return; }
+    setRoundVisible(true);
+    const t = setTimeout(() => setRoundVisible(false), 1000);
+    return () => clearTimeout(t);
+  }, [showRound, revealed]);
+
   return (
     <div
       onClick={onAdvance}
@@ -682,37 +726,22 @@ function Act6TrashTalk({
         display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
       }}
     >
-      <style>{`
-        @keyframes neon-flicker {
-          0%, 100% { text-shadow: 0 0 8px ${PALETTE.neon}, 0 0 18px ${PALETTE.neon}, 0 0 36px ${PALETTE.neon}, 0 0 64px ${PALETTE.neon}aa; }
-          45% { text-shadow: 0 0 4px ${PALETTE.neon}, 0 0 9px ${PALETTE.neon}; }
-          70% { text-shadow: 0 0 12px ${PALETTE.neon}, 0 0 22px ${PALETTE.neon}; }
-        }
-      `}</style>
-      <h2 style={{
-        textAlign: "center", color: PALETTE.neon,
-        fontFamily: "Georgia, serif", fontStyle: "italic", fontWeight: 900,
-        fontSize: "clamp(28px, 5.5vw, 56px)", letterSpacing: "0.08em",
-        animation: "neon-flicker 2.4s infinite",
-        margin: "0 0 32px",
-      }}>
-        ROUND ONE: TRASH TALK
-      </h2>
       <div style={{ width: "100%", maxWidth: 820, display: "flex", flexDirection: "column", gap: 18 }}>
         <AnimatePresence initial={false}>
-          {lines.slice(0, revealed).map((t, i) => {
+          {visible.map((t, i) => {
             const left = t.side === "a";
             const avatar = left ? imgA : imgB;
-            // Punch direction & intensity per line (3rd & 4th hit harder)
+            const isLatest = i === latestIdx;
             const fromX = left ? -480 : 480;
-            const damping = i === 2 ? 9 : i === 3 ? 7 : 12;
-            const stiffness = i === 2 ? 320 : i === 3 ? 380 : 220;
-            const tilt = left ? -1.5 : 1.5;
+            const damping = 12;
+            const stiffness = 240;
+            const tilt = left ? -1.2 : 1.2;
+            const shownText = isLatest ? t.text.slice(0, typedChars) : t.text;
             return (
               <motion.div
                 key={i}
-                initial={{ x: fromX, opacity: 0, rotate: tilt * 6, scale: 0.7 }}
-                animate={{ x: 0, opacity: 1, rotate: tilt, scale: 1 }}
+                initial={{ x: fromX, opacity: 0, scale: 0.9 }}
+                animate={{ x: 0, opacity: isLatest ? 1 : 0.3, scale: 1, rotate: tilt }}
                 transition={{ type: "spring", damping, stiffness, mass: 0.9 }}
                 style={{
                   display: "flex", flexDirection: left ? "row" : "row-reverse",
@@ -727,26 +756,25 @@ function Act6TrashTalk({
                   }}>
                     {t.speaker}
                   </div>
-                  <motion.div
-                    initial={{ scale: 0.9 }}
-                    animate={{ scale: [0.9, 1.06, 1] }}
-                    transition={{ duration: 0.45 }}
+                  <div
                     style={{
                       background: left ? "#1c1c1c" : PALETTE.red,
                       color: PALETTE.ink,
                       padding: "16px 22px",
                       borderRadius: left ? "22px 22px 22px 4px" : "22px 22px 4px 22px",
                       border: `2px solid ${left ? "#2a2a2a" : "#a82c38"}`,
-                      fontSize: i >= 2 ? 19 : 17,
-                      fontWeight: i >= 2 ? 600 : 500,
+                      fontSize: 18,
+                      fontWeight: 500,
                       lineHeight: 1.45,
-                      boxShadow: i === 3
-                        ? `0 12px 40px ${PALETTE.red}88, 0 0 0 4px ${PALETTE.red}22`
-                        : `0 6px 18px rgba(0,0,0,0.5)`,
+                      boxShadow: "0 6px 18px rgba(0,0,0,0.5)",
+                      minHeight: 24,
                     }}
                   >
-                    {t.text}
-                  </motion.div>
+                    {shownText}
+                    {isLatest && typedChars < t.text.length && (
+                      <span style={{ opacity: 0.6 }}>▋</span>
+                    )}
+                  </div>
                 </div>
               </motion.div>
             );
@@ -755,20 +783,34 @@ function Act6TrashTalk({
       </div>
 
       <AnimatePresence>
-        {showErupt && (
+        {showRound != null && roundVisible && (
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            key={`round-${showRound}`}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            style={{
+              position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)",
+              fontSize: 13, letterSpacing: "0.4em", color: PALETTE.gold,
+              fontFamily: "Georgia, serif", fontStyle: "italic",
+              pointerEvents: "none",
+            }}
+          >
+            ROUND {showRound}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showVerdictPrompt && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
-            transition={{ delay: 0.4, duration: 0.6 }}
+            transition={{ duration: 0.6 }}
             style={{ marginTop: 36, textAlign: "center" }}
           >
-            <div style={{
-              fontFamily: "Georgia, serif", fontStyle: "italic", fontSize: 22,
-              color: PALETTE.gold, margin: "0 0 12px",
-            }}>
-              🔥 the audience erupts 🔥
-            </div>
             <div style={{ fontSize: 11, letterSpacing: "0.4em", color: PALETTE.muted }}>
               TAP FOR THE VERDICT
             </div>
@@ -776,7 +818,7 @@ function Act6TrashTalk({
         )}
       </AnimatePresence>
 
-      {!showErupt && <TapHint label={`TAP — ${revealed}/${lines.length}`} />}
+      {!allDone && <TapHint label={`TAP — ${revealed}/${lines.length}`} />}
     </div>
   );
 }
