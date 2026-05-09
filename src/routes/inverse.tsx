@@ -5,6 +5,7 @@ import { supabase } from "@/lib/supabase-client";
 import { AppHeader } from "@/components/AppHeader";
 
 export const Route = createFileRoute("/inverse")({
+  validateSearch: (s: Record<string, unknown>) => ({ duel: s.duel ? 1 : undefined }) as { duel?: 1 },
   head: () => ({
     meta: [
       { title: "Inverse Mode — Culinario" },
@@ -147,7 +148,8 @@ function InversePage() {
   const [error, setError] = useState<string | null>(null);
   const [results, setResults] = useState<{ celebrity: string; recipes: any[] } | null>(null);
   const [phraseIdx, setPhraseIdx] = useState(0);
-  const [duelOpen, setDuelOpen] = useState(false);
+  const search = Route.useSearch();
+  const [duelOpen, setDuelOpen] = useState(Boolean(search.duel));
   const phrases = useMemo(() => [
     "Lighting the candles…",
     "Borrowing their palate…",
