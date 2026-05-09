@@ -255,6 +255,8 @@ function DuelPage() {
 
   const chefA = duel?.chef_a ?? "Chef A";
   const chefB = duel?.chef_b ?? "Chef B";
+  const portraitA: string | null = duel?.chef_a_portrait_url ?? null;
+  const portraitB: string | null = duel?.chef_b_portrait_url ?? null;
   const challenge = duel?.challenge ?? "";
   const host = duel?.host_name ?? "Your Host";
   const verdict = duel?.host_verdict ?? duel?.verdict ?? "";
@@ -262,7 +264,7 @@ function DuelPage() {
   const winnerSlug = (duel?.winner_slug ?? "").toString().toLowerCase();
   const isAWinner = winnerSlug === "a" || winnerSlug === "chef_a" || winnerSlug === (duel?.chef_a_slug ?? "").toLowerCase();
   const winnerName = isAWinner ? chefA : chefB;
-  const winnerImg = isAWinner ? imgA : imgB;
+  const winnerImg = isAWinner ? portraitA : portraitB;
 
   const trashTalk = useMemo<Array<{ speaker: string; text: string; side: "a" | "b" }>>(() => {
     const raw = duel?.trash_talk;
