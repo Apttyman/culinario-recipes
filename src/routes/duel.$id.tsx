@@ -111,8 +111,8 @@ function DuelPage() {
       const ids = [recipeA?.id, recipeB?.id].filter(Boolean);
       if (!ids.length) return;
       const { data: rs } = await supabase.from("recipes").select("*").in("id", ids);
-      const a = (rs ?? []).find((r: any) => r.id === recipeA?.id);
-      const b = (rs ?? []).find((r: any) => r.id === recipeB?.id);
+      const a: any = (rs ?? []).find((r: any) => r.id === recipeA?.id);
+      const b: any = (rs ?? []).find((r: any) => r.id === recipeB?.id);
       if (a && (a.inverse_image_url !== recipeA?.inverse_image_url || a.image_path !== recipeA?.image_path)) {
         setRecipeA(a); resolveImage(a).then(setImgA);
       }
