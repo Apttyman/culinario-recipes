@@ -71,8 +71,12 @@ async function resolveImage(r: any): Promise<string | null> {
 
 function DuelPage() {
   const { id } = Route.useParams();
-  const { session } = useAuth();
+  const { session, loading: authLoading } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!authLoading && !session) navigate({ to: "/sign-in" });
+  }, [authLoading, session, navigate]);
   const [duel, setDuel] = useState<any>(null);
   const [recipeA, setRecipeA] = useState<any>(null);
   const [recipeB, setRecipeB] = useState<any>(null);
@@ -125,11 +129,7 @@ function DuelPage() {
     return () => clearInterval(t);
   }, [recipeA?.id, recipeB?.id, recipeA?.inverse_image_url, recipeB?.inverse_image_url]);
 
-  if (!session) {
-    return <div style={{ minHeight: "100vh", background: PALETTE.bg, color: PALETTE.ink, padding: 64 }}>Sign in to view duels.</div>;
-  }
-
-  if (loading) {
+  if (authLoading || !session || loading) {
     return (
       <div style={{ minHeight: "100vh", background: PALETTE.bg, color: PALETTE.gold, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "Georgia, serif", fontStyle: "italic", fontSize: 24 }}>
         Lighting the studio…
