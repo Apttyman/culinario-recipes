@@ -91,7 +91,7 @@ function RecipePage() {
       const body = recipe?.body ?? {};
       const isInverse = Boolean(recipe?.is_inverse ?? body.inverse_celebrity);
       const fnName = isInverse ? "generate-inverse-image" : "generate-recipe-image";
-      alert("recipe_id is: " + JSON.stringify({ recipeId: recipe?.id, urlId: id, fullRecipe: recipe }));
+      
       const { data, error } = await supabase.functions.invoke(fnName, {
         body: { recipe_id: recipeId },
       });
@@ -202,9 +202,6 @@ function RecipePage() {
 
   return (
     <div style={{ minHeight: "100vh", background: "var(--bg)", color: "var(--fg)" }}>
-      <div style={{ background: "yellow", color: "black", padding: "10px", fontSize: "14px", fontFamily: "monospace" }}>
-        DEBUG recipe?.id = {String(recipe?.id)} | url id = {String(id)} | recipe loaded = {String(Boolean(recipe))}
-      </div>
       <AppHeader current="Cookbook" />
       <main className="culinario-page" style={{ paddingTop: 64, paddingBottom: 240 }}>
         <div style={eyebrow}>№ 004 — Recipe</div>
