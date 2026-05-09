@@ -616,7 +616,7 @@ function RecipeModal({ recipe, img, onClose }: { recipe: any; img: string | null
           )}
           <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
             <button
-              onClick={() => navigate({ to: "/recipes/$id", params: { id: recipe.id } })}
+              onClick={() => navigate({ to: "/recipes/$id", params: { id: recipe.id }, search: { from: duelId } })}
               style={{ background: PALETTE.gold, color: "#000", border: 0, padding: "14px 22px", fontSize: 12, fontWeight: 800, letterSpacing: "0.2em", textTransform: "uppercase", cursor: "pointer", borderRadius: 4 }}
             >
               Open recipe ↗
@@ -972,7 +972,7 @@ function Act9Sendoff({
           {recipeA && (
             <motion.button
               whileHover={{ y: -4 }}
-              onClick={() => navigate({ to: "/recipes/$id", params: { id: recipeA.id } })}
+              onClick={() => navigate({ to: "/recipes/$id", params: { id: recipeA.id }, search: { from: duelId } })}
               style={{
                 background: "transparent", color: PALETTE.gold,
                 border: `2px solid ${PALETTE.gold}`,
@@ -987,7 +987,7 @@ function Act9Sendoff({
           {recipeB && (
             <motion.button
               whileHover={{ y: -4 }}
-              onClick={() => navigate({ to: "/recipes/$id", params: { id: recipeB.id } })}
+              onClick={() => navigate({ to: "/recipes/$id", params: { id: recipeB.id }, search: { from: duelId } })}
               style={{
                 background: PALETTE.red, color: PALETTE.ink,
                 border: `2px solid ${PALETTE.red}`,
