@@ -144,18 +144,24 @@ function Today() {
         <div style={{ marginTop: 16, display: "flex", justifyContent: "center" }}>
           <button
             onClick={() => navigate({ to: "/inverse" })}
+            className="battle-bubble"
             style={{
-              background: "transparent", border: 0, padding: "8px 0", cursor: "pointer",
-              fontFamily: "var(--font-display)", fontStyle: "italic", fontWeight: 300,
-              fontSize: 16, color: "var(--fg-muted)",
+              position: "relative",
+              padding: "14px 28px",
+              borderRadius: 999,
+              border: "1px solid rgba(255,255,255,0.25)",
+              background: "linear-gradient(135deg, rgba(80,200,255,0.35), rgba(180,80,255,0.35) 50%, rgba(255,140,200,0.35))",
+              backdropFilter: "blur(18px) saturate(180%)",
+              WebkitBackdropFilter: "blur(18px) saturate(180%)",
+              boxShadow: "0 10px 30px -8px rgba(120,80,255,0.45), inset 0 1px 0 rgba(255,255,255,0.35)",
+              cursor: "pointer",
+              fontFamily: "var(--font-mono)", fontWeight: 700, fontSize: 12,
+              letterSpacing: "0.28em", textTransform: "uppercase", color: "#fff",
+              textShadow: "0 1px 0 rgba(0,0,0,0.4)",
+              overflow: "hidden",
             }}
           >
-            or cook as someone else tonight{" "}
-            <span style={{
-              fontFamily: "var(--font-mono)", fontStyle: "normal", fontSize: 11,
-              letterSpacing: "0.2em", textTransform: "uppercase", color: "var(--saffron)",
-              marginLeft: 6,
-            }}>Inverse ↗</span>
+            ✦ Inverse Mode ✦
           </button>
         </div>
 
