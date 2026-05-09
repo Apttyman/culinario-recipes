@@ -9,7 +9,6 @@ import {
 } from "@tanstack/react-router";
 
 import appCss from "../styles.css?url";
-import { AuthProvider } from "@/lib/auth-context";
 
 function NotFoundComponent() {
   return (
@@ -73,26 +72,20 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Culinario is a web app for documenting your cooking journey over time." },
+      { title: "Culinario" },
+      { name: "description", content: "Culinario is a Vite + React + TypeScript web application for managing recipes." },
       { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Culinario is a web app for documenting your cooking journey over time." },
+      { property: "og:title", content: "Culinario" },
+      { property: "og:description", content: "Culinario is a Vite + React + TypeScript web application for managing recipes." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
-      { name: "twitter:title", content: "Lovable App" },
-      { name: "twitter:description", content: "Culinario is a web app for documenting your cooking journey over time." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/b8a1fcb4-4e03-4384-b471-5e7ef8505f2a/id-preview-3b91df04--11d59699-d35f-4209-9578-3c09e069decb.lovable.app-1778185829664.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/b8a1fcb4-4e03-4384-b471-5e7ef8505f2a/id-preview-3b91df04--11d59699-d35f-4209-9578-3c09e069decb.lovable.app-1778185829664.png" },
+      { name: "twitter:title", content: "Culinario" },
+      { name: "twitter:description", content: "Culinario is a Vite + React + TypeScript web application for managing recipes." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/7bec2f39-fb07-4a90-a83c-d7a66d417eeb/id-preview-d15c20ba--4c8fe348-6945-4de5-a506-86129859ef8e.lovable.app-1778330944359.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/7bec2f39-fb07-4a90-a83c-d7a66d417eeb/id-preview-d15c20ba--4c8fe348-6945-4de5-a506-86129859ef8e.lovable.app-1778330944359.png" },
     ],
     links: [
-      { rel: "preconnect", href: "https://fonts.googleapis.com" },
-      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-      {
-        rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,500;0,700;1,300;1,500&family=Inter+Tight:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap",
-      },
       {
         rel: "stylesheet",
         href: appCss,
@@ -124,9 +117,7 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <Outlet />
-      </AuthProvider>
+      <Outlet />
     </QueryClientProvider>
   );
 }
