@@ -114,11 +114,8 @@ function RecipePage() {
   }, [recipe?.id, recipe?.image_path]);
 
   const regenerateImage = async () => {
-    const isInverse = Boolean(recipe?.is_inverse ?? recipe?.body?.inverse_celebrity);
-    if (!isInverse) {
-      await supabase.from("recipes").update({ image_path: null }).eq("id", id);
-      setRecipe((r: any) => r ? { ...r, image_path: null } : r);
-    }
+    await supabase.from("recipes").update({ image_path: null }).eq("id", id);
+    setRecipe((r: any) => r ? { ...r, image_path: null } : r);
     setImageUrl(null);
     await generateImage();
   };
