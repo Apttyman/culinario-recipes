@@ -57,14 +57,30 @@ function Cookbook() {
     return { total: recipes.length, cooked, avg };
   }, [recipes]);
 
-  const cuisines = useMemo(() => {
-    if (!recipes) return [];
-    return Array.from(new Set(recipes.map((r) => r.cuisine).filter(Boolean))).sort();
-  }, [recipes]);
+  const groupCounts = (key: "cuisine" | "difficulty") => {
+    const m = new Map<string, number>();
+    (recipes ?? []).forEach((r) => {
+      const v = r[key];
+      if (!v) return;
+      m.set(v, (m.get(v) ?? 0) + 1);
+    });
+    return Array.from(m.entries()).sort((a, b) => b[1] - a[1]);
+  };
+  const cuisines = useMemo(() => groupCounts("cuisine"), [recipes]);
+  const difficulties = useMemo(() => groupCounts("difficulty"), [recipes]);
 
-  const difficulties = useMemo(() => {
-    if (!recipes) return [];
-    return Array.from(new Set(recipes.map((r) => r.difficulty).filter(Boolean))).sort();
+  const TIME_BUCKETS: { key: string; label: string; test: (n: number) => boolean }[] = [
+    { key: "15", label: "≤ 15 min", test: (n) => n <= 15 },
+    { key: "30", label: "≤ 30 min", test: (n) => n <= 30 },
+    { key: "45", label: "≤ 45 min", test: (n) => n <= 45 },
+    { key: "60", label: "≤ 60 min", test: (n) => n <= 60 },
+    { key: "120", label: "≤ 2 hrs", test: (n) => n <= 120 },
+  ];
+  const timeCounts = useMemo(() => {
+    return TIME_BUCKETS.map((b) => ({
+      ...b,
+      count: (recipes ?? []).filter((r) => typeof r.time_estimate_minutes === "number" && b.test(r.time_estimate_minutes)).length,
+    })).filter((b) => b.count > 0);
   }, [recipes]);
 
   const filtered = useMemo(() => {
@@ -123,32 +139,37 @@ function Cookbook() {
     );
   };
 
-  const selectStyle: React.CSSProperties = {
-    appearance: "none",
-    WebkitAppearance: "none",
-    background: "transparent",
-    color: "var(--fg)",
-    colorScheme: "dark",
-    border: 0,
-    borderBottom: "1px solid var(--hairline)",
-    fontFamily: "var(--font-mono)",
-    fontSize: 12,
-    letterSpacing: "0.12em",
+  const fieldLabel: React.CSSProperties = {
+    fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.22em",
+    textTransform: "uppercase", color: "var(--fg-low)", marginBottom: 10,
+  };
+
+  const pill = (active: boolean): React.CSSProperties => ({
+    fontFamily: "var(--font-mono)", fontSize: 11, letterSpacing: "0.14em",
     textTransform: "uppercase",
-    padding: "8px 22px 8px 0",
+    padding: "6px 12px",
+    background: active ? "color-mix(in oklab, var(--saffron) 14%, transparent)" : "transparent",
+    color: active ? "var(--fg)" : "var(--fg-muted)",
+    border: `1px solid ${active ? "var(--saffron)" : "var(--hairline)"}`,
+    borderRadius: 999,
     cursor: "pointer",
-    outline: "none",
-    minWidth: 0,
+    display: "inline-flex", alignItems: "baseline", gap: 8,
+    transition: "background 120ms, color 120ms, border-color 120ms",
+  });
+  const pillCount: React.CSSProperties = {
+    fontSize: 10, color: "var(--fg-low)", letterSpacing: "0.1em",
+  };
+
+  const sortStyle: React.CSSProperties = {
+    appearance: "none", WebkitAppearance: "none",
+    background: "transparent", color: "var(--fg)", colorScheme: "dark",
+    border: 0, borderBottom: "1px solid var(--hairline)",
+    fontFamily: "var(--font-mono)", fontSize: 11, letterSpacing: "0.14em",
+    textTransform: "uppercase", padding: "6px 22px 6px 0", cursor: "pointer", outline: "none",
     backgroundImage:
       "linear-gradient(45deg, transparent 50%, var(--fg-muted) 50%), linear-gradient(135deg, var(--fg-muted) 50%, transparent 50%)",
     backgroundPosition: "calc(100% - 12px) 50%, calc(100% - 7px) 50%",
-    backgroundSize: "5px 5px, 5px 5px",
-    backgroundRepeat: "no-repeat",
-  };
-
-  const fieldLabel: React.CSSProperties = {
-    fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.22em",
-    textTransform: "uppercase", color: "var(--fg-low)", marginBottom: 6,
+    backgroundSize: "5px 5px, 5px 5px", backgroundRepeat: "no-repeat",
   };
 
   return (
@@ -206,41 +227,59 @@ function Cookbook() {
           {statusChip("unrated", "Unrated")}
         </div>
 
-        {/* Selects */}
-        <div style={{
-          marginTop: 24,
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))",
-          gap: 20,
-        }}>
-          <div style={{ display: "flex", flexDirection: "column" }}>
-            <span style={fieldLabel}>Cuisine</span>
-            <select value={cuisine} onChange={(e) => setCuisine(e.target.value)} style={selectStyle}>
-              <option value="all">Any cuisine</option>
-              {cuisines.map((c) => <option key={c} value={c}>{c}</option>)}
-            </select>
-          </div>
-          <div style={{ display: "flex", flexDirection: "column" }}>
-            <span style={fieldLabel}>Difficulty</span>
-            <select value={difficulty} onChange={(e) => setDifficulty(e.target.value)} style={selectStyle}>
-              <option value="all">Any level</option>
-              {difficulties.map((d) => <option key={d} value={d}>{d}</option>)}
-            </select>
-          </div>
-          <div style={{ display: "flex", flexDirection: "column" }}>
-            <span style={fieldLabel}>Max time</span>
-            <select value={maxTime} onChange={(e) => setMaxTime(e.target.value)} style={selectStyle}>
-              <option value="any">Any length</option>
-              <option value="15">≤ 15 min</option>
-              <option value="30">≤ 30 min</option>
-              <option value="45">≤ 45 min</option>
-              <option value="60">≤ 60 min</option>
-              <option value="120">≤ 2 hrs</option>
-            </select>
-          </div>
-          <div style={{ display: "flex", flexDirection: "column" }}>
-            <span style={fieldLabel}>Sort by</span>
-            <select value={sort} onChange={(e) => setSort(e.target.value as Sort)} style={selectStyle}>
+        {/* Group-by chip filters */}
+        <div style={{ marginTop: 32, display: "flex", flexDirection: "column", gap: 24 }}>
+          {cuisines.length > 0 && (
+            <div>
+              <div style={fieldLabel}>Cuisine</div>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                <button onClick={() => setCuisine("all")} style={pill(cuisine === "all")}>
+                  <span>All</span><span style={pillCount}>{recipes?.length ?? 0}</span>
+                </button>
+                {cuisines.map(([name, count]) => (
+                  <button key={name} onClick={() => setCuisine(name)} style={pill(cuisine === name)}>
+                    <span>{name}</span><span style={pillCount}>{count}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {difficulties.length > 0 && (
+            <div>
+              <div style={fieldLabel}>Pace</div>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                <button onClick={() => setDifficulty("all")} style={pill(difficulty === "all")}>
+                  <span>Any</span>
+                </button>
+                {difficulties.map(([name, count]) => (
+                  <button key={name} onClick={() => setDifficulty(name)} style={pill(difficulty === name)}>
+                    <span>{name}</span><span style={pillCount}>{count}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {timeCounts.length > 0 && (
+            <div>
+              <div style={fieldLabel}>Time on the clock</div>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                <button onClick={() => setMaxTime("any")} style={pill(maxTime === "any")}>
+                  <span>Any length</span>
+                </button>
+                {timeCounts.map((b) => (
+                  <button key={b.key} onClick={() => setMaxTime(b.key)} style={pill(maxTime === b.key)}>
+                    <span>{b.label}</span><span style={pillCount}>{b.count}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+            <span style={fieldLabel}>Sort</span>
+            <select value={sort} onChange={(e) => setSort(e.target.value as Sort)} style={sortStyle}>
               <option value="newest">Newest first</option>
               <option value="oldest">Oldest first</option>
               <option value="rating">Highest rated</option>
