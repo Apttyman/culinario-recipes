@@ -284,9 +284,9 @@ function DuelPage() {
   const winnerName = isAWinner ? chefA : chefB;
   const winnerImg = isAWinner ? portraitA : portraitB;
 
-  const trashTalk = useMemo<Array<{ speaker: string; text: string; side: "a" | "b" }>>(() => {
-    const raw = duel?.trash_talk;
-    if (!Array.isArray(raw)) return [];
+  const trashTalk = useMemo<Array<{ speaker: string; text: string; side: "a" | "b"; round: number }>>(() => {
+    const tt = duel?.trash_talk;
+    const raw: any[] = Array.isArray(tt) ? tt : Array.isArray(tt?.volleys) ? tt.volleys : [];
     return raw.map((t: any, i: number) => {
       const text = (typeof t === "string" ? t : (t?.text ?? t?.line ?? "")).toString();
       const speaker = typeof t === "object" ? (t?.speaker ?? (i % 2 === 0 ? chefA : chefB)) : (i % 2 === 0 ? chefA : chefB);
@@ -294,7 +294,8 @@ function DuelPage() {
         speaker === chefA ? "a" :
         speaker === chefB ? "b" :
         (i % 2 === 0 ? "a" : "b");
-      return { speaker, text, side };
+      const round = Number(t?.round) || (Math.floor(i / 2) + 1);
+      return { speaker, text, side, round };
     }).filter((t) => t.text);
   }, [duel?.trash_talk, chefA, chefB]);
 
