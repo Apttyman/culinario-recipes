@@ -7,6 +7,11 @@ import { useAuth } from "@/lib/auth-context";
 
 export const Route = createFileRoute("/duel/$id")({
   head: () => ({ meta: [{ title: "Tonight's Duel — Culinario" }] }),
+  validateSearch: (search: Record<string, unknown>) => {
+    const raw = Number(search.act);
+    const act = Number.isFinite(raw) && raw >= 0 && raw <= 8 ? Math.floor(raw) : undefined;
+    return { act };
+  },
   component: DuelPage,
 });
 
