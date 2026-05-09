@@ -8,9 +8,13 @@ import { triggerPortraitSynthesis } from "@/lib/portrait";
 
 export const Route = createFileRoute("/recipes/$id")({
   head: () => ({ meta: [{ title: "Recipe — Culinario" }] }),
-  validateSearch: (search: Record<string, unknown>) => ({
-    from: typeof search.from === "string" ? search.from : undefined,
-  }),
+  validateSearch: (search: Record<string, unknown>) => {
+    const rawAct = Number(search.act);
+    return {
+      from: typeof search.from === "string" ? search.from : undefined,
+      act: Number.isFinite(rawAct) && rawAct >= 0 && rawAct <= 8 ? Math.floor(rawAct) : undefined,
+    };
+  },
   component: RecipePage,
 });
 
