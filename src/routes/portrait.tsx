@@ -292,6 +292,25 @@ function Portrait() {
             }}
           >{resyncBusy ? "Resynthesizing…" : "Resynthesize now ↻"}</button>
         </div>
+
+        <div style={{ marginTop: 24 }}>
+          <button
+            onClick={async () => {
+              try {
+                const res = await supabase.functions.invoke("synthesize-portrait", { body: {} });
+                alert("synthesize-portrait response:\n\n" + JSON.stringify(res, null, 2));
+              } catch (e: any) {
+                alert("synthesize-portrait threw:\n\n" + (e?.message ?? String(e)));
+              }
+            }}
+            style={{
+              fontFamily: "var(--font-mono)", fontSize: 11, letterSpacing: "0.2em",
+              textTransform: "uppercase", color: "var(--saffron)",
+              background: "transparent", border: "1px solid var(--saffron-muted)",
+              padding: "12px 20px", cursor: "pointer",
+            }}
+          >Rebuild my taste portrait now (debug)</button>
+        </div>
       </main>
 
       <DiscussModal
