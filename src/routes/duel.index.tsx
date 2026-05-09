@@ -35,6 +35,20 @@ function DuelStartPage() {
   const [challenge, setChallenge] = useState("");
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+  const [phraseIdx, setPhraseIdx] = useState(0);
+  const phrases = [
+    "Setting the table…",
+    "Sharpening the knives…",
+    "Polishing the silverware…",
+    "Cueing the host…",
+    "Lighting the burners…",
+    "Drawing the curtain…",
+  ];
+  useEffect(() => {
+    if (!busy) { setPhraseIdx(0); return; }
+    const t = setInterval(() => setPhraseIdx((i) => (i + 1) % phrases.length), 1400);
+    return () => clearInterval(t);
+  }, [busy]);
 
   useEffect(() => {
     if (loading) return;
