@@ -57,14 +57,30 @@ function Cookbook() {
     return { total: recipes.length, cooked, avg };
   }, [recipes]);
 
-  const cuisines = useMemo(() => {
-    if (!recipes) return [];
-    return Array.from(new Set(recipes.map((r) => r.cuisine).filter(Boolean))).sort();
-  }, [recipes]);
+  const groupCounts = (key: "cuisine" | "difficulty") => {
+    const m = new Map<string, number>();
+    (recipes ?? []).forEach((r) => {
+      const v = r[key];
+      if (!v) return;
+      m.set(v, (m.get(v) ?? 0) + 1);
+    });
+    return Array.from(m.entries()).sort((a, b) => b[1] - a[1]);
+  };
+  const cuisines = useMemo(() => groupCounts("cuisine"), [recipes]);
+  const difficulties = useMemo(() => groupCounts("difficulty"), [recipes]);
 
-  const difficulties = useMemo(() => {
-    if (!recipes) return [];
-    return Array.from(new Set(recipes.map((r) => r.difficulty).filter(Boolean))).sort();
+  const TIME_BUCKETS: { key: string; label: string; test: (n: number) => boolean }[] = [
+    { key: "15", label: "≤ 15 min", test: (n) => n <= 15 },
+    { key: "30", label: "≤ 30 min", test: (n) => n <= 30 },
+    { key: "45", label: "≤ 45 min", test: (n) => n <= 45 },
+    { key: "60", label: "≤ 60 min", test: (n) => n <= 60 },
+    { key: "120", label: "≤ 2 hrs", test: (n) => n <= 120 },
+  ];
+  const timeCounts = useMemo(() => {
+    return TIME_BUCKETS.map((b) => ({
+      ...b,
+      count: (recipes ?? []).filter((r) => typeof r.time_estimate_minutes === "number" && b.test(r.time_estimate_minutes)).length,
+    })).filter((b) => b.count > 0);
   }, [recipes]);
 
   const filtered = useMemo(() => {
