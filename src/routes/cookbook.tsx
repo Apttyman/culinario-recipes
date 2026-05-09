@@ -113,15 +113,16 @@ function Cookbook() {
                 borderLeft: 0, borderRight: 0,
                 padding: 16, marginTop: -1, cursor: "pointer",
                 display: "flex", justifyContent: "space-between", gap: 16, alignItems: "flex-start",
+                width: "100%", boxSizing: "border-box", maxWidth: "100%",
               }}
             >
-              <div style={{ flex: 1 }}>
-                <div style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontWeight: 500, fontSize: 22, color: "var(--fg)" }}>{r.title}</div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontWeight: 500, fontSize: 22, color: "var(--fg)", overflowWrap: "anywhere", wordBreak: "break-word" }}>{r.title}</div>
                 <div style={{ ...labelMono, marginTop: 4 }}>
                   {(r.cuisine ?? "").toUpperCase()}{r.time_estimate_minutes ? ` · ${r.time_estimate_minutes} MIN` : ""}
                 </div>
               </div>
-              <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 6 }}>
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 6, flexShrink: 0 }}>
                 {r.rating != null ? (
                   <div style={{ display: "flex", gap: 3 }}>
                     {[1,2,3,4,5].map((n) => (
