@@ -128,6 +128,7 @@ function Cookbook() {
     WebkitAppearance: "none",
     background: "transparent",
     color: "var(--fg)",
+    colorScheme: "dark",
     border: 0,
     borderBottom: "1px solid var(--hairline)",
     fontFamily: "var(--font-mono)",
