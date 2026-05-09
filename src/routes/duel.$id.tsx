@@ -1041,7 +1041,7 @@ function Act9Sendoff({
           {recipeA && (
             <motion.button
               whileHover={{ y: -4 }}
-              onClick={() => navigate({ to: "/recipes/$id", params: { id: recipeA.id }, search: { from: duelId } })}
+              onClick={() => navigate({ to: "/recipes/$id", params: { id: recipeA.id }, search: { from: duelId, act: currentAct ?? 8 } })}
               style={{
                 background: "transparent", color: PALETTE.gold,
                 border: `2px solid ${PALETTE.gold}`,
@@ -1056,7 +1056,7 @@ function Act9Sendoff({
           {recipeB && (
             <motion.button
               whileHover={{ y: -4 }}
-              onClick={() => navigate({ to: "/recipes/$id", params: { id: recipeB.id }, search: { from: duelId } })}
+              onClick={() => navigate({ to: "/recipes/$id", params: { id: recipeB.id }, search: { from: duelId, act: currentAct ?? 8 } })}
               style={{
                 background: PALETTE.red, color: PALETTE.ink,
                 border: `2px solid ${PALETTE.red}`,
