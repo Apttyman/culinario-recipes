@@ -1,0 +1,2502 @@
+[
+  {
+    "id": 1,
+    "axis": "texture",
+    "category_scope": "within category",
+    "question": "Which fried chicken would you reach for first: a shatteringly crisp piece with salty craggy skin and juicy meat underneath, or a saucy Korean-style wing coated in sticky chili glaze with a tender bite and sesame aroma?",
+    "option_a": "crispy classic fried chicken",
+    "option_b": "sticky glazed Korean-style wing",
+    "what_A_reveals": "prefers dry crunch, salt, and classic fried texture",
+    "what_B_reveals": "prefers saucy texture, sweetness, heat, and glaze"
+  },
+  {
+    "id": 2,
+    "axis": "richness vs freshness",
+    "category_scope": "between categories",
+    "question": "Which lunch sounds better: a grilled cheese sandwich with bubbling sharp cheddar and buttery golden bread, or a chilled herby grain bowl with lemony dressing, crisp cucumber, roasted vegetables, and feta?",
+    "option_a": "grilled cheese",
+    "option_b": "grain bowl",
+    "what_A_reveals": "prefers warm comfort, dairy richness, and toasted fat",
+    "what_B_reveals": "prefers freshness, acidity, herbs, and layered vegetables"
+  },
+  {
+    "id": 3,
+    "axis": "sweetness and acidity",
+    "category_scope": "within category",
+    "question": "Which dessert feels more tempting: a dense chocolate mousse with deep cocoa flavor and whipped cream, or a bright passionfruit pavlova with crisp meringue, tart fruit, and soft cream?",
+    "option_a": "chocolate mousse",
+    "option_b": "passionfruit pavlova",
+    "what_A_reveals": "prefers deep sweetness, cocoa, and creamy richness",
+    "what_B_reveals": "prefers tart fruit, airy crunch, and bright contrast"
+  },
+  {
+    "id": 4,
+    "axis": "texture",
+    "category_scope": "within category",
+    "question": "Which noodle bowl pulls you in: thick udon in a dark soy broth with chewy springy strands and seared scallions, or thin rice vermicelli in a clear lemongrass broth with herbs and bean sprouts?",
+    "option_a": "thick chewy udon",
+    "option_b": "thin rice vermicelli",
+    "what_A_reveals": "prefers dense chew, deep savory broth, and starch weight",
+    "what_B_reveals": "prefers light slurp, herbal brightness, and clean broth"
+  },
+  {
+    "id": 5,
+    "axis": "heat and spice",
+    "category_scope": "within category",
+    "question": "Which curry are you going for: a slow-simmered Massaman with peanuts, potatoes, cinnamon warmth, and tender beef, or a fiery Sichuan dry-pot with numbing peppercorns, dried chilies, and crackling heat?",
+    "option_a": "Massaman curry",
+    "option_b": "Sichuan dry-pot",
+    "what_A_reveals": "prefers aromatic warmth, sweetness, and slow heat",
+    "what_B_reveals": "prefers sharp tingling heat, smoke, and intensity"
+  },
+  {
+    "id": 6,
+    "axis": "cooking style",
+    "category_scope": "between categories",
+    "question": "Which steak preparation wins: a thick ribeye reverse-seared to a deep crust with butter and rosemary, or a thinly sliced raw beef carpaccio with olive oil, lemon, capers, and shaved parmesan?",
+    "option_a": "reverse-seared ribeye",
+    "option_b": "beef carpaccio",
+    "what_A_reveals": "prefers deep char, fat, and roasted intensity",
+    "what_B_reveals": "prefers raw silkiness, acid, and minerality"
+  },
+  {
+    "id": 7,
+    "axis": "cuisine style",
+    "category_scope": "between categories",
+    "question": "Which Saturday lunch sounds better: a Lebanese mezze spread with hummus, warm pita, smoky baba ganoush, and lamb kofta, or a Japanese teishoku tray with grilled fish, miso soup, pickles, and rice?",
+    "option_a": "Lebanese mezze",
+    "option_b": "Japanese teishoku",
+    "what_A_reveals": "prefers communal sharing, smoke, and herb-driven richness",
+    "what_B_reveals": "prefers compartmentalized clean flavors, umami, and restraint"
+  },
+  {
+    "id": 8,
+    "axis": "contrast preference",
+    "category_scope": "within category",
+    "question": "Which dessert combination wins: a warm sticky toffee pudding with cold creme fraiche melting into the dates, or a chilled affogato with vanilla gelato drowning under a shot of hot espresso?",
+    "option_a": "sticky toffee pudding",
+    "option_b": "affogato",
+    "what_A_reveals": "prefers caramelized sweetness with creamy contrast",
+    "what_B_reveals": "prefers bitter-cold-cream contrast and minimal sweetness"
+  },
+  {
+    "id": 9,
+    "axis": "freshness",
+    "category_scope": "within category",
+    "question": "Which salad calls to you: a Caesar with crisp romaine, anchovy dressing, garlicky croutons, and aged parmesan, or a Vietnamese green papaya salad with shredded crunch, lime, fish sauce, and roasted peanuts?",
+    "option_a": "Caesar salad",
+    "option_b": "green papaya salad",
+    "what_A_reveals": "prefers savory umami richness and creamy dressing",
+    "what_B_reveals": "prefers tart-spicy freshness, crunch, and herbal lift"
+  },
+  {
+    "id": 10,
+    "axis": "richness",
+    "category_scope": "within category",
+    "question": "Which pasta dish are you craving: cacio e pepe with al dente tonnarelli coated in pecorino and crushed black pepper, or a slow-cooked pappardelle with wild boar ragu, red wine, and rosemary?",
+    "option_a": "cacio e pepe",
+    "option_b": "wild boar pappardelle",
+    "what_A_reveals": "prefers minimalist sharp richness and pepper bite",
+    "what_B_reveals": "prefers deep braised meat, wine reduction, and rusticity"
+  },
+  {
+    "id": 11,
+    "axis": "temperature",
+    "category_scope": "between categories",
+    "question": "Which appetizer wins on a hot summer evening: a chilled gazpacho with ripe tomatoes, cucumber, and a swirl of olive oil, or warm pan-fried gyoza with crisp bottoms and gingery pork filling?",
+    "option_a": "chilled gazpacho",
+    "option_b": "pan-fried gyoza",
+    "what_A_reveals": "prefers cold refreshing layered vegetables",
+    "what_B_reveals": "prefers hot crisp-tender contrast and aromatics"
+  },
+  {
+    "id": 12,
+    "axis": "aroma preference",
+    "category_scope": "within category",
+    "question": "Which roasted chicken would you cook tonight: one rubbed with garlic, lemon, and rosemary then crisped to a golden skin, or one lacquered with soy, ginger, and five-spice with a deep mahogany finish?",
+    "option_a": "garlic-lemon-rosemary chicken",
+    "option_b": "soy-five-spice chicken",
+    "what_A_reveals": "prefers Mediterranean herbal aromatics",
+    "what_B_reveals": "prefers East Asian fermented and warm-spice aromatics"
+  },
+  {
+    "id": 13,
+    "axis": "texture",
+    "category_scope": "within category",
+    "question": "Which seafood preparation wins: a perfectly seared scallop with a deep brown crust and pearly translucent center, or a raw scallop crudo with citrus, olive oil, and Maldon salt?",
+    "option_a": "seared scallop",
+    "option_b": "scallop crudo",
+    "what_A_reveals": "prefers Maillard caramelization and warm contrast",
+    "what_B_reveals": "prefers cool silken texture and pure sweetness"
+  },
+  {
+    "id": 14,
+    "axis": "sauce preference",
+    "category_scope": "within category",
+    "question": "Which dumpling sauce moves you more: a black vinegar and ginger dip with a sharp tangy finish, or a chili crisp with garlicky crunch, fermented depth, and slow heat?",
+    "option_a": "black vinegar and ginger",
+    "option_b": "chili crisp",
+    "what_A_reveals": "prefers acidic clean cuts through richness",
+    "what_B_reveals": "prefers crunchy fermented heat layered with oil"
+  },
+  {
+    "id": 15,
+    "axis": "comfort vs brightness",
+    "category_scope": "between categories",
+    "question": "Which Sunday dinner feels right: a slow-roasted lamb shoulder with potatoes, pan juices, and rosemary, or a whole grilled branzino with charred lemon, parsley salsa verde, and roasted fennel?",
+    "option_a": "slow-roasted lamb",
+    "option_b": "grilled branzino",
+    "what_A_reveals": "prefers heavy comfort, fat, and roasted warmth",
+    "what_B_reveals": "prefers lean minerality, herbs, and char with brightness"
+  },
+  {
+    "id": 16,
+    "axis": "heat and spice",
+    "category_scope": "within category",
+    "question": "Which spicy dish wins: a Thai green curry with coconut milk softening the heat from green chilies, basil, and lime, or a Mexican mole rojo with deep ancho chilies, cocoa, and toasted spices?",
+    "option_a": "Thai green curry",
+    "option_b": "mole rojo",
+    "what_A_reveals": "prefers fresh herbal heat softened by coconut",
+    "what_B_reveals": "prefers smoky brooding heat with toasted depth"
+  },
+  {
+    "id": 17,
+    "axis": "within category",
+    "category_scope": "within category",
+    "question": "Which taco are you ordering: a crispy fish taco with cabbage slaw, chipotle crema, and lime, or a slow-braised barbacoa taco with consomme for dipping and white onion?",
+    "option_a": "crispy fish taco",
+    "option_b": "barbacoa taco",
+    "what_A_reveals": "prefers crunch, freshness, and tangy contrast",
+    "what_B_reveals": "prefers tender braise, beef richness, and broth dipping"
+  },
+  {
+    "id": 18,
+    "axis": "sweetness",
+    "category_scope": "within category",
+    "question": "Which morning pastry wins: a flaky butter croissant with crisp shattered layers and a tender chewy center, or a buttermilk biscuit with steamy fluffy interior and salty crust?",
+    "option_a": "butter croissant",
+    "option_b": "buttermilk biscuit",
+    "what_A_reveals": "prefers laminated French refinement and crackle",
+    "what_B_reveals": "prefers Southern American softness and rustic edge"
+  },
+  {
+    "id": 19,
+    "axis": "cooking style",
+    "category_scope": "within category",
+    "question": "Which seafood preparation tempts you: a whole branzino salt-baked under a crystalline crust then cracked open at the table, or a whole branzino fried until shatteringly crisp and served with chili-lime?",
+    "option_a": "salt-baked branzino",
+    "option_b": "whole-fried branzino",
+    "what_A_reveals": "prefers gentle steam, mineral purity, and ceremony",
+    "what_B_reveals": "prefers loud crunch, oil, and sharp dipping heat"
+  },
+  {
+    "id": 20,
+    "axis": "bitter",
+    "category_scope": "within category",
+    "question": "Which morning drink wins: a single-origin pour-over coffee with bright fruity acidity and tea-like body, or a thick Vietnamese ca phe sua da with sweetened condensed milk and ice?",
+    "option_a": "pour-over coffee",
+    "option_b": "ca phe sua da",
+    "what_A_reveals": "prefers acidic clarity and tannic complexity",
+    "what_B_reveals": "prefers sweet-cold-bitter balance and richness"
+  },
+  {
+    "id": 21,
+    "axis": "familiar vs adventurous",
+    "category_scope": "between categories",
+    "question": "Which lunch are you actually choosing: a classic BLT on toasted sourdough with crisp bacon, ripe tomato, and lettuce, or a Filipino sisig with crackling pork bits, calamansi, chili, and a runny egg over rice?",
+    "option_a": "classic BLT",
+    "option_b": "Filipino sisig",
+    "what_A_reveals": "prefers nostalgic familiar comfort",
+    "what_B_reveals": "prefers bold pork-fat-acid-heat exploration"
+  },
+  {
+    "id": 22,
+    "axis": "texture",
+    "category_scope": "within category",
+    "question": "Which rice dish wins: a crispy-bottomed Persian tahdig with golden saffron crust giving way to fluffy basmati, or a creamy Italian risotto Milanese with saffron and parmesan?",
+    "option_a": "Persian tahdig",
+    "option_b": "risotto Milanese",
+    "what_A_reveals": "prefers crackling textural contrast and dry rice",
+    "what_B_reveals": "prefers creamy starch and continuous richness"
+  },
+  {
+    "id": 23,
+    "axis": "cuisine style",
+    "category_scope": "within category",
+    "question": "Which braised dish are you eating: French boeuf bourguignon with mushrooms, bacon, and red wine, or Vietnamese bo kho with star anise, lemongrass, and tomato?",
+    "option_a": "boeuf bourguignon",
+    "option_b": "bo kho",
+    "what_A_reveals": "prefers deep wine-driven European richness",
+    "what_B_reveals": "prefers aromatic Southeast Asian spice and brightness"
+  },
+  {
+    "id": 24,
+    "axis": "fermented",
+    "category_scope": "within category",
+    "question": "Which fermented kick wins: kimchi-jjigae with aged kimchi, pork belly, tofu, and bubbling spice, or sauerbraten with vinegar-marinated beef, gingersnap gravy, and red cabbage?",
+    "option_a": "kimchi-jjigae",
+    "option_b": "sauerbraten",
+    "what_A_reveals": "prefers spicy lactic ferment and Korean depth",
+    "what_B_reveals": "prefers sour-sweet German braise and warm spice"
+  },
+  {
+    "id": 25,
+    "axis": "temperature",
+    "category_scope": "within category",
+    "question": "Which noodle moment wins: a steaming bowl of tonkotsu ramen with creamy pork broth and chashu, or a chilled bowl of soba with dipping sauce, scallions, and wasabi?",
+    "option_a": "tonkotsu ramen",
+    "option_b": "cold soba",
+    "what_A_reveals": "prefers heavy hot pork-fat richness",
+    "what_B_reveals": "prefers cold lean buckwheat clarity"
+  },
+  {
+    "id": 26,
+    "axis": "sauce preference",
+    "category_scope": "within category",
+    "question": "Which steak sauce wins: a classic peppercorn cream with cognac and beef jus, or a chimichurri loaded with parsley, garlic, oregano, and red wine vinegar?",
+    "option_a": "peppercorn cream sauce",
+    "option_b": "chimichurri",
+    "what_A_reveals": "prefers French rich emulsified spice",
+    "what_B_reveals": "prefers South American herbal acidic punch"
+  },
+  {
+    "id": 27,
+    "axis": "contrast preference",
+    "category_scope": "within category",
+    "question": "Which sandwich is yours: a Vietnamese banh mi with crackling baguette, pate, pickled daikon, cilantro, and chili, or an Italian muffuletta packed with cured meats, olive salad, and provolone?",
+    "option_a": "banh mi",
+    "option_b": "muffuletta",
+    "what_A_reveals": "prefers crisp-fresh-pickled-spicy layering",
+    "what_B_reveals": "prefers dense salty cured-meat richness"
+  },
+  {
+    "id": 28,
+    "axis": "cooking style",
+    "category_scope": "between categories",
+    "question": "Which dinner are you most excited to make: a long slow Sunday brisket smoked over hickory until bark-crusted and butter-tender, or a 20-minute weeknight stir-fry with high heat, ginger, and crisp vegetables?",
+    "option_a": "smoked brisket",
+    "option_b": "weeknight stir-fry",
+    "what_A_reveals": "prefers patient low-temperature smoke craft",
+    "what_B_reveals": "prefers fast hot wok-flavor execution"
+  },
+  {
+    "id": 29,
+    "axis": "sweetness",
+    "category_scope": "within category",
+    "question": "Which pastry calls you in: a custard-filled cannoli with crisp shell and chocolate chips, or a pistachio baklava with honey-soaked layers of phyllo and butter?",
+    "option_a": "cannoli",
+    "option_b": "pistachio baklava",
+    "what_A_reveals": "prefers creamy filled ricotta sweetness",
+    "what_B_reveals": "prefers nutty syrup-soaked layered crunch"
+  },
+  {
+    "id": 30,
+    "axis": "freshness",
+    "category_scope": "within category",
+    "question": "Which raw fish moment wins: a dish of nigiri with hand-formed warm rice and lightly aged fish, or a citrus-bright Peruvian ceviche with leche de tigre, red onion, and chili?",
+    "option_a": "nigiri",
+    "option_b": "Peruvian ceviche",
+    "what_A_reveals": "prefers minimalist umami precision",
+    "what_B_reveals": "prefers acidic bright spicy raw treatment"
+  },
+  {
+    "id": 31,
+    "axis": "richness",
+    "category_scope": "within category",
+    "question": "Which weeknight pasta wins: spaghetti aglio e olio with garlic, chili flakes, parsley, and good olive oil, or fettuccine Alfredo with butter, cream, and parmesan?",
+    "option_a": "aglio e olio",
+    "option_b": "fettuccine Alfredo",
+    "what_A_reveals": "prefers lean garlic-forward simplicity",
+    "what_B_reveals": "prefers heavy butter-cream indulgence"
+  },
+  {
+    "id": 32,
+    "axis": "cuisine style",
+    "category_scope": "within category",
+    "question": "Which dumpling is yours: a soup-filled xiao long bao with delicate skin and ginger-soy dip, or a pierogi stuffed with potato and cheese, browned in butter with sour cream?",
+    "option_a": "xiao long bao",
+    "option_b": "pierogi",
+    "what_A_reveals": "prefers delicate Chinese broth and aromatic restraint",
+    "what_B_reveals": "prefers Eastern European starch comfort and dairy fat"
+  },
+  {
+    "id": 33,
+    "axis": "heat and spice",
+    "category_scope": "within category",
+    "question": "Which heat profile wins: a Jamaican jerk chicken with scotch bonnet, allspice, and charred edges, or an Indian chicken vindaloo with vinegar, garlic, and Kashmiri chili depth?",
+    "option_a": "jerk chicken",
+    "option_b": "chicken vindaloo",
+    "what_A_reveals": "prefers smoky fruity scotch-bonnet heat",
+    "what_B_reveals": "prefers acidic deep braised vinegar heat"
+  },
+  {
+    "id": 34,
+    "axis": "texture",
+    "category_scope": "within category",
+    "question": "Which fried potato wins: a French triple-cooked chip with a crackling shell and fluffy interior, or a stack of Belgian frites with delicate crisp golden surface and salt?",
+    "option_a": "triple-cooked chip",
+    "option_b": "Belgian frites",
+    "what_A_reveals": "prefers craggy thick crunchy density",
+    "what_B_reveals": "prefers delicate uniform crispness"
+  },
+  {
+    "id": 35,
+    "axis": "aroma preference",
+    "category_scope": "within category",
+    "question": "Which roast vegetable wins: a tray of cauliflower charred with cumin, turmeric, and yogurt, or a tray of carrots glazed with honey, thyme, and butter?",
+    "option_a": "cumin-turmeric cauliflower",
+    "option_b": "honey-thyme carrots",
+    "what_A_reveals": "prefers warm spice and fermented dairy aromatics",
+    "what_B_reveals": "prefers herbal sweet caramelized aromatics"
+  },
+  {
+    "id": 36,
+    "axis": "temperature",
+    "category_scope": "within category",
+    "question": "Which dessert wins on a cold night: a warm apple crumble with brown sugar oat topping and vanilla ice cream, or a frozen tiramisu semifreddo with espresso, mascarpone, and cocoa?",
+    "option_a": "warm apple crumble",
+    "option_b": "frozen tiramisu",
+    "what_A_reveals": "prefers hot fruit-spice baked comfort",
+    "what_B_reveals": "prefers cold creamy bitter coffee contrast"
+  },
+  {
+    "id": 37,
+    "axis": "salty",
+    "category_scope": "within category",
+    "question": "Which snack moment wins: a bowl of warm marcona almonds with rosemary and flaky salt, or a plate of boquerones with vinegar, parsley, and good olive oil on toast?",
+    "option_a": "marcona almonds",
+    "option_b": "boquerones on toast",
+    "what_A_reveals": "prefers crunchy salty fat and herbal warmth",
+    "what_B_reveals": "prefers sour-cured fish minerality and brine"
+  },
+  {
+    "id": 38,
+    "axis": "familiar vs adventurous",
+    "category_scope": "within category",
+    "question": "Which Sunday breakfast wins: a stack of fluffy buttermilk pancakes with maple syrup and butter, or a Turkish menemen with eggs, peppers, tomatoes, and crusty bread?",
+    "option_a": "buttermilk pancakes",
+    "option_b": "Turkish menemen",
+    "what_A_reveals": "prefers sweet familiar morning comfort",
+    "what_B_reveals": "prefers savory spiced shared breakfast"
+  },
+  {
+    "id": 39,
+    "axis": "contrast preference",
+    "category_scope": "within category",
+    "question": "Which dessert wins: a chocolate lava cake with molten center and a scoop of ice cream collapsing into it, or a panna cotta with sharp passionfruit syrup and crushed pistachios?",
+    "option_a": "chocolate lava cake",
+    "option_b": "panna cotta with passionfruit",
+    "what_A_reveals": "prefers warm-cold-melting indulgence",
+    "what_B_reveals": "prefers cool wobbling cream with tart-crunch contrast"
+  },
+  {
+    "id": 40,
+    "axis": "cooking style",
+    "category_scope": "within category",
+    "question": "Which lamb dish wins: a slow-roasted shoulder pulled apart with mint and yogurt, or grilled chops with chimichurri and a deep char on the bone?",
+    "option_a": "slow-roasted lamb shoulder",
+    "option_b": "grilled lamb chops",
+    "what_A_reveals": "prefers tender melting connective tissue",
+    "what_B_reveals": "prefers chargrilled fat-crackle and direct heat"
+  },
+  {
+    "id": 41,
+    "axis": "sauce preference",
+    "category_scope": "within category",
+    "question": "Which roast chicken sauce wins: a pan jus deglazed with white wine and butter, or a green Yemeni zhug with cilantro, parsley, garlic, and green chili?",
+    "option_a": "pan jus",
+    "option_b": "zhug",
+    "what_A_reveals": "prefers French restrained meaty depth",
+    "what_B_reveals": "prefers vivid herbal pungent heat"
+  },
+  {
+    "id": 42,
+    "axis": "cuisine style",
+    "category_scope": "within category",
+    "question": "Which fried snack wins: Italian arancini with crisp golden shells and gooey ragu-stuffed centers, or Japanese korokke with panko crunch and creamy potato-pork filling?",
+    "option_a": "arancini",
+    "option_b": "korokke",
+    "what_A_reveals": "prefers cheesy tomato-rich Italian street food",
+    "what_B_reveals": "prefers panko-light Japanese-Western fusion comfort"
+  },
+  {
+    "id": 43,
+    "axis": "freshness",
+    "category_scope": "within category",
+    "question": "Which appetizer wins: a plate of carpaccio with arugula, lemon, parmesan, and good olive oil, or a tomato salad with torn basil, burrata, and crushed sourdough croutons?",
+    "option_a": "beef carpaccio",
+    "option_b": "tomato burrata salad",
+    "what_A_reveals": "prefers raw beef minerality and acid",
+    "what_B_reveals": "prefers ripe-tomato freshness with creamy fat"
+  },
+  {
+    "id": 44,
+    "axis": "bitter",
+    "category_scope": "within category",
+    "question": "Which bitter green wins: charred broccoli rabe with garlic, chili flakes, and lemon, or wilted Tuscan kale with anchovy, breadcrumbs, and parmesan?",
+    "option_a": "broccoli rabe",
+    "option_b": "Tuscan kale",
+    "what_A_reveals": "prefers sharp green bitterness and acid",
+    "what_B_reveals": "prefers softer mineral bitterness with umami depth"
+  },
+  {
+    "id": 45,
+    "axis": "heat and spice",
+    "category_scope": "within category",
+    "question": "Which noodle heat wins: Sichuan dan dan noodles with chili oil, sesame paste, and pork crumbles, or Korean jjapaguri with black bean paste, beef, and chili oil?",
+    "option_a": "dan dan noodles",
+    "option_b": "jjapaguri",
+    "what_A_reveals": "prefers numbing-spicy sesame complexity",
+    "what_B_reveals": "prefers deep fermented black bean richness"
+  },
+  {
+    "id": 46,
+    "axis": "richness",
+    "category_scope": "between categories",
+    "question": "Which dinner wins: a French cassoulet with duck confit, sausage, white beans, and breadcrumb crust, or a Moroccan tagine with chicken, preserved lemon, olives, and saffron?",
+    "option_a": "cassoulet",
+    "option_b": "chicken tagine",
+    "what_A_reveals": "prefers fatty slow French legume richness",
+    "what_B_reveals": "prefers aromatic preserved-lemon and saffron lift"
+  },
+  {
+    "id": 47,
+    "axis": "temperature",
+    "category_scope": "within category",
+    "question": "Which oyster preparation wins: raw on the half-shell with mignonette and a squeeze of lemon, or grilled with garlic-herb butter and breadcrumbs?",
+    "option_a": "raw oyster with mignonette",
+    "option_b": "grilled oyster",
+    "what_A_reveals": "prefers cold briny ocean purity",
+    "what_B_reveals": "prefers warm buttery garlic-rich treatment"
+  },
+  {
+    "id": 48,
+    "axis": "sweetness",
+    "category_scope": "within category",
+    "question": "Which fruit dessert wins: a peach cobbler bubbling with cinnamon, brown sugar, and biscuit topping, or a poached pear in red wine with star anise and clove?",
+    "option_a": "peach cobbler",
+    "option_b": "poached pear",
+    "what_A_reveals": "prefers warm rustic American baked sweetness",
+    "what_B_reveals": "prefers elegant French wine-spiced restraint"
+  },
+  {
+    "id": 49,
+    "axis": "contrast preference",
+    "category_scope": "within category",
+    "question": "Which side dish wins: a creamy cauliflower puree with brown butter and chive, or charred broccoli florets with anchovy crumbs and lemon?",
+    "option_a": "cauliflower puree",
+    "option_b": "charred broccoli",
+    "what_A_reveals": "prefers smooth rich silken sides",
+    "what_B_reveals": "prefers crunchy salty bitter charred sides"
+  },
+  {
+    "id": 50,
+    "axis": "cuisine style",
+    "category_scope": "between categories",
+    "question": "Which weeknight bowl wins: a Mexican rice bowl with pork carnitas, salsa verde, pickled onions, and queso fresco, or a Japanese rice bowl with teriyaki salmon, avocado, sesame, and pickled ginger?",
+    "option_a": "carnitas rice bowl",
+    "option_b": "salmon teriyaki bowl",
+    "what_A_reveals": "prefers fatty acidic Mexican brightness",
+    "what_B_reveals": "prefers umami sweet Japanese balance"
+  },
+  {
+    "id": 51,
+    "axis": "texture",
+    "category_scope": "within category",
+    "question": "Which dumpling wrapper wins: a hand-pulled thick chewy wonton with a slippery slick exterior in clear broth, or a delicate translucent har gow skin showing pink shrimp underneath?",
+    "option_a": "chewy wonton",
+    "option_b": "translucent har gow",
+    "what_A_reveals": "prefers substantial chew and broth-soaked starch",
+    "what_B_reveals": "prefers delicate gossamer skin and pure shrimp sweetness"
+  },
+  {
+    "id": 52,
+    "axis": "heat and spice",
+    "category_scope": "within category",
+    "question": "Which chili-rubbed protein wins: a Yucatecan cochinita pibil with achiote, sour orange, and banana leaf, or a North African harissa-rubbed lamb with cumin, coriander, and caraway?",
+    "option_a": "cochinita pibil",
+    "option_b": "harissa lamb",
+    "what_A_reveals": "prefers fruity-acidic earthy red-spice depth",
+    "what_B_reveals": "prefers smoky North African warm-spice intensity"
+  },
+  {
+    "id": 53,
+    "axis": "cooking style",
+    "category_scope": "within category",
+    "question": "Which egg preparation wins: a soft-scrambled egg cooked low and slow with butter until silky and barely set, or a crispy-edged fried egg with lacy brown rim and runny yolk?",
+    "option_a": "soft-scrambled egg",
+    "option_b": "crispy-edged fried egg",
+    "what_A_reveals": "prefers gentle French custard-like delicacy",
+    "what_B_reveals": "prefers loud Maillard contrast and oil-crisp edges"
+  },
+  {
+    "id": 54,
+    "axis": "sweetness",
+    "category_scope": "within category",
+    "question": "Which morning bread wins: a thick slice of sourdough with cultured butter and honey, or a slice of brioche French toast with caramelized crust and powdered sugar?",
+    "option_a": "sourdough with butter and honey",
+    "option_b": "brioche French toast",
+    "what_A_reveals": "prefers tangy bread with restrained sweetness",
+    "what_B_reveals": "prefers eggy custard-soaked rich sweetness"
+  },
+  {
+    "id": 55,
+    "axis": "freshness",
+    "category_scope": "within category",
+    "question": "Which raw vegetable moment wins: a plate of crudites with a thick whipped ricotta dip, lemon, and Aleppo pepper, or a bowl of shaved fennel and orange salad with olives and parsley?",
+    "option_a": "crudites with whipped ricotta",
+    "option_b": "fennel-orange salad",
+    "what_A_reveals": "prefers crunchy fresh vegetables paired with dairy fat",
+    "what_B_reveals": "prefers anise-citrus minerality with brine"
+  },
+  {
+    "id": 56,
+    "axis": "contrast preference",
+    "category_scope": "within category",
+    "question": "Which sushi roll wins: a tempura shrimp roll with crispy interior, eel sauce, and avocado, or a simple cucumber-yellowtail roll with scallion and a touch of yuzu?",
+    "option_a": "tempura shrimp roll",
+    "option_b": "yellowtail-cucumber roll",
+    "what_A_reveals": "prefers fried-sweet-creamy fusion abundance",
+    "what_B_reveals": "prefers minimalist clean-cool textural restraint"
+  },
+  {
+    "id": 57,
+    "axis": "cuisine style",
+    "category_scope": "within category",
+    "question": "Which grilled skewer wins: a Japanese yakitori thigh basted in tare with charred scallion sections, or a Brazilian picanha skewer with rock salt and chimichurri?",
+    "option_a": "yakitori thigh",
+    "option_b": "picanha skewer",
+    "what_A_reveals": "prefers sweet-soy glazed precision",
+    "what_B_reveals": "prefers salt-crusted beef-fat directness"
+  },
+  {
+    "id": 58,
+    "axis": "temperature",
+    "category_scope": "within category",
+    "question": "Which seafood starter wins: a chilled shrimp cocktail with horseradish-spiked tomato sauce and lemon, or a sizzling gambas al ajillo with garlic, chili, and bubbling olive oil?",
+    "option_a": "shrimp cocktail",
+    "option_b": "gambas al ajillo",
+    "what_A_reveals": "prefers cold sharp acidic horseradish bite",
+    "what_B_reveals": "prefers hot garlicky chili-infused oil"
+  },
+  {
+    "id": 59,
+    "axis": "richness",
+    "category_scope": "within category",
+    "question": "Which cheese moment wins: a wedge of triple-cream brie at room temperature with toasted walnut bread and honey, or a crumbly aged Manchego with quince paste and Marcona almonds?",
+    "option_a": "triple-cream brie",
+    "option_b": "aged Manchego",
+    "what_A_reveals": "prefers buttery oozing soft-cheese richness",
+    "what_B_reveals": "prefers firm sharp aged crystalline depth"
+  },
+  {
+    "id": 60,
+    "axis": "cooking style",
+    "category_scope": "within category",
+    "question": "Which pork moment wins: a Filipino lechon with crackling skin and herb-stuffed belly, or a Chinese char siu with lacquered red glaze and tender slices?",
+    "option_a": "Filipino lechon",
+    "option_b": "Chinese char siu",
+    "what_A_reveals": "prefers shattering skin and herbal pork purity",
+    "what_B_reveals": "prefers sweet-savory glazed restaurant elegance"
+  },
+  {
+    "id": 61,
+    "axis": "bitter",
+    "category_scope": "within category",
+    "question": "Which dark green wins: charred Treviso radicchio with balsamic and pancetta, or wilted dandelion greens with garlic, chili, and olive oil?",
+    "option_a": "charred Treviso radicchio",
+    "option_b": "dandelion greens",
+    "what_A_reveals": "prefers smoky-sweet bitter contrast",
+    "what_B_reveals": "prefers raw assertive bitter minerality"
+  },
+  {
+    "id": 62,
+    "axis": "aroma preference",
+    "category_scope": "within category",
+    "question": "Which simmered dish wins: a French daube provencale with red wine, orange zest, herbes de Provence, and olives, or a Korean galbijjim with soy, pear, garlic, and chestnuts?",
+    "option_a": "daube provencale",
+    "option_b": "galbijjim",
+    "what_A_reveals": "prefers Provencal herbal-citrus wine aromatics",
+    "what_B_reveals": "prefers sweet-savory Korean fruit-and-soy depth"
+  },
+  {
+    "id": 63,
+    "axis": "texture",
+    "category_scope": "within category",
+    "question": "Which pizza style wins: a Neapolitan with leopard-spotted blistered crust, soft chewy center, and bright tomato, or a New York slice with thin pliable crust folded in half and dripping cheese?",
+    "option_a": "Neapolitan pizza",
+    "option_b": "New York slice",
+    "what_A_reveals": "prefers wood-fire char and delicate authenticity",
+    "what_B_reveals": "prefers foldable greasy-cheese street comfort"
+  },
+  {
+    "id": 64,
+    "axis": "sauce preference",
+    "category_scope": "within category",
+    "question": "Which Mexican sauce wins: a smoky chipotle salsa with charred tomatoes, garlic, and lime, or a bright salsa verde with tomatillo, cilantro, jalapeno, and white onion?",
+    "option_a": "chipotle salsa",
+    "option_b": "salsa verde",
+    "what_A_reveals": "prefers smoky brooding red-chili depth",
+    "what_B_reveals": "prefers tart green herbal acidic lift"
+  },
+  {
+    "id": 65,
+    "axis": "familiar vs adventurous",
+    "category_scope": "within category",
+    "question": "Which fish wins: a butter-poached cod with lemon and parsley, or a banana-leaf-grilled snapper rubbed with sambal matah?",
+    "option_a": "butter-poached cod",
+    "option_b": "sambal-rubbed snapper",
+    "what_A_reveals": "prefers gentle familiar flaky comfort",
+    "what_B_reveals": "prefers shallot-chili-lemongrass Indonesian heat"
+  },
+  {
+    "id": 66,
+    "axis": "heat and spice",
+    "category_scope": "within category",
+    "question": "Which broth wins: a Thai tom yum with lemongrass, lime leaf, chili, and shrimp, or a Tunisian shorba with harissa, cumin, lamb, and orzo?",
+    "option_a": "tom yum",
+    "option_b": "Tunisian shorba",
+    "what_A_reveals": "prefers sour-spicy aromatic Thai brightness",
+    "what_B_reveals": "prefers smoky-spiced North African warmth"
+  },
+  {
+    "id": 67,
+    "axis": "contrast preference",
+    "category_scope": "within category",
+    "question": "Which vegetable dish wins: a Korean banchan of chilled spinach with sesame oil and garlic, or a hot Chinese stir-fried gai lan with oyster sauce and ginger?",
+    "option_a": "chilled sesame spinach",
+    "option_b": "stir-fried gai lan",
+    "what_A_reveals": "prefers cold nutty restrained side",
+    "what_B_reveals": "prefers hot savory umami-glazed side"
+  },
+  {
+    "id": 68,
+    "axis": "sweetness and acidity",
+    "category_scope": "within category",
+    "question": "Which fruit dessert wins: a chilled mango sticky rice with coconut cream, or a warm tarte tatin with caramelized apples and creme fraiche?",
+    "option_a": "mango sticky rice",
+    "option_b": "tarte tatin",
+    "what_A_reveals": "prefers tropical sweet-creamy harmony",
+    "what_B_reveals": "prefers caramelized apple with cool dairy contrast"
+  },
+  {
+    "id": 69,
+    "axis": "cuisine style",
+    "category_scope": "within category",
+    "question": "Which braise wins: a Mexican birria with deep guajillo broth, tender beef, and tortillas for dipping, or a Hungarian goulash with paprika, beef chuck, potatoes, and caraway?",
+    "option_a": "birria",
+    "option_b": "Hungarian goulash",
+    "what_A_reveals": "prefers chili-broth dipping and Mexican depth",
+    "what_B_reveals": "prefers paprika-sweet Central European hearth"
+  },
+  {
+    "id": 70,
+    "axis": "cooking style",
+    "category_scope": "within category",
+    "question": "Which cabbage moment wins: a charred wedge of pointed cabbage with anchovy butter and breadcrumbs, or a slow-braised stuffed cabbage roll with pork, rice, and tomato?",
+    "option_a": "charred cabbage wedge",
+    "option_b": "stuffed cabbage roll",
+    "what_A_reveals": "prefers blistered modern vegetable centerpiece",
+    "what_B_reveals": "prefers wrapped Old World hearth comfort"
+  },
+  {
+    "id": 71,
+    "axis": "temperature",
+    "category_scope": "within category",
+    "question": "Which Vietnamese moment wins: a steaming pho bo with rare beef slices, herbs, and lime, or a chilled bun cha Hanoi with grilled pork, rice noodles, and dipping broth?",
+    "option_a": "pho bo",
+    "option_b": "bun cha Hanoi",
+    "what_A_reveals": "prefers hot beef-broth ceremony",
+    "what_B_reveals": "prefers cool deconstructed grill-and-broth play"
+  },
+  {
+    "id": 72,
+    "axis": "bitter",
+    "category_scope": "within category",
+    "question": "Which Italian aperitivo wins: a plate of fritto misto with squid, vegetables, and lemon, or a bowl of olives and bagna cauda with garlic-anchovy dip?",
+    "option_a": "fritto misto",
+    "option_b": "bagna cauda",
+    "what_A_reveals": "prefers fried light seaside crunch",
+    "what_B_reveals": "prefers pungent garlic-anchovy depth"
+  },
+  {
+    "id": 73,
+    "axis": "richness",
+    "category_scope": "within category",
+    "question": "Which rich pasta wins: a Roman carbonara with guanciale, pecorino, egg yolk, and pepper, or a Bolognese tagliatelle with deep meat ragu, milk, and tomato?",
+    "option_a": "carbonara",
+    "option_b": "tagliatelle Bolognese",
+    "what_A_reveals": "prefers eggy cured-pork glossy richness",
+    "what_B_reveals": "prefers slow simmered meat-and-dairy ragu depth"
+  },
+  {
+    "id": 74,
+    "axis": "freshness",
+    "category_scope": "within category",
+    "question": "Which Mediterranean spread wins: a tabbouleh with fine bulgur, parsley, mint, lemon, and tomato, or a tzatziki with cucumber, garlic, dill, and yogurt?",
+    "option_a": "tabbouleh",
+    "option_b": "tzatziki",
+    "what_A_reveals": "prefers herbal acidic grain-driven brightness",
+    "what_B_reveals": "prefers cool creamy garlic-yogurt richness"
+  },
+  {
+    "id": 75,
+    "axis": "heat and spice",
+    "category_scope": "within category",
+    "question": "Which spicy soup wins: a Mexican pozole rojo with hominy, pork, and toasted ancho-guajillo broth, or a Korean budae jjigae with kimchi, sausage, ramen, and gochujang?",
+    "option_a": "pozole rojo",
+    "option_b": "budae jjigae",
+    "what_A_reveals": "prefers earthy chili-corn ancestral depth",
+    "what_B_reveals": "prefers fermented spicy fusion abundance"
+  },
+  {
+    "id": 76,
+    "axis": "cooking style",
+    "category_scope": "within category",
+    "question": "Which mushroom dish wins: a duxelles-stuffed wild mushroom roasted with thyme, or a hot-pot of enoki and shiitake in a deeply savory dashi?",
+    "option_a": "stuffed roasted mushroom",
+    "option_b": "hot-pot mushrooms",
+    "what_A_reveals": "prefers French herbal concentrated mushroom depth",
+    "what_B_reveals": "prefers Japanese clean broth and fungal purity"
+  },
+  {
+    "id": 77,
+    "axis": "cuisine style",
+    "category_scope": "within category",
+    "question": "Which crepe wins: a French savory galette with buckwheat, ham, gruyere, and a runny egg, or a Vietnamese banh xeo with turmeric, shrimp, pork, and herbs to wrap in lettuce?",
+    "option_a": "French galette",
+    "option_b": "banh xeo",
+    "what_A_reveals": "prefers nutty earthy folded richness",
+    "what_B_reveals": "prefers crispy turmeric-fragrant herbal play"
+  },
+  {
+    "id": 78,
+    "axis": "texture",
+    "category_scope": "within category",
+    "question": "Which Latin starch wins: arepas with crisp griddle-pressed corn shell and melted cheese, or yuca frita with shattering crust and creamy white interior?",
+    "option_a": "arepas",
+    "option_b": "yuca frita",
+    "what_A_reveals": "prefers chewy corn-cheese substance",
+    "what_B_reveals": "prefers cassava starchy-crunchy lightness"
+  },
+  {
+    "id": 79,
+    "axis": "contrast preference",
+    "category_scope": "within category",
+    "question": "Which tofu treatment wins: a silken tofu chilled with soy, ginger, scallion, and bonito flakes, or a deep-fried tofu in chili-tomato sauce with crispy edges?",
+    "option_a": "chilled silken tofu",
+    "option_b": "fried tofu in chili-tomato",
+    "what_A_reveals": "prefers cool delicate umami restraint",
+    "what_B_reveals": "prefers crisp-spicy-sweet bold treatment"
+  },
+  {
+    "id": 80,
+    "axis": "sweetness",
+    "category_scope": "within category",
+    "question": "Which chocolate moment wins: a salted dark chocolate tart with crisp shortbread crust and creme fraiche, or a Mexican chocolate cake with cinnamon, ancho, and dulce de leche?",
+    "option_a": "dark chocolate tart",
+    "option_b": "Mexican chocolate cake",
+    "what_A_reveals": "prefers bittersweet refined French restraint",
+    "what_B_reveals": "prefers spiced caramelized Latin warmth"
+  },
+  {
+    "id": 81,
+    "axis": "salty",
+    "category_scope": "within category",
+    "question": "Which cured-meat plate wins: thinly sliced jamon iberico with toasted bread and tomato rub, or a board of soppressata, finocchiona, and coppa with pickles and grainy mustard?",
+    "option_a": "jamon iberico",
+    "option_b": "Italian cured-meat board",
+    "what_A_reveals": "prefers single sublime aged-pork purity",
+    "what_B_reveals": "prefers varied salt-spice charcuterie play"
+  },
+  {
+    "id": 82,
+    "axis": "freshness",
+    "category_scope": "within category",
+    "question": "Which raw seafood wins: a Hawaiian poke bowl with ahi tuna, soy, sesame, and avocado over rice, or a Mexican aguachile with shrimp, lime, jalapeno, and cucumber?",
+    "option_a": "tuna poke",
+    "option_b": "shrimp aguachile",
+    "what_A_reveals": "prefers savory umami over starch",
+    "what_B_reveals": "prefers electric green-chili acidic crunch"
+  },
+  {
+    "id": 83,
+    "axis": "temperature",
+    "category_scope": "within category",
+    "question": "Which dumpling wins: a steaming basket of soup-filled xiao long bao, or a plate of pan-fried gyoza with crispy bottoms and rice vinegar dip?",
+    "option_a": "xiao long bao",
+    "option_b": "pan-fried gyoza",
+    "what_A_reveals": "prefers delicate hot broth-burst experience",
+    "what_B_reveals": "prefers crisp-tender contrast and acidic dip"
+  },
+  {
+    "id": 84,
+    "axis": "heat and spice",
+    "category_scope": "within category",
+    "question": "Which fried chicken heat wins: a Nashville hot chicken with cayenne-paprika oil over crispy crust, or an Indo-Chinese chili chicken with green chili, soy, and ginger glaze?",
+    "option_a": "Nashville hot chicken",
+    "option_b": "chili chicken",
+    "what_A_reveals": "prefers Southern oil-soaked dry spice burn",
+    "what_B_reveals": "prefers Asian sticky-saucy chili-soy heat"
+  },
+  {
+    "id": 85,
+    "axis": "cooking style",
+    "category_scope": "between categories",
+    "question": "Which weekend project wins: hand-rolling fresh tagliatelle and a slow Sunday Bolognese from scratch, or wrapping and folding 60 dumplings with a friend over an afternoon?",
+    "option_a": "homemade pasta and Bolognese",
+    "option_b": "homemade dumplings",
+    "what_A_reveals": "prefers Italian dough-and-sauce immersion",
+    "what_B_reveals": "prefers Asian hands-on assembly ritual"
+  },
+  {
+    "id": 86,
+    "axis": "cuisine style",
+    "category_scope": "within category",
+    "question": "Which omelet wins: a French omelet with barely set eggs, butter, and fines herbes, or a Spanish tortilla espanola with potato, onion, and a soft custardy center?",
+    "option_a": "French omelet",
+    "option_b": "tortilla espanola",
+    "what_A_reveals": "prefers refined buttery delicate technique",
+    "what_B_reveals": "prefers rustic potato-egg substance"
+  },
+  {
+    "id": 87,
+    "axis": "texture",
+    "category_scope": "within category",
+    "question": "Which seafood textural moment wins: a crispy fish-and-chips with malt vinegar and tartar, or a soft poke bowl with marinated raw fish and rice?",
+    "option_a": "fish-and-chips",
+    "option_b": "poke bowl",
+    "what_A_reveals": "prefers fried batter and sharp vinegar bite",
+    "what_B_reveals": "prefers cool tender raw protein over rice"
+  },
+  {
+    "id": 88,
+    "axis": "contrast preference",
+    "category_scope": "within category",
+    "question": "Which Italian starter wins: a plate of vitello tonnato with cool sliced veal under tuna-caper sauce, or a hot bowl of zuppa di pesce with seafood in tomato-saffron broth?",
+    "option_a": "vitello tonnato",
+    "option_b": "zuppa di pesce",
+    "what_A_reveals": "prefers cool elegant land-and-sea fusion",
+    "what_B_reveals": "prefers hot briny tomato-rich seafood depth"
+  },
+  {
+    "id": 89,
+    "axis": "sauce preference",
+    "category_scope": "within category",
+    "question": "Which condiment wins: a smoky Calabrian chili paste in olive oil, or a Yemeni schug bright with cilantro, green chili, and cardamom?",
+    "option_a": "Calabrian chili paste",
+    "option_b": "Yemeni schug",
+    "what_A_reveals": "prefers Italian smoky red-chili oil",
+    "what_B_reveals": "prefers Yemeni green herbal-spice heat"
+  },
+  {
+    "id": 90,
+    "axis": "bitter",
+    "category_scope": "within category",
+    "question": "Which coffee dessert wins: an affogato with bitter espresso over vanilla gelato, or a tiramisu with coffee-soaked ladyfingers, mascarpone, and cocoa?",
+    "option_a": "affogato",
+    "option_b": "tiramisu",
+    "what_A_reveals": "prefers bitter-cold-cream simplicity",
+    "what_B_reveals": "prefers layered cream-bitter-sweet structure"
+  },
+  {
+    "id": 91,
+    "axis": "temperature",
+    "category_scope": "within category",
+    "question": "Which broth course wins: a clear Japanese dashi with wakame and tofu, or a hot French onion soup with bubbling gruyere and toasted bread?",
+    "option_a": "dashi with wakame",
+    "option_b": "French onion soup",
+    "what_A_reveals": "prefers minimalist umami clarity",
+    "what_B_reveals": "prefers caramelized cheesy bread-soaked richness"
+  },
+  {
+    "id": 92,
+    "axis": "freshness",
+    "category_scope": "within category",
+    "question": "Which Greek moment wins: a horiatiki salad with tomato, cucumber, olives, red onion, and a slab of feta, or a plate of grilled octopus with lemon, oregano, and olive oil?",
+    "option_a": "horiatiki salad",
+    "option_b": "grilled octopus",
+    "what_A_reveals": "prefers raw vegetable brine-and-feta freshness",
+    "what_B_reveals": "prefers smoky tender sea protein and oil"
+  },
+  {
+    "id": 93,
+    "axis": "heat and spice",
+    "category_scope": "within category",
+    "question": "Which heat profile wins: a Sri Lankan crab curry with coconut, curry leaves, and black pepper, or a Singaporean chili crab with sweet-spicy tomato sauce and fried mantou for dipping?",
+    "option_a": "Sri Lankan crab curry",
+    "option_b": "chili crab",
+    "what_A_reveals": "prefers fragrant peppery coconut depth",
+    "what_B_reveals": "prefers sweet-spicy saucy crustacean play"
+  },
+  {
+    "id": 94,
+    "axis": "familiar vs adventurous",
+    "category_scope": "within category",
+    "question": "Which roast wins: a classic prime rib with horseradish cream, Yorkshire pudding, and au jus, or a Persian saffron-and-sumac-rubbed lamb shoulder with pomegranate?",
+    "option_a": "prime rib",
+    "option_b": "Persian lamb shoulder",
+    "what_A_reveals": "prefers nostalgic Sunday-roast tradition",
+    "what_B_reveals": "prefers floral spiced fruity exploration"
+  },
+  {
+    "id": 95,
+    "axis": "richness",
+    "category_scope": "within category",
+    "question": "Which dairy-rich dessert wins: a French Paris-Brest filled with praline cream and toasted nuts, or an Italian zabaglione with whipped Marsala and fresh berries?",
+    "option_a": "Paris-Brest",
+    "option_b": "zabaglione with berries",
+    "what_A_reveals": "prefers nutty laminated cream-pastry indulgence",
+    "what_B_reveals": "prefers light-warm wine-cream and tart fruit"
+  },
+  {
+    "id": 96,
+    "axis": "cooking style",
+    "category_scope": "within category",
+    "question": "Which beef preparation wins: a charcoal-grilled hanger steak with smoky char and chimichurri, or a slow-cooked short rib braised in red wine until fork-tender?",
+    "option_a": "charcoal hanger steak",
+    "option_b": "red wine short rib",
+    "what_A_reveals": "prefers fast-fire bright-acid grill",
+    "what_B_reveals": "prefers patient deep-braise wine-soaked meat"
+  },
+  {
+    "id": 97,
+    "axis": "cuisine style",
+    "category_scope": "within category",
+    "question": "Which rice-and-beans plate wins: a Cuban Moros y Cristianos with cumin, garlic, and bay, or a Brazilian feijoada with black beans, smoked pork, and orange?",
+    "option_a": "Moros y Cristianos",
+    "option_b": "feijoada",
+    "what_A_reveals": "prefers Caribbean garlicky restrained simplicity",
+    "what_B_reveals": "prefers smoky pork-rich tropical comfort"
+  },
+  {
+    "id": 98,
+    "axis": "contrast preference",
+    "category_scope": "within category",
+    "question": "Which dessert moment wins: a coconut tres leches cake with three milks soaked in and toasted coconut on top, or a flourless chocolate torte with raspberry coulis and creme fraiche?",
+    "option_a": "tres leches",
+    "option_b": "flourless chocolate torte",
+    "what_A_reveals": "prefers wet creamy tropical sweetness",
+    "what_B_reveals": "prefers dense bittersweet acidic-tart contrast"
+  },
+  {
+    "id": 99,
+    "axis": "texture",
+    "category_scope": "within category",
+    "question": "Which Indian starch wins: a crisp-puffed bhatura still hot from the oil with chickpea curry, or a flaky paratha layered with ghee and torn for sopping up dal?",
+    "option_a": "bhatura with chana",
+    "option_b": "paratha with dal",
+    "what_A_reveals": "prefers hollow puffy fried bread",
+    "what_B_reveals": "prefers laminated buttery pan-cooked layers"
+  },
+  {
+    "id": 100,
+    "axis": "cooking style",
+    "category_scope": "between categories",
+    "question": "Which one-pot dinner wins: a long-simmered Persian khoresh with saffron, dried lime, and lamb shank, or a quick Italian risotto stirred with broth, parmesan, and seasonal vegetables?",
+    "option_a": "Persian khoresh",
+    "option_b": "Italian risotto",
+    "what_A_reveals": "prefers patient layered Persian aromatics",
+    "what_B_reveals": "prefers active-hand starchy-creamy Italian rhythm"
+  },
+  {
+    "id": 101,
+    "axis": "texture",
+    "category_scope": "within category",
+    "question": "Which crepe-like wrap wins: a soft injera bread with spongy fermented tang serving as base for stews, or a crisp Indian dosa shattering as you tear it to scoop sambar?",
+    "option_a": "injera with stews",
+    "option_b": "dosa with sambar",
+    "what_A_reveals": "prefers spongy tangy fermented base",
+    "what_B_reveals": "prefers shattering crisp lentil-rice crepe"
+  },
+  {
+    "id": 102,
+    "axis": "heat and spice",
+    "category_scope": "within category",
+    "question": "Which fish-and-spice moment wins: a Bengali macher jhol with mustard oil, turmeric, and green chili, or a Veracruz-style red snapper with olives, capers, and tomato?",
+    "option_a": "macher jhol",
+    "option_b": "Veracruz snapper",
+    "what_A_reveals": "prefers pungent mustard-oil and turmeric depth",
+    "what_B_reveals": "prefers briny Mediterranean-Mexican fusion"
+  },
+  {
+    "id": 103,
+    "axis": "cooking style",
+    "category_scope": "within category",
+    "question": "Which corn moment wins: an elote off the grill with charred kernels, mayo, cotija, chili, and lime, or a creamy summer corn risotto with parmesan and basil?",
+    "option_a": "grilled elote",
+    "option_b": "corn risotto",
+    "what_A_reveals": "prefers smoky-salty street-food intensity",
+    "what_B_reveals": "prefers sweet-creamy refined Italian treatment"
+  },
+  {
+    "id": 104,
+    "axis": "sweetness",
+    "category_scope": "within category",
+    "question": "Which breakfast pastry wins: a kouign-amann with caramelized buttery layers and crackling sugar crust, or a cinnamon roll with cardamom, brown butter, and cream cheese frosting?",
+    "option_a": "kouign-amann",
+    "option_b": "cinnamon roll",
+    "what_A_reveals": "prefers laminated brittle-caramel French restraint",
+    "what_B_reveals": "prefers spiced soft American pillowy comfort"
+  },
+  {
+    "id": 105,
+    "axis": "freshness",
+    "category_scope": "within category",
+    "question": "Which raw vegetable starter wins: a plate of shaved zucchini with mint, lemon, pine nuts, and parmesan, or a Thai som tum with green papaya, dried shrimp, peanuts, and fish sauce?",
+    "option_a": "shaved zucchini salad",
+    "option_b": "som tum",
+    "what_A_reveals": "prefers delicate Italian garden-fresh restraint",
+    "what_B_reveals": "prefers pungent Thai funky-sweet-spicy crunch"
+  },
+  {
+    "id": 106,
+    "axis": "contrast preference",
+    "category_scope": "within category",
+    "question": "Which sandwich wins: a hot Italian beef with giardiniera, jus, and provolone on a soaked bun, or a cold lobster roll with butter, lemon, and chives on a toasted top-split?",
+    "option_a": "hot Italian beef",
+    "option_b": "cold lobster roll",
+    "what_A_reveals": "prefers hot juicy spicy meat-soaked indulgence",
+    "what_B_reveals": "prefers cool sweet-buttery seafood luxury"
+  },
+  {
+    "id": 107,
+    "axis": "cuisine style",
+    "category_scope": "within category",
+    "question": "Which lamb roast wins: a Greek leg of lamb with garlic, oregano, and lemon roasted with potatoes, or an Indian raan with yogurt, ginger, garam masala, and almonds?",
+    "option_a": "Greek leg of lamb",
+    "option_b": "Indian raan",
+    "what_A_reveals": "prefers bright Mediterranean herbal lamb",
+    "what_B_reveals": "prefers slow yogurt-spiced festival lamb"
+  },
+  {
+    "id": 108,
+    "axis": "temperature",
+    "category_scope": "within category",
+    "question": "Which seafood plate wins: a chilled seafood tower with oysters, shrimp, crab, and mignonette, or a steaming bowl of cioppino with mussels, clams, and tomato-fennel broth?",
+    "option_a": "chilled seafood tower",
+    "option_b": "cioppino",
+    "what_A_reveals": "prefers cold raw briny abundance",
+    "what_B_reveals": "prefers hot tomato-fennel shellfish broth"
+  },
+  {
+    "id": 109,
+    "axis": "bitter",
+    "category_scope": "within category",
+    "question": "Which Italian course wins: a Campari and orange aperitivo with bitter complexity, or a small bowl of bagna cauda with raw vegetables for dipping?",
+    "option_a": "Campari with orange",
+    "option_b": "bagna cauda",
+    "what_A_reveals": "prefers bitter citrus drink ritual",
+    "what_B_reveals": "prefers garlic-anchovy savory dipping ritual"
+  },
+  {
+    "id": 110,
+    "axis": "richness",
+    "category_scope": "within category",
+    "question": "Which Korean stew wins: a deep galbitang with clear beef short rib broth and glass noodles, or a bubbling sundubu jjigae with silken tofu, gochujang, and runny egg?",
+    "option_a": "galbitang",
+    "option_b": "sundubu jjigae",
+    "what_A_reveals": "prefers clean clear long-simmered beef",
+    "what_B_reveals": "prefers spicy tofu-and-egg molten comfort"
+  },
+  {
+    "id": 111,
+    "axis": "cooking style",
+    "category_scope": "within category",
+    "question": "Which whole fish preparation wins: a Chinese steamed sea bass with ginger, scallion, and hot oil poured over, or a Mediterranean salt-crusted snapper cracked open at the table?",
+    "option_a": "steamed sea bass",
+    "option_b": "salt-crusted snapper",
+    "what_A_reveals": "prefers gentle steam with aromatic finish",
+    "what_B_reveals": "prefers theatrical mineral-pure preparation"
+  },
+  {
+    "id": 112,
+    "axis": "cuisine style",
+    "category_scope": "within category",
+    "question": "Which stuffed dough wins: a Georgian khachapuri with bubbling cheese and runny egg in a boat-shaped bread, or a Turkish lahmacun with thin crisp dough, spiced lamb, herbs, and lemon?",
+    "option_a": "khachapuri",
+    "option_b": "lahmacun",
+    "what_A_reveals": "prefers cheesy egg-rich Caucasian decadence",
+    "what_B_reveals": "prefers thin crisp herb-and-spice Anatolian lift"
+  },
+  {
+    "id": 113,
+    "axis": "texture",
+    "category_scope": "within category",
+    "question": "Which beef tartare wins: classically hand-cut with capers, shallot, mustard, and yolk on toast, or Korean yukhoe with sliced raw beef, pear, sesame, garlic, and a yolk?",
+    "option_a": "French beef tartare",
+    "option_b": "Korean yukhoe",
+    "what_A_reveals": "prefers continental cured-condiment richness",
+    "what_B_reveals": "prefers Korean fruity-sweet sesame nuance"
+  },
+  {
+    "id": 114,
+    "axis": "contrast preference",
+    "category_scope": "within category",
+    "question": "Which appetizer wins: a hot bubbling baked feta with tomatoes, oregano, and olive oil scooped onto bread, or a cold dish of marinated white anchovies with parsley, garlic, and lemon?",
+    "option_a": "baked feta",
+    "option_b": "marinated anchovies",
+    "what_A_reveals": "prefers warm melted-cheese tomato richness",
+    "what_B_reveals": "prefers cold cured-fish acidic minerality"
+  },
+  {
+    "id": 115,
+    "axis": "sauce preference",
+    "category_scope": "within category",
+    "question": "Which braised-meat sauce wins: an Italian gremolata of parsley, garlic, and lemon zest cutting through osso buco, or a French sauce diable with mustard, white wine, and tarragon?",
+    "option_a": "gremolata",
+    "option_b": "sauce diable",
+    "what_A_reveals": "prefers herbal-citrus cleansing finish",
+    "what_B_reveals": "prefers mustard-wine spicy refinement"
+  },
+  {
+    "id": 116,
+    "axis": "cuisine style",
+    "category_scope": "within category",
+    "question": "Which Lebanese small-plate wins: kibbeh nayyeh with raw lamb, bulgur, and spices on tomato wedges, or muhammara with roasted red pepper, walnut, pomegranate molasses, and pita?",
+    "option_a": "kibbeh nayyeh",
+    "option_b": "muhammara",
+    "what_A_reveals": "prefers raw spiced lamb minerality",
+    "what_B_reveals": "prefers smoky sweet-tart pepper-walnut depth"
+  },
+  {
+    "id": 117,
+    "axis": "heat and spice",
+    "category_scope": "within category",
+    "question": "Which sauce wins on dumplings: a Sichuan red oil with chili, sesame, and Sichuan peppercorn, or an Indonesian sambal oelek with bird's eye chili, garlic, and lime?",
+    "option_a": "Sichuan red oil",
+    "option_b": "sambal oelek",
+    "what_A_reveals": "prefers numbing-spicy aromatic complexity",
+    "what_B_reveals": "prefers raw bright punchy chili directness"
+  },
+  {
+    "id": 118,
+    "axis": "temperature",
+    "category_scope": "within category",
+    "question": "Which French moment wins: a hot bowl of soupe a l'oignon with Comte and toasted baguette, or a cool plate of vichyssoise with leek, potato, cream, and chives?",
+    "option_a": "soupe a l'oignon",
+    "option_b": "vichyssoise",
+    "what_A_reveals": "prefers bubbling caramelized hot indulgence",
+    "what_B_reveals": "prefers cool silky leek-cream restraint"
+  },
+  {
+    "id": 119,
+    "axis": "freshness",
+    "category_scope": "within category",
+    "question": "Which raw spread wins: a Lebanese tabbouleh dense with parsley, mint, lemon, and bulgur, or a Mexican guacamole with avocado, lime, jalapeno, cilantro, and red onion?",
+    "option_a": "tabbouleh",
+    "option_b": "guacamole",
+    "what_A_reveals": "prefers herbal grain-driven brightness",
+    "what_B_reveals": "prefers creamy fatty acidic dip"
+  },
+  {
+    "id": 120,
+    "axis": "cooking style",
+    "category_scope": "within category",
+    "question": "Which whole-bird treatment wins: a Cantonese roast duck with crackling lacquered skin and five-spice, or a French duck a l'orange with bitter-sweet citrus glaze and pan jus?",
+    "option_a": "Cantonese roast duck",
+    "option_b": "duck a l'orange",
+    "what_A_reveals": "prefers crackling spiced Asian skin",
+    "what_B_reveals": "prefers bitter-sweet citrus French glaze"
+  },
+  {
+    "id": 121,
+    "axis": "sweetness",
+    "category_scope": "within category",
+    "question": "Which French dessert wins: a Paris-Brest with praline cream and almonds, or a tarte au citron with sharp lemon curd and torched meringue?",
+    "option_a": "Paris-Brest",
+    "option_b": "tarte au citron",
+    "what_A_reveals": "prefers nutty laminated indulgence",
+    "what_B_reveals": "prefers tart-bright meringue-topped restraint"
+  },
+  {
+    "id": 122,
+    "axis": "salty",
+    "category_scope": "within category",
+    "question": "Which salt-driven snack wins: a board of Iberian jamon with Marcona almonds, or a bowl of Castelvetrano olives with anchovies on toast?",
+    "option_a": "jamon with almonds",
+    "option_b": "olives and anchovies",
+    "what_A_reveals": "prefers cured-pork buttery saltiness",
+    "what_B_reveals": "prefers brined fish-olive Mediterranean salt"
+  },
+  {
+    "id": 123,
+    "axis": "contrast preference",
+    "category_scope": "within category",
+    "question": "Which morning bowl wins: a hot oatmeal with brown butter, walnuts, dates, and flaky salt, or a cold yogurt bowl with granola, honey, raspberries, and lemon zest?",
+    "option_a": "hot oatmeal with brown butter",
+    "option_b": "cold yogurt bowl",
+    "what_A_reveals": "prefers warm nutty caramelized comfort",
+    "what_B_reveals": "prefers cool tangy fresh-fruit lift"
+  },
+  {
+    "id": 124,
+    "axis": "cuisine style",
+    "category_scope": "within category",
+    "question": "Which long-cooked legume wins: an Egyptian ful medames with fava beans, cumin, lemon, garlic, and olive oil, or a Greek gigantes plaki with butter beans, tomato, dill, and olive oil?",
+    "option_a": "ful medames",
+    "option_b": "gigantes plaki",
+    "what_A_reveals": "prefers cumin-lemon Egyptian street-bean comfort",
+    "what_B_reveals": "prefers tomato-baked Greek herbal richness"
+  },
+  {
+    "id": 125,
+    "axis": "texture",
+    "category_scope": "within category",
+    "question": "Which fritter wins: a Japanese tempura with delicate lacy batter and pristine vegetable underneath, or an Indian pakora with thick chickpea-flour coating and warm spice?",
+    "option_a": "Japanese tempura",
+    "option_b": "Indian pakora",
+    "what_A_reveals": "prefers airy precise lacy batter",
+    "what_B_reveals": "prefers dense spiced rustic crunch"
+  },
+  {
+    "id": 126,
+    "axis": "heat and spice",
+    "category_scope": "within category",
+    "question": "Which warming chili wins: a Mexican chile colorado with deep ancho and guajillo over slow-braised beef, or a Texas all-meat chili with cumin, chiles, and beer?",
+    "option_a": "chile colorado",
+    "option_b": "Texas chili",
+    "what_A_reveals": "prefers chili-pure aromatic Mexican depth",
+    "what_B_reveals": "prefers cumin-driven beery beef simplicity"
+  },
+  {
+    "id": 127,
+    "axis": "cooking style",
+    "category_scope": "within category",
+    "question": "Which slow-and-low wins: a Texas brisket smoked for 14 hours over post oak, or a French confit duck leg slow-cooked in its own fat for hours?",
+    "option_a": "smoked brisket",
+    "option_b": "confit duck leg",
+    "what_A_reveals": "prefers smoky bark-crusted barbecue",
+    "what_B_reveals": "prefers fat-poached tender French preservation"
+  },
+  {
+    "id": 128,
+    "axis": "cuisine style",
+    "category_scope": "within category",
+    "question": "Which fried street snack wins: a Spanish churro with thick chocolate dipping sauce, or a Filipino turon with banana and jackfruit wrapped in spring-roll wrapper, deep-fried, and sugar-glazed?",
+    "option_a": "churros con chocolate",
+    "option_b": "turon",
+    "what_A_reveals": "prefers Spanish fried-dough chocolate ritual",
+    "what_B_reveals": "prefers tropical fried fruit-sugar lift"
+  },
+  {
+    "id": 129,
+    "axis": "temperature",
+    "category_scope": "within category",
+    "question": "Which Vietnamese cool dish wins: a chilled bun bo xao with stir-fried beef over cold rice noodles, herbs, and nuoc cham, or a hot bun rieu with crab paste, tomato, and tofu in pork broth?",
+    "option_a": "bun bo xao",
+    "option_b": "bun rieu",
+    "what_A_reveals": "prefers cold composed herb-and-noodle freshness",
+    "what_B_reveals": "prefers hot complex crab-tomato broth"
+  },
+  {
+    "id": 130,
+    "axis": "bitter",
+    "category_scope": "within category",
+    "question": "Which dark vegetable wins: a charred broccolini with garlic, chili, and lemon, or a braised endive with butter, orange, and thyme?",
+    "option_a": "charred broccolini",
+    "option_b": "braised endive",
+    "what_A_reveals": "prefers smoky bright bitter green",
+    "what_B_reveals": "prefers buttery slow-bitter citrus depth"
+  },
+  {
+    "id": 131,
+    "axis": "freshness",
+    "category_scope": "within category",
+    "question": "Which raw fish moment wins: a Peruvian tiradito with sliced fish, aji amarillo, lime, and ginger, or a Hawaiian poke with cubed tuna, soy, sesame, and onion?",
+    "option_a": "tiradito",
+    "option_b": "poke",
+    "what_A_reveals": "prefers acidic-spicy sliced precision",
+    "what_B_reveals": "prefers savory umami-marinated cubed comfort"
+  },
+  {
+    "id": 132,
+    "axis": "richness",
+    "category_scope": "within category",
+    "question": "Which Italian shellfish wins: a creamy lobster ravioli with brown butter and tarragon, or a spicy linguine with clams, garlic, white wine, and chili?",
+    "option_a": "lobster ravioli",
+    "option_b": "spaghetti alle vongole",
+    "what_A_reveals": "prefers rich filled-pasta cream luxury",
+    "what_B_reveals": "prefers lean garlic-wine-clam minerality"
+  },
+  {
+    "id": 133,
+    "axis": "cooking style",
+    "category_scope": "within category",
+    "question": "Which Korean preparation wins: a charcoal-grilled samgyeopsal pork belly wrapped in lettuce with garlic and ssamjang, or a bubbling kimchi-jjigae with aged kimchi and pork?",
+    "option_a": "samgyeopsal",
+    "option_b": "kimchi-jjigae",
+    "what_A_reveals": "prefers grilled DIY interactive Korean ritual",
+    "what_B_reveals": "prefers fermented-spicy simmered Korean depth"
+  },
+  {
+    "id": 134,
+    "axis": "cuisine style",
+    "category_scope": "within category",
+    "question": "Which Mexican breakfast wins: chilaquiles verdes with crisp tortilla soaked in salsa, crema, and queso fresco, or huevos divorciados with two eggs over tortillas with red and green salsas?",
+    "option_a": "chilaquiles verdes",
+    "option_b": "huevos divorciados",
+    "what_A_reveals": "prefers saucy soaked-tortilla green comfort",
+    "what_B_reveals": "prefers contrasting two-salsa structured breakfast"
+  },
+  {
+    "id": 135,
+    "axis": "heat and spice",
+    "category_scope": "within category",
+    "question": "Which African-spice dish wins: a Senegalese mafe with peanut, tomato, lamb, and chili, or an Ethiopian doro wat with berbere, onion, butter, and chicken legs?",
+    "option_a": "mafe",
+    "option_b": "doro wat",
+    "what_A_reveals": "prefers nutty tomato-rich West African depth",
+    "what_B_reveals": "prefers fiery butter-spiced Ethiopian intensity"
+  },
+  {
+    "id": 136,
+    "axis": "contrast preference",
+    "category_scope": "within category",
+    "question": "Which sushi moment wins: a chirashi bowl with assorted raw fish over warm rice and pickled vegetables, or a hot omakase nigiri served piece by piece with warm rice and varied toppings?",
+    "option_a": "chirashi bowl",
+    "option_b": "omakase nigiri",
+    "what_A_reveals": "prefers self-paced layered raw-fish bowl",
+    "what_B_reveals": "prefers ceremonial precise piece-by-piece progression"
+  },
+  {
+    "id": 137,
+    "axis": "sweetness",
+    "category_scope": "within category",
+    "question": "Which fruit-and-cream dessert wins: a strawberry shortcake with biscuit, whipped cream, and macerated berries, or a clafoutis with cherries baked into custard with kirsch?",
+    "option_a": "strawberry shortcake",
+    "option_b": "cherry clafoutis",
+    "what_A_reveals": "prefers American biscuit-cream-berry simplicity",
+    "what_B_reveals": "prefers French custard-baked cherry rusticity"
+  },
+  {
+    "id": 138,
+    "axis": "cooking style",
+    "category_scope": "within category",
+    "question": "Which seafood wins: a grilled whole sardine with lemon and parsley, or a cured salt-cod brandade whipped with potato, garlic, and olive oil?",
+    "option_a": "grilled sardine",
+    "option_b": "salt-cod brandade",
+    "what_A_reveals": "prefers smoky direct oily-fish minerality",
+    "what_B_reveals": "prefers cured whipped creamy fish-fat richness"
+  },
+  {
+    "id": 139,
+    "axis": "texture",
+    "category_scope": "within category",
+    "question": "Which Filipino moment wins: a sisig with crackling pork bits, calamansi, chili, and runny egg over rice, or a kare-kare with peanut-stewed oxtail, eggplant, and bagoong?",
+    "option_a": "Filipino sisig",
+    "option_b": "kare-kare",
+    "what_A_reveals": "prefers crisp-acidic-spicy-fatty stir",
+    "what_B_reveals": "prefers nutty-rich braised peanut-stew depth"
+  },
+  {
+    "id": 140,
+    "axis": "cuisine style",
+    "category_scope": "within category",
+    "question": "Which Caribbean meal wins: a Jamaican oxtail stew with butter beans, scotch bonnet, and rice and peas, or a Dominican sancocho with plantain, yuca, beef, and corn?",
+    "option_a": "Jamaican oxtail stew",
+    "option_b": "Dominican sancocho",
+    "what_A_reveals": "prefers scotch-bonnet rich-braised island depth",
+    "what_B_reveals": "prefers plantain-and-tuber multi-meat hearth"
+  },
+  {
+    "id": 141,
+    "axis": "freshness",
+    "category_scope": "within category",
+    "question": "Which Greek-Cypriot starter wins: a halloumi grilled with grill marks served with lemon and watermelon, or a tzatziki with cucumber, dill, garlic, and yogurt for warm pita?",
+    "option_a": "grilled halloumi with watermelon",
+    "option_b": "tzatziki with pita",
+    "what_A_reveals": "prefers salty-charred cheese with cool fruit",
+    "what_B_reveals": "prefers cool creamy garlic-yogurt and bread"
+  },
+  {
+    "id": 142,
+    "axis": "heat and spice",
+    "category_scope": "within category",
+    "question": "Which Thai noodle wins: a pad kee mao with wide rice noodles, holy basil, chili, and Chinese broccoli, or a khao soi with curry-coconut broth, egg noodles, crispy noodles, and pickled mustard greens?",
+    "option_a": "pad kee mao",
+    "option_b": "khao soi",
+    "what_A_reveals": "prefers stir-fried basil-and-chili intensity",
+    "what_B_reveals": "prefers curry-coconut layered Northern Thai richness"
+  },
+  {
+    "id": 143,
+    "axis": "contrast preference",
+    "category_scope": "within category",
+    "question": "Which Italian appetizer wins: a hot fritto misto with crispy seafood and lemon, or a cool plate of vitello tonnato with veal under tuna sauce?",
+    "option_a": "fritto misto",
+    "option_b": "vitello tonnato",
+    "what_A_reveals": "prefers hot fried briny lift",
+    "what_B_reveals": "prefers cool layered land-and-sea elegance"
+  },
+  {
+    "id": 144,
+    "axis": "sauce preference",
+    "category_scope": "within category",
+    "question": "Which dipping sauce wins: a Vietnamese nuoc cham with fish sauce, lime, sugar, garlic, and chili, or a Japanese ponzu with citrus, soy, and bonito?",
+    "option_a": "nuoc cham",
+    "option_b": "ponzu",
+    "what_A_reveals": "prefers sweet-sour-spicy fish-sauce balance",
+    "what_B_reveals": "prefers citrus-soy umami restraint"
+  },
+  {
+    "id": 145,
+    "axis": "cooking style",
+    "category_scope": "within category",
+    "question": "Which Italian seafood wins: a brodetto fish stew with tomato, white wine, and crusty bread, or a grilled whole branzino with lemon, fennel, and olive oil?",
+    "option_a": "brodetto",
+    "option_b": "grilled branzino",
+    "what_A_reveals": "prefers tomato-rich shared seafood stew",
+    "what_B_reveals": "prefers clean grilled whole-fish elegance"
+  },
+  {
+    "id": 146,
+    "axis": "bitter",
+    "category_scope": "within category",
+    "question": "Which radicchio moment wins: a salad of Treviso, anchovy, walnut, and orange, or a risotto al radicchio with red wine and gorgonzola?",
+    "option_a": "Treviso salad",
+    "option_b": "radicchio risotto",
+    "what_A_reveals": "prefers raw bitter-sweet citrus salad",
+    "what_B_reveals": "prefers braised bitter-creamy rice depth"
+  },
+  {
+    "id": 147,
+    "axis": "cuisine style",
+    "category_scope": "within category",
+    "question": "Which Iberian rice wins: a Spanish paella with saffron, chorizo, shrimp, and crispy socarrat, or a Portuguese arroz de marisco wet with seafood and tomato-cilantro broth?",
+    "option_a": "paella",
+    "option_b": "arroz de marisco",
+    "what_A_reveals": "prefers dry crispy-bottomed saffron rice",
+    "what_B_reveals": "prefers wet brothy seafood-tomato rice"
+  },
+  {
+    "id": 148,
+    "axis": "temperature",
+    "category_scope": "within category",
+    "question": "Which Korean noodle wins: a hot kalguksu with hand-cut wheat noodles in anchovy-and-zucchini broth, or a cold naengmyeon with chewy buckwheat noodles in icy beef broth?",
+    "option_a": "kalguksu",
+    "option_b": "naengmyeon",
+    "what_A_reveals": "prefers warm comforting hand-cut wheat noodle",
+    "what_B_reveals": "prefers chilled chewy refreshing summer noodle"
+  },
+  {
+    "id": 149,
+    "axis": "richness",
+    "category_scope": "within category",
+    "question": "Which French dessert wins: a creme brulee with crackling caramel and vanilla custard, or a chocolate pot de creme with dark cocoa and creme fraiche?",
+    "option_a": "creme brulee",
+    "option_b": "chocolate pot de creme",
+    "what_A_reveals": "prefers caramelized vanilla-cream textural play",
+    "what_B_reveals": "prefers dense bittersweet dairy-chocolate depth"
+  },
+  {
+    "id": 150,
+    "axis": "familiar vs adventurous",
+    "category_scope": "within category",
+    "question": "Which Mexican stew wins: a chicken tortilla soup with tomato, cumin, lime, and crispy strips, or a mole negro with chocolate, chiles, plantain, and 30+ ingredients over turkey?",
+    "option_a": "tortilla soup",
+    "option_b": "mole negro",
+    "what_A_reveals": "prefers familiar bright tomato-lime comfort",
+    "what_B_reveals": "prefers complex layered ancestral exploration"
+  },
+  {
+    "id": 151,
+    "axis": "texture",
+    "category_scope": "within category",
+    "question": "Which Indian rice wins: a layered Hyderabadi biryani with saffron, fried onion, and tender lamb under a sealed crust, or a one-pot pulao with cumin, peas, and basmati cooked through evenly?",
+    "option_a": "Hyderabadi biryani",
+    "option_b": "pulao",
+    "what_A_reveals": "prefers layered ceremonial spiced rice",
+    "what_B_reveals": "prefers single-pot restrained aromatic rice"
+  },
+  {
+    "id": 152,
+    "axis": "heat and spice",
+    "category_scope": "within category",
+    "question": "Which spicy Chinese moment wins: a mapo tofu with silken tofu, fermented black bean, and Sichuan peppercorn, or a chongqing chicken with deep-fried bites buried under dried chili and Sichuan peppercorn?",
+    "option_a": "mapo tofu",
+    "option_b": "chongqing chicken",
+    "what_A_reveals": "prefers numbing-spicy fermented saucy depth",
+    "what_B_reveals": "prefers crunchy dry-fried chili intensity"
+  },
+  {
+    "id": 153,
+    "axis": "cooking style",
+    "category_scope": "within category",
+    "question": "Which fish-and-acid moment wins: a salt-cured gravlax with dill, mustard, and lemon, or a smoked trout with horseradish cream and capers?",
+    "option_a": "gravlax",
+    "option_b": "smoked trout",
+    "what_A_reveals": "prefers fresh dill-and-citrus cure",
+    "what_B_reveals": "prefers smoky cold pungent finish"
+  },
+  {
+    "id": 154,
+    "axis": "cuisine style",
+    "category_scope": "within category",
+    "question": "Which Chinese braise wins: a red-cooked pork belly with soy, sugar, ginger, and star anise glistening in caramelized sauce, or a Cantonese steamed pork belly with preserved vegetable and rice?",
+    "option_a": "red-braised pork belly",
+    "option_b": "steamed pork belly",
+    "what_A_reveals": "prefers caramelized sweet-savory glaze",
+    "what_B_reveals": "prefers gentle steamed savory-vegetable depth"
+  },
+  {
+    "id": 155,
+    "axis": "freshness",
+    "category_scope": "within category",
+    "question": "Which raw fruit-and-vegetable salad wins: a Sicilian orange salad with red onion, olives, fennel, and olive oil, or a Thai pomelo salad with shrimp, peanut, mint, and chili?",
+    "option_a": "Sicilian orange salad",
+    "option_b": "Thai pomelo salad",
+    "what_A_reveals": "prefers Mediterranean citrus-olive minerality",
+    "what_B_reveals": "prefers tropical sweet-spicy-acidic complexity"
+  },
+  {
+    "id": 156,
+    "axis": "contrast preference",
+    "category_scope": "within category",
+    "question": "Which textural noodle wins: a hot bowl of mazemen with chewy noodles, runny yolk, fatty pork, and crispy garlic, or a chilled hiyashi chuka with cool noodles, julienned vegetables, and sesame dressing?",
+    "option_a": "mazemen",
+    "option_b": "hiyashi chuka",
+    "what_A_reveals": "prefers warm rich layered no-broth ramen",
+    "what_B_reveals": "prefers cold composed colorful refreshing noodles"
+  },
+  {
+    "id": 157,
+    "axis": "sauce preference",
+    "category_scope": "within category",
+    "question": "Which mole wins: a complex mole poblano with chocolate, chiles, sesame, and 25 ingredients over turkey, or a brighter mole verde with pumpkin seed, tomatillo, and herbs over chicken?",
+    "option_a": "mole poblano",
+    "option_b": "mole verde",
+    "what_A_reveals": "prefers brooding deep ancient complexity",
+    "what_B_reveals": "prefers bright herbal green-mole lightness"
+  },
+  {
+    "id": 158,
+    "axis": "cuisine style",
+    "category_scope": "within category",
+    "question": "Which Spanish tapa wins: patatas bravas with crispy potatoes and spicy tomato sauce and aioli, or boquerones en vinagre with cured anchovies, parsley, garlic, and good olive oil?",
+    "option_a": "patatas bravas",
+    "option_b": "boquerones",
+    "what_A_reveals": "prefers fried potato spicy-creamy comfort",
+    "what_B_reveals": "prefers cured-fish acidic minerality"
+  },
+  {
+    "id": 159,
+    "axis": "heat and spice",
+    "category_scope": "within category",
+    "question": "Which fish-and-spice wins: a Goan fish curry with coconut, kokum, mustard seed, and Kashmiri chili, or a Vietnamese ca kho to with caramelized fish in clay pot with chili and fish sauce?",
+    "option_a": "Goan fish curry",
+    "option_b": "ca kho to",
+    "what_A_reveals": "prefers coconut-sour-spicy Indian coast",
+    "what_B_reveals": "prefers caramelized salty-sweet Vietnamese depth"
+  },
+  {
+    "id": 160,
+    "axis": "temperature",
+    "category_scope": "within category",
+    "question": "Which dessert wins on a hot day: a chilled rice pudding with cardamom, rosewater, and pistachio, or a hot churro with cinnamon sugar and chocolate?",
+    "option_a": "chilled rice pudding",
+    "option_b": "hot churro",
+    "what_A_reveals": "prefers cool floral-spiced cream",
+    "what_B_reveals": "prefers hot fried-cinnamon-chocolate indulgence"
+  },
+  {
+    "id": 161,
+    "axis": "cooking style",
+    "category_scope": "within category",
+    "question": "Which Italian shellfish wins: a steamed bowl of mussels with white wine, garlic, and parsley, or a baked oyster Rockefeller with spinach, butter, herbs, and breadcrumb crust?",
+    "option_a": "steamed mussels",
+    "option_b": "oysters Rockefeller",
+    "what_A_reveals": "prefers light wine-and-shellfish broth",
+    "what_B_reveals": "prefers rich baked herb-and-cheese decadence"
+  },
+  {
+    "id": 162,
+    "axis": "bitter",
+    "category_scope": "within category",
+    "question": "Which espresso moment wins: a shot of espresso with a ribbon of crema, or an espresso macchiato with a touch of foamed milk softening the edge?",
+    "option_a": "straight espresso",
+    "option_b": "espresso macchiato",
+    "what_A_reveals": "prefers pure assertive bitter coffee",
+    "what_B_reveals": "prefers softened-edge balanced bitterness"
+  },
+  {
+    "id": 163,
+    "axis": "cuisine style",
+    "category_scope": "within category",
+    "question": "Which French bistro classic wins: a steak frites with peppercorn sauce, or a coq au vin with chicken in red wine, lardons, mushrooms, and pearl onions?",
+    "option_a": "steak frites",
+    "option_b": "coq au vin",
+    "what_A_reveals": "prefers grilled-meat-and-fries simplicity",
+    "what_B_reveals": "prefers wine-braised layered depth"
+  },
+  {
+    "id": 164,
+    "axis": "freshness",
+    "category_scope": "within category",
+    "question": "Which pickled element wins: Korean banchan of pickled radish, cucumber, and bean sprouts, or a Mexican plate of pickled red onion, jalapeno, and cucumber?",
+    "option_a": "Korean banchan pickles",
+    "option_b": "Mexican pickled vegetables",
+    "what_A_reveals": "prefers nuanced fermented-acid restrained",
+    "what_B_reveals": "prefers sharp acidic-spicy bright"
+  },
+  {
+    "id": 165,
+    "axis": "richness",
+    "category_scope": "within category",
+    "question": "Which Belgian-French moment wins: a steaming pot of moules-frites with white wine and a side of crisp frites and aioli, or a stoofvlees beef stew braised in dark beer with mustard and bread?",
+    "option_a": "moules-frites",
+    "option_b": "stoofvlees",
+    "what_A_reveals": "prefers shellfish-and-fries Belgian classic",
+    "what_B_reveals": "prefers beer-braised beef-and-bread comfort"
+  },
+  {
+    "id": 166,
+    "axis": "heat and spice",
+    "category_scope": "within category",
+    "question": "Which curry wins: a South Indian Chettinad chicken with black pepper, fennel, and curry leaf, or a Northern Indian butter chicken with tomato, cream, and fenugreek?",
+    "option_a": "Chettinad chicken",
+    "option_b": "butter chicken",
+    "what_A_reveals": "prefers peppery aromatic dry-roasted depth",
+    "what_B_reveals": "prefers creamy tomato-fenugreek mellow richness"
+  },
+  {
+    "id": 167,
+    "axis": "cooking style",
+    "category_scope": "within category",
+    "question": "Which fish wins: a Japanese saba shioyaki, salt-grilled mackerel with daikon and ponzu, or a Korean galchi-jorim, braised cutlassfish with soy, gochugaru, and radish?",
+    "option_a": "saba shioyaki",
+    "option_b": "galchi-jorim",
+    "what_A_reveals": "prefers salt-grilled clean Japanese",
+    "what_B_reveals": "prefers spicy-braised Korean depth"
+  },
+  {
+    "id": 168,
+    "axis": "cuisine style",
+    "category_scope": "within category",
+    "question": "Which dim sum item wins: a steamed siu mai with pork, shrimp, and mushroom under wonton wrapper, or a fried turnip cake with daikon, dried shrimp, and Chinese sausage with chili sauce?",
+    "option_a": "siu mai",
+    "option_b": "turnip cake",
+    "what_A_reveals": "prefers bouncy steamed pork-shrimp dumpling",
+    "what_B_reveals": "prefers crispy savory radish-cake satisfaction"
+  },
+  {
+    "id": 169,
+    "axis": "contrast preference",
+    "category_scope": "within category",
+    "question": "Which dessert wins: a baba au rhum soaked in rum syrup with whipped cream, or a panna cotta with sharp passionfruit syrup and crushed pistachios?",
+    "option_a": "baba au rhum",
+    "option_b": "panna cotta with passionfruit",
+    "what_A_reveals": "prefers boozy soaked-cake indulgence",
+    "what_B_reveals": "prefers cool wobbling tart-crunch contrast"
+  },
+  {
+    "id": 170,
+    "axis": "familiar vs adventurous",
+    "category_scope": "within category",
+    "question": "Which beef preparation wins: a classic American cheeseburger with melted cheddar, tomato, lettuce, and pickle on a soft bun, or a Korean bulgogi with marinated thin-sliced beef, lettuce wraps, and ssamjang?",
+    "option_a": "American cheeseburger",
+    "option_b": "Korean bulgogi",
+    "what_A_reveals": "prefers nostalgic familiar griddled comfort",
+    "what_B_reveals": "prefers sweet-soy-marinated wrap-and-share play"
+  },
+  {
+    "id": 171,
+    "axis": "cuisine style",
+    "category_scope": "within category",
+    "question": "Which Iranian rice wins: a tahdig-crusted saffron rice with golden crackling crust and fluffy basmati above, or a zereshk polo with barberries, saffron, and pistachio over rice with chicken?",
+    "option_a": "plain tahdig",
+    "option_b": "zereshk polo",
+    "what_A_reveals": "prefers crackling rice-crust simplicity",
+    "what_B_reveals": "prefers fruity-saffron jeweled rice"
+  },
+  {
+    "id": 172,
+    "axis": "texture",
+    "category_scope": "within category",
+    "question": "Which Vietnamese starter wins: goi cuon fresh spring rolls with rice paper, herbs, vermicelli, and shrimp, or cha gio crispy fried spring rolls with pork, mushroom, and fish sauce?",
+    "option_a": "goi cuon",
+    "option_b": "cha gio",
+    "what_A_reveals": "prefers cool herbal translucent freshness",
+    "what_B_reveals": "prefers crispy-fried savory crunch"
+  },
+  {
+    "id": 173,
+    "axis": "heat and spice",
+    "category_scope": "within category",
+    "question": "Which spicy noodle wins: a Tibetan thenthuk with hand-pulled noodles, lamb, and chili oil, or a Bhutanese ema datshi with green chili and yak cheese stewed?",
+    "option_a": "Tibetan thenthuk",
+    "option_b": "Bhutanese ema datshi",
+    "what_A_reveals": "prefers hand-pulled lamb-noodle warmth",
+    "what_B_reveals": "prefers high-altitude chili-cheese intensity"
+  },
+  {
+    "id": 174,
+    "axis": "cooking style",
+    "category_scope": "within category",
+    "question": "Which fermented vegetable wins: a Korean kimchi aged with fish sauce, gochugaru, and garlic, or a German sauerkraut with juniper berry and caraway?",
+    "option_a": "Korean kimchi",
+    "option_b": "German sauerkraut",
+    "what_A_reveals": "prefers spicy umami-laden fermentation",
+    "what_B_reveals": "prefers clean caraway-juniper fermentation"
+  },
+  {
+    "id": 175,
+    "axis": "freshness",
+    "category_scope": "within category",
+    "question": "Which Mexican raw moment wins: an aguachile with shrimp, lime, jalapeno, cucumber, and red onion, or a tostada de tinga with shredded chipotle chicken on a crisp tortilla with avocado and crema?",
+    "option_a": "aguachile",
+    "option_b": "tostada de tinga",
+    "what_A_reveals": "prefers icy lime-and-chili raw-shrimp",
+    "what_B_reveals": "prefers smoky-saucy chicken-tostada comfort"
+  },
+  {
+    "id": 176,
+    "axis": "cooking style",
+    "category_scope": "within category",
+    "question": "Which roasted meat wins: a porchetta with crackling skin, herb-stuffed pork loin, and fennel pollen, or a Korean kalbi short ribs grilled over charcoal with sesame and soy?",
+    "option_a": "porchetta",
+    "option_b": "kalbi",
+    "what_A_reveals": "prefers Italian herb-and-fennel pork mastery",
+    "what_B_reveals": "prefers Korean sweet-soy grilled beef ribs"
+  },
+  {
+    "id": 177,
+    "axis": "cuisine style",
+    "category_scope": "within category",
+    "question": "Which Caribbean stew wins: a Trinidadian curry goat with green seasoning, scotch bonnet, and roti, or a Cuban ropa vieja with shredded beef, peppers, and tomato over rice?",
+    "option_a": "Trinidadian curry goat",
+    "option_b": "Cuban ropa vieja",
+    "what_A_reveals": "prefers herbal-curry scotch-bonnet depth",
+    "what_B_reveals": "prefers tomato-pepper Caribbean-Latin comfort"
+  },
+  {
+    "id": 178,
+    "axis": "temperature",
+    "category_scope": "within category",
+    "question": "Which Italian moment wins: a chilled prosciutto with melon, or a hot bowl of pasta e fagioli with beans, pasta, and pancetta?",
+    "option_a": "prosciutto and melon",
+    "option_b": "pasta e fagioli",
+    "what_A_reveals": "prefers cool sweet-salty pairing",
+    "what_B_reveals": "prefers hot rustic bean-and-pasta comfort"
+  },
+  {
+    "id": 179,
+    "axis": "bitter",
+    "category_scope": "within category",
+    "question": "Which spirit-based moment wins: an Italian negroni with gin, Campari, and sweet vermouth, or a French aperitif with Lillet and citrus over ice?",
+    "option_a": "negroni",
+    "option_b": "Lillet aperitif",
+    "what_A_reveals": "prefers boldly bitter spirit-forward complexity",
+    "what_B_reveals": "prefers floral lighter aperitif moment"
+  },
+  {
+    "id": 180,
+    "axis": "contrast preference",
+    "category_scope": "within category",
+    "question": "Which Asian rice bowl wins: a Japanese unadon with grilled eel, sweet kabayaki sauce, and rice, or a Korean bibimbap with rice, vegetables, gochujang, beef, and a runny egg mixed at the table?",
+    "option_a": "unadon",
+    "option_b": "bibimbap",
+    "what_A_reveals": "prefers focused single-protein glazed bowl",
+    "what_B_reveals": "prefers mixable layered DIY balance"
+  },
+  {
+    "id": 181,
+    "axis": "cooking style",
+    "category_scope": "within category",
+    "question": "Which Indian bread wins: a leavened naan from a tandoor with yogurt and ghee, or an unleavened roti cooked on a tawa with whole wheat?",
+    "option_a": "tandoor naan",
+    "option_b": "tawa roti",
+    "what_A_reveals": "prefers fluffy yogurt-rich tandoor",
+    "what_B_reveals": "prefers earthy lean whole-wheat staple"
+  },
+  {
+    "id": 182,
+    "axis": "heat and spice",
+    "category_scope": "within category",
+    "question": "Which Mexican salsa wins: a salsa macha with dried chiles, peanuts, sesame, and oil, or a salsa borracha with pasilla, beer, orange, and pulque?",
+    "option_a": "salsa macha",
+    "option_b": "salsa borracha",
+    "what_A_reveals": "prefers smoky chili-oil-and-nut depth",
+    "what_B_reveals": "prefers boozy chile-citrus complexity"
+  },
+  {
+    "id": 183,
+    "axis": "cuisine style",
+    "category_scope": "within category",
+    "question": "Which French sauce-and-protein wins: a beurre blanc over poached fish with chive, or a sauce bordelaise over steak with bone marrow and red wine?",
+    "option_a": "beurre blanc with fish",
+    "option_b": "bordelaise with steak",
+    "what_A_reveals": "prefers light wine-butter delicate finish",
+    "what_B_reveals": "prefers deep marrow-and-wine intensity"
+  },
+  {
+    "id": 184,
+    "axis": "freshness",
+    "category_scope": "within category",
+    "question": "Which raw ribbon-cut salad wins: a shaved Brussels sprout salad with pecorino, lemon, and almond, or a shaved kohlrabi-and-apple slaw with horseradish, dill, and creme fraiche?",
+    "option_a": "shaved Brussels sprout",
+    "option_b": "kohlrabi-apple slaw",
+    "what_A_reveals": "prefers nutty-acidic-cheesy crunch",
+    "what_B_reveals": "prefers sharp cool root-fruit freshness"
+  },
+  {
+    "id": 185,
+    "axis": "richness",
+    "category_scope": "within category",
+    "question": "Which Italian primo wins: a creamy four-cheese rigatoni with gorgonzola, fontina, parmesan, and mozzarella, or a mushroom risotto with porcini, white wine, and parmesan?",
+    "option_a": "four-cheese rigatoni",
+    "option_b": "mushroom risotto",
+    "what_A_reveals": "prefers heavy multi-cheese density",
+    "what_B_reveals": "prefers earthy mushroom-and-rice elegance"
+  },
+  {
+    "id": 186,
+    "axis": "cooking style",
+    "category_scope": "within category",
+    "question": "Which slow lamb wins: a Greek kleftiko with lamb wrapped in parchment, lemon, garlic, and oregano, or a Moroccan mechoui with whole spit-roasted lamb and cumin salt?",
+    "option_a": "kleftiko",
+    "option_b": "mechoui",
+    "what_A_reveals": "prefers parcel-baked herbal-citrus lamb",
+    "what_B_reveals": "prefers spit-roasted communal cumin lamb"
+  },
+  {
+    "id": 187,
+    "axis": "temperature",
+    "category_scope": "within category",
+    "question": "Which Mexican beverage moment wins: a chilled horchata with rice, cinnamon, and sugar, or a hot champurrado with masa, chocolate, and piloncillo?",
+    "option_a": "horchata",
+    "option_b": "champurrado",
+    "what_A_reveals": "prefers cool cinnamon-rice refreshment",
+    "what_B_reveals": "prefers thick warm masa-chocolate ritual"
+  },
+  {
+    "id": 188,
+    "axis": "cuisine style",
+    "category_scope": "within category",
+    "question": "Which Andean potato dish wins: a Peruvian causa rellena with cold potato layered with chicken or tuna salad and avocado, or a Bolivian saltena with savory pastry filled with stewed beef, potato, and broth?",
+    "option_a": "Peruvian causa",
+    "option_b": "Bolivian saltena",
+    "what_A_reveals": "prefers cold layered aji-amarillo potato",
+    "what_B_reveals": "prefers handheld broth-pastry hand pie"
+  },
+  {
+    "id": 189,
+    "axis": "contrast preference",
+    "category_scope": "within category",
+    "question": "Which dessert wins: a hot chocolate souffle with creme anglaise poured into the center, or a frozen lemon parfait with raspberry coulis and crisp tuile?",
+    "option_a": "chocolate souffle",
+    "option_b": "frozen lemon parfait",
+    "what_A_reveals": "prefers warm dramatic dark-chocolate ritual",
+    "what_B_reveals": "prefers cold tart layered restraint"
+  },
+  {
+    "id": 190,
+    "axis": "heat and spice",
+    "category_scope": "within category",
+    "question": "Which heat-driven moment wins: a Sichuan twice-cooked pork with leek, fermented bean, and chili, or a Hunan steamed fish head with red chopped chili and ginger?",
+    "option_a": "twice-cooked pork",
+    "option_b": "Hunan fish head",
+    "what_A_reveals": "prefers numbing-spicy pork-fat depth",
+    "what_B_reveals": "prefers steamed fierce raw-chili intensity"
+  },
+  {
+    "id": 191,
+    "axis": "cooking style",
+    "category_scope": "within category",
+    "question": "Which whole-vegetable approach wins: a Middle Eastern smoked eggplant baba ghanoush with tahini, lemon, and garlic, or a Japanese nasu dengaku with miso glaze and broil?",
+    "option_a": "baba ghanoush",
+    "option_b": "nasu dengaku",
+    "what_A_reveals": "prefers smoky raw smashed-vegetable spread",
+    "what_B_reveals": "prefers caramelized miso-glazed eggplant"
+  },
+  {
+    "id": 192,
+    "axis": "cuisine style",
+    "category_scope": "within category",
+    "question": "Which Iberian shellfish wins: a Galician pulpo a la gallega with paprika, olive oil, and potato, or a Catalan suquet with shellfish, almond, and saffron?",
+    "option_a": "pulpo a la gallega",
+    "option_b": "Catalan suquet",
+    "what_A_reveals": "prefers paprika-and-olive-oil simple octopus",
+    "what_B_reveals": "prefers almond-saffron-and-shellfish stew"
+  },
+  {
+    "id": 193,
+    "axis": "salty",
+    "category_scope": "within category",
+    "question": "Which fermented salt moment wins: a Japanese ikura over rice with shiso and nori, or a Spanish bottarga grated over pasta with olive oil and parsley?",
+    "option_a": "ikura over rice",
+    "option_b": "bottarga over pasta",
+    "what_A_reveals": "prefers popping salty-roe oceanic burst",
+    "what_B_reveals": "prefers grated cured-roe aromatic finish"
+  },
+  {
+    "id": 194,
+    "axis": "freshness",
+    "category_scope": "within category",
+    "question": "Which Italian acid moment wins: a tomato-and-burrata salad with basil, olive oil, and salt, or a citrus-and-fennel salad with green olives, parsley, and olive oil?",
+    "option_a": "tomato-burrata salad",
+    "option_b": "citrus-fennel salad",
+    "what_A_reveals": "prefers ripe-tomato-creamy summer freshness",
+    "what_B_reveals": "prefers cool citrus-anise winter freshness"
+  },
+  {
+    "id": 195,
+    "axis": "heat and spice",
+    "category_scope": "within category",
+    "question": "Which heat profile wins: an Indonesian rendang with deeply-reduced coconut, lemongrass, and chili over slow-cooked beef, or a Filipino bicol express with pork, coconut, and bird's-eye chili?",
+    "option_a": "beef rendang",
+    "option_b": "bicol express",
+    "what_A_reveals": "prefers reduced caramelized-coconut spice",
+    "what_B_reveals": "prefers fresh-coconut-and-chili pork"
+  },
+  {
+    "id": 196,
+    "axis": "cooking style",
+    "category_scope": "within category",
+    "question": "Which seafood-fat moment wins: a butter-poached lobster with tarragon and lemon, or a charcoal-grilled prawn with garlic, parsley, and olive oil?",
+    "option_a": "butter-poached lobster",
+    "option_b": "charcoal-grilled prawn",
+    "what_A_reveals": "prefers French rich-poached-shellfish",
+    "what_B_reveals": "prefers smoky direct grilled-prawn"
+  },
+  {
+    "id": 197,
+    "axis": "cuisine style",
+    "category_scope": "within category",
+    "question": "Which East Asian rice moment wins: a Japanese onigiri with pickled plum and salted seaweed, or a Korean kimbap with rice, seaweed, vegetables, and protein rolled?",
+    "option_a": "umeboshi onigiri",
+    "option_b": "kimbap",
+    "what_A_reveals": "prefers minimalist focused tart-salty bite",
+    "what_B_reveals": "prefers layered colorful rolled abundance"
+  },
+  {
+    "id": 198,
+    "axis": "temperature",
+    "category_scope": "within category",
+    "question": "Which Italian pasta moment wins: a hot bowl of cacio e pepe with pecorino and pepper, or a chilled pasta al pomodoro with tomato, basil, and olive oil at room temperature?",
+    "option_a": "hot cacio e pepe",
+    "option_b": "room-temp pasta al pomodoro",
+    "what_A_reveals": "prefers steaming sharp restraint",
+    "what_B_reveals": "prefers cool fresh-tomato simplicity"
+  },
+  {
+    "id": 199,
+    "axis": "contrast preference",
+    "category_scope": "within category",
+    "question": "Which Mexican plate wins: a pozole verde with hominy, chicken, tomatillo, and pumpkin seed, or a cochinita pibil taco with achiote pork and pickled habanero?",
+    "option_a": "pozole verde",
+    "option_b": "cochinita pibil taco",
+    "what_A_reveals": "prefers brothy herbal-green stew",
+    "what_B_reveals": "prefers fatty-tart wrapped intensity"
+  },
+  {
+    "id": 200,
+    "axis": "cooking style",
+    "category_scope": "between categories",
+    "question": "Which dinner project wins: a multi-component Sunday roast chicken with sides taking three hours, or a quick weeknight noodle stir-fry assembled in 15 minutes from pantry?",
+    "option_a": "Sunday roast chicken with sides",
+    "option_b": "weeknight noodle stir-fry",
+    "what_A_reveals": "prefers patient ceremonial home cooking",
+    "what_B_reveals": "prefers fast pragmatic high-flavor execution"
+  },
+  {
+    "id": 201,
+    "axis": "texture",
+    "category_scope": "within category",
+    "question": "Which Spanish bite wins: a piece of pan con tomate with toasted bread, rubbed garlic, crushed tomato, olive oil, and salt, or a tortilla espanola thick wedge with potato, onion, and barely-set egg?",
+    "option_a": "pan con tomate",
+    "option_b": "tortilla espanola",
+    "what_A_reveals": "prefers crisp-bread tomato simplicity",
+    "what_B_reveals": "prefers tender egg-and-potato substance"
+  },
+  {
+    "id": 202,
+    "axis": "heat and spice",
+    "category_scope": "within category",
+    "question": "Which Mexican spice moment wins: a tinga de pollo with chipotle in adobo, tomato, and shredded chicken, or a cochinita pibil with achiote, sour orange, and habanero salsa?",
+    "option_a": "tinga de pollo",
+    "option_b": "cochinita pibil",
+    "what_A_reveals": "prefers smoky-saucy chipotle warmth",
+    "what_B_reveals": "prefers earthy citrus-marinated heat"
+  },
+  {
+    "id": 203,
+    "axis": "cooking style",
+    "category_scope": "within category",
+    "question": "Which Italian fish wins: a salt-baked branzino cracked open at the table with lemon and olive oil, or an acqua pazza with tomato, garlic, and white wine surrounding the fish?",
+    "option_a": "salt-baked branzino",
+    "option_b": "acqua pazza",
+    "what_A_reveals": "prefers theatrical mineral-pure preparation",
+    "what_B_reveals": "prefers brothy Mediterranean tomato bath"
+  },
+  {
+    "id": 204,
+    "axis": "cuisine style",
+    "category_scope": "within category",
+    "question": "Which East African moment wins: an Ethiopian misir wat with red lentils, berbere, and onion served on injera, or a Somali xalwo with cardamom, ghee, and saffron sweet for dessert?",
+    "option_a": "misir wat",
+    "option_b": "Somali xalwo",
+    "what_A_reveals": "prefers spiced-lentil savory comfort",
+    "what_B_reveals": "prefers floral-sweet ghee-rich dessert"
+  },
+  {
+    "id": 205,
+    "axis": "freshness",
+    "category_scope": "within category",
+    "question": "Which raw-acid plate wins: a Japanese sashimi-grade hamachi with yuzu, jalapeno, and ponzu, or a Mexican aguachile verde with shrimp, cucumber, and serrano-cilantro green salsa?",
+    "option_a": "hamachi tiradito",
+    "option_b": "aguachile verde",
+    "what_A_reveals": "prefers Japanese-Mexican fusion citrus",
+    "what_B_reveals": "prefers green-chili-cilantro raw shrimp"
+  },
+  {
+    "id": 206,
+    "axis": "contrast preference",
+    "category_scope": "within category",
+    "question": "Which textural moment wins: a crisp-skinned roast duck breast with charred edge and pink center over wilted greens, or a slow-cooked duck confit with shredded fall-apart meat over lentils?",
+    "option_a": "roast duck breast",
+    "option_b": "duck confit over lentils",
+    "what_A_reveals": "prefers crispy-skinned medium-rare contrast",
+    "what_B_reveals": "prefers rendered fall-apart confit comfort"
+  },
+  {
+    "id": 207,
+    "axis": "sauce preference",
+    "category_scope": "within category",
+    "question": "Which sauce-and-dumpling wins: a black vinegar with ginger over xiao long bao, or a chili-garlic-soy with sesame over wontons?",
+    "option_a": "vinegar-ginger over XLB",
+    "option_b": "chili-soy over wontons",
+    "what_A_reveals": "prefers acidic-cleansing dumpling pairing",
+    "what_B_reveals": "prefers spicy-savory soy-driven pairing"
+  },
+  {
+    "id": 208,
+    "axis": "cuisine style",
+    "category_scope": "within category",
+    "question": "Which French regional moment wins: a Provencal ratatouille with eggplant, zucchini, peppers, and tomato slow-stewed, or an Alsatian choucroute garnie with sauerkraut, sausages, pork, and potato?",
+    "option_a": "ratatouille",
+    "option_b": "choucroute garnie",
+    "what_A_reveals": "prefers herbal vegetable Mediterranean",
+    "what_B_reveals": "prefers fermented-cabbage hearty Alpine"
+  },
+  {
+    "id": 209,
+    "axis": "heat and spice",
+    "category_scope": "within category",
+    "question": "Which spicy crab moment wins: a Singaporean chili crab with sweet-spicy tomato sauce and fried mantou, or a Sichuan ginger-scallion crab with chili and Sichuan peppercorn?",
+    "option_a": "Singaporean chili crab",
+    "option_b": "Sichuan ginger-scallion crab",
+    "what_A_reveals": "prefers sweet-spicy tomato-glazed",
+    "what_B_reveals": "prefers numbing-aromatic crab"
+  },
+  {
+    "id": 210,
+    "axis": "cooking style",
+    "category_scope": "within category",
+    "question": "Which charred vegetable wins: a wood-fired charred cabbage wedge with anchovy butter and breadcrumbs, or a smoky chargrilled romaine with caesar dressing and parmesan?",
+    "option_a": "charred cabbage",
+    "option_b": "chargrilled romaine",
+    "what_A_reveals": "prefers blistered-cabbage anchovy umami",
+    "what_B_reveals": "prefers smoky-grilled-romaine creamy"
+  },
+  {
+    "id": 211,
+    "axis": "bitter",
+    "category_scope": "within category",
+    "question": "Which Italian bitter-and-cream wins: an espresso affogato over vanilla gelato, or a tiramisu with espresso-soaked ladyfingers and mascarpone?",
+    "option_a": "affogato",
+    "option_b": "tiramisu",
+    "what_A_reveals": "prefers stark hot-cold simplicity",
+    "what_B_reveals": "prefers layered cream-and-coffee structure"
+  },
+  {
+    "id": 212,
+    "axis": "temperature",
+    "category_scope": "within category",
+    "question": "Which French moment wins: a chilled vichyssoise with leek, potato, cream, and chive, or a hot soupe au pistou with summer vegetables, basil pesto, and white beans?",
+    "option_a": "vichyssoise",
+    "option_b": "soupe au pistou",
+    "what_A_reveals": "prefers cool refined silken comfort",
+    "what_B_reveals": "prefers hot vegetable-pesto rustic"
+  },
+  {
+    "id": 213,
+    "axis": "cuisine style",
+    "category_scope": "within category",
+    "question": "Which Latin American moment wins: an Argentinian milanesa napolitana with breaded steak, ham, tomato, and mozzarella, or a Peruvian lomo saltado with stir-fried beef, soy, tomato, onion, and fries?",
+    "option_a": "milanesa napolitana",
+    "option_b": "lomo saltado",
+    "what_A_reveals": "prefers Italian-influenced Argentinian",
+    "what_B_reveals": "prefers Chinese-Peruvian fusion stir-fry"
+  },
+  {
+    "id": 214,
+    "axis": "freshness",
+    "category_scope": "within category",
+    "question": "Which Mediterranean salad wins: a fattoush with tomato, cucumber, herbs, sumac, and toasted pita, or a panzanella with tomato, basil, red onion, capers, and crusty bread?",
+    "option_a": "fattoush",
+    "option_b": "panzanella",
+    "what_A_reveals": "prefers Lebanese sumac-pita freshness",
+    "what_B_reveals": "prefers Italian tomato-bread simplicity"
+  },
+  {
+    "id": 215,
+    "axis": "heat and spice",
+    "category_scope": "within category",
+    "question": "Which spicy stew wins: an Ethiopian doro wat with berbere, butter, and onion-stewed chicken, or a Hungarian halaszle with paprika, river fish, and tomato?",
+    "option_a": "doro wat",
+    "option_b": "halaszle",
+    "what_A_reveals": "prefers fiery butter-spiced complexity",
+    "what_B_reveals": "prefers paprika-rich riverside fish"
+  },
+  {
+    "id": 216,
+    "axis": "contrast preference",
+    "category_scope": "within category",
+    "question": "Which Japanese plate wins: a hot tonkatsu with breaded pork cutlet, shredded cabbage, and tonkatsu sauce, or a cool zaru soba with cold buckwheat noodles, dipping sauce, and wasabi?",
+    "option_a": "tonkatsu",
+    "option_b": "zaru soba",
+    "what_A_reveals": "prefers crispy-breaded comfort",
+    "what_B_reveals": "prefers cool minimalist buckwheat clarity"
+  },
+  {
+    "id": 217,
+    "axis": "cooking style",
+    "category_scope": "within category",
+    "question": "Which preparation wins: an Italian bagna cauda with hot anchovy-garlic-butter dip and raw vegetables, or a Provencal anchoiade with anchovy paste, garlic, and olive oil over toast?",
+    "option_a": "bagna cauda",
+    "option_b": "anchoiade",
+    "what_A_reveals": "prefers hot pungent dipping ritual",
+    "what_B_reveals": "prefers spread cold concentrated paste"
+  },
+  {
+    "id": 218,
+    "axis": "cuisine style",
+    "category_scope": "within category",
+    "question": "Which Spanish-Portuguese moment wins: a Catalan escalivada with smoked roasted vegetables and olive oil, or a Portuguese caldeirada fish stew with potato, pepper, tomato, and saffron?",
+    "option_a": "escalivada",
+    "option_b": "caldeirada",
+    "what_A_reveals": "prefers smoky-sweet roasted vegetables",
+    "what_B_reveals": "prefers brothy potato-fish comfort"
+  },
+  {
+    "id": 219,
+    "axis": "temperature",
+    "category_scope": "within category",
+    "question": "Which dumpling moment wins: a hot xiao long bao with soup-burst inside, or a chilled Japanese chimaki sticky rice dumpling with sweet bean and bamboo?",
+    "option_a": "xiao long bao",
+    "option_b": "chilled chimaki",
+    "what_A_reveals": "prefers hot delicate soup-burst",
+    "what_B_reveals": "prefers cool sticky-rice bamboo-wrapped"
+  },
+  {
+    "id": 220,
+    "axis": "richness",
+    "category_scope": "within category",
+    "question": "Which Italian secondo wins: an osso buco with veal shank, gremolata, and saffron risotto, or a saltimbocca with veal, prosciutto, sage, and white wine?",
+    "option_a": "osso buco",
+    "option_b": "saltimbocca",
+    "what_A_reveals": "prefers slow-braised marrow-rich grandeur",
+    "what_B_reveals": "prefers quick prosciutto-sage elegance"
+  },
+  {
+    "id": 221,
+    "axis": "cooking style",
+    "category_scope": "within category",
+    "question": "Which Mexican corn moment wins: an esquites cup with charred kernels, mayo, lime, cotija, and chile, or a sopa de elote with sweet corn, cream, poblano, and queso?",
+    "option_a": "esquites",
+    "option_b": "sopa de elote",
+    "what_A_reveals": "prefers handheld charred-spicy snack",
+    "what_B_reveals": "prefers creamy-poblano corn soup"
+  },
+  {
+    "id": 222,
+    "axis": "heat and spice",
+    "category_scope": "within category",
+    "question": "Which Indian rice moment wins: a tamarind-and-tempered curry-leaf-and-mustard-seed rice, or a coconut-and-curry-leaf rice with cashew and ginger?",
+    "option_a": "tamarind rice",
+    "option_b": "coconut rice",
+    "what_A_reveals": "prefers tart spiced South Indian",
+    "what_B_reveals": "prefers creamy-coconut nutty South Indian"
+  },
+  {
+    "id": 223,
+    "axis": "cuisine style",
+    "category_scope": "within category",
+    "question": "Which Lebanese moment wins: a kibbeh nayyeh with raw lamb, bulgur, and spices on tomato, or a baked kibbeh with stuffed shell of bulgur and lamb-pine nut filling?",
+    "option_a": "kibbeh nayyeh",
+    "option_b": "baked kibbeh",
+    "what_A_reveals": "prefers raw spiced lamb minerality",
+    "what_B_reveals": "prefers crispy stuffed-shell warmth"
+  },
+  {
+    "id": 224,
+    "axis": "contrast preference",
+    "category_scope": "within category",
+    "question": "Which seafood plate wins: an icy oysters Rockefeller served raw on the half-shell with mignonette, or a baked clams casino with bacon, breadcrumb, and butter under broiler?",
+    "option_a": "raw oyster Rockefeller",
+    "option_b": "clams casino",
+    "what_A_reveals": "prefers cold briny mignonette-acid",
+    "what_B_reveals": "prefers baked-breadcrumb-bacon richness"
+  },
+  {
+    "id": 225,
+    "axis": "cuisine style",
+    "category_scope": "within category",
+    "question": "Which Korean moment wins: a haemul pajeon with seafood-and-scallion pancake, or a kimchi pancake with aged kimchi, onion, and crispy edges?",
+    "option_a": "haemul pajeon",
+    "option_b": "kimchi pancake",
+    "what_A_reveals": "prefers seafood-vegetable savory pancake",
+    "what_B_reveals": "prefers fermented-tangy crispy pancake"
+  },
+  {
+    "id": 226,
+    "axis": "freshness",
+    "category_scope": "within category",
+    "question": "Which Greek-Turkish meze wins: a melitzanosalata with smoked eggplant, garlic, parsley, and lemon, or a haydari with strained yogurt, mint, dill, and olive oil?",
+    "option_a": "melitzanosalata",
+    "option_b": "haydari",
+    "what_A_reveals": "prefers smoky eggplant Greek spread",
+    "what_B_reveals": "prefers cool herbal yogurt Turkish spread"
+  },
+  {
+    "id": 227,
+    "axis": "heat and spice",
+    "category_scope": "within category",
+    "question": "Which Indian-British moment wins: a chicken tikka masala with creamy tomato gravy, or a vindaloo with vinegar, garlic, and Kashmiri chili over pork?",
+    "option_a": "chicken tikka masala",
+    "option_b": "pork vindaloo",
+    "what_A_reveals": "prefers creamy-tomato gentle British-Indian",
+    "what_B_reveals": "prefers acidic-spicy fierce Goan"
+  },
+  {
+    "id": 228,
+    "axis": "cooking style",
+    "category_scope": "within category",
+    "question": "Which roast root wins: a brown-buttered roasted carrots with thyme and honey, or a charred-edge sweet potato wedges with chipotle, lime, and crema?",
+    "option_a": "honey-thyme carrots",
+    "option_b": "chipotle sweet potato wedges",
+    "what_A_reveals": "prefers caramelized herbal-sweet",
+    "what_B_reveals": "prefers smoky-spicy-acidic edges"
+  },
+  {
+    "id": 229,
+    "axis": "cuisine style",
+    "category_scope": "within category",
+    "question": "Which Asian seafood-stew wins: a Japanese nabe with dashi, fish, vegetables, and tofu cooked at the table, or a Korean haemul-jjigae with mussel, clam, fish, and gochujang spice?",
+    "option_a": "Japanese seafood nabe",
+    "option_b": "haemul-jjigae",
+    "what_A_reveals": "prefers clean dashi-driven communal",
+    "what_B_reveals": "prefers spicy gochujang-driven communal"
+  },
+  {
+    "id": 230,
+    "axis": "temperature",
+    "category_scope": "within category",
+    "question": "Which Mediterranean moment wins: a hot baked feta with tomato, oregano, and pepper for crusty bread, or a chilled Greek yogurt with cucumber, garlic, and dill?",
+    "option_a": "baked feta",
+    "option_b": "tzatziki",
+    "what_A_reveals": "prefers warm bubbling cheese-and-tomato",
+    "what_B_reveals": "prefers cool creamy garlic-yogurt"
+  },
+  {
+    "id": 231,
+    "axis": "bitter",
+    "category_scope": "within category",
+    "question": "Which leafy-bitter pasta wins: an orecchiette with broccoli rabe, garlic, chili, and anchovy, or a tagliatelle with kale pesto, lemon, and pecorino?",
+    "option_a": "orecchiette with broccoli rabe",
+    "option_b": "tagliatelle with kale pesto",
+    "what_A_reveals": "prefers sharp-bitter southern Italian",
+    "what_B_reveals": "prefers softer-bitter green-pesto richness"
+  },
+  {
+    "id": 232,
+    "axis": "familiar vs adventurous",
+    "category_scope": "within category",
+    "question": "Which steak treatment wins: a classic NY strip with red wine reduction and roasted potatoes, or a Thai-style grilled beef salad with lime, fish sauce, herbs, and chili?",
+    "option_a": "NY strip with red wine sauce",
+    "option_b": "Thai grilled beef salad",
+    "what_A_reveals": "prefers Western steakhouse classic",
+    "what_B_reveals": "prefers Southeast Asian bright-spicy beef"
+  },
+  {
+    "id": 233,
+    "axis": "contrast preference",
+    "category_scope": "within category",
+    "question": "Which Italian dessert moment wins: a hot zeppole fritters with powdered sugar and ricotta filling, or a chilled cassata Siciliana with sponge, ricotta, candied fruit, and marzipan?",
+    "option_a": "hot zeppole",
+    "option_b": "cassata Siciliana",
+    "what_A_reveals": "prefers warm fried doughnut comfort",
+    "what_B_reveals": "prefers chilled layered Sicilian opulence"
+  },
+  {
+    "id": 234,
+    "axis": "heat and spice",
+    "category_scope": "within category",
+    "question": "Which Mexican fish moment wins: a Veracruzano red snapper with olives, capers, tomato, and pickled jalapeno, or a pescado a la Talla butterflied grilled fish with red chile rub?",
+    "option_a": "Veracruzano snapper",
+    "option_b": "pescado a la Talla",
+    "what_A_reveals": "prefers Spanish-influenced acidic-briny",
+    "what_B_reveals": "prefers chile-rubbed grilled-fish Pacific"
+  },
+  {
+    "id": 235,
+    "axis": "cooking style",
+    "category_scope": "within category",
+    "question": "Which Japanese moment wins: a chilled tofu hiyayakko with bonito, ginger, and soy, or a sizzling agedashi tofu in dashi broth with daikon and scallion?",
+    "option_a": "hiyayakko",
+    "option_b": "agedashi tofu",
+    "what_A_reveals": "prefers cool delicate raw-tofu",
+    "what_B_reveals": "prefers warm crisped tofu in broth"
+  },
+  {
+    "id": 236,
+    "axis": "cuisine style",
+    "category_scope": "within category",
+    "question": "Which fish-and-rice wins: a Japanese unaju with grilled eel over rice in a lacquered box with sansho pepper, or a Korean dolsot bibimbap with rice, vegetables, beef, gochujang, and runny egg in a hot stone bowl?",
+    "option_a": "unaju",
+    "option_b": "dolsot bibimbap",
+    "what_A_reveals": "prefers focused single-protein-glazed",
+    "what_B_reveals": "prefers mixable hot-stone layered"
+  },
+  {
+    "id": 237,
+    "axis": "freshness",
+    "category_scope": "within category",
+    "question": "Which Greek seafood wins: a chilled grilled octopus with lemon, oregano, and red wine vinegar, or a fried marides small fish with lemon and mustard sauce?",
+    "option_a": "chilled grilled octopus",
+    "option_b": "fried marides",
+    "what_A_reveals": "prefers cool tender chargrilled",
+    "what_B_reveals": "prefers crispy hot fried small-fish"
+  },
+  {
+    "id": 238,
+    "axis": "cooking style",
+    "category_scope": "within category",
+    "question": "Which French slow moment wins: a cassoulet with white beans, duck confit, sausage, and breadcrumb crust over hours, or a pot-au-feu with simmered beef, root vegetables, and broth?",
+    "option_a": "cassoulet",
+    "option_b": "pot-au-feu",
+    "what_A_reveals": "prefers fatty-rich legume-meat depth",
+    "what_B_reveals": "prefers clean broth-and-vegetable sustenance"
+  },
+  {
+    "id": 239,
+    "axis": "cuisine style",
+    "category_scope": "within category",
+    "question": "Which Iberian pork moment wins: a Spanish jamon iberico de bellota acorn-fed and aged with Marcona almonds, or a Portuguese leitao a Bairrada whole roasted suckling pig with crackling skin?",
+    "option_a": "jamon iberico de bellota",
+    "option_b": "leitao a Bairrada",
+    "what_A_reveals": "prefers cured aged-pork purity",
+    "what_B_reveals": "prefers roasted crackling young-pork"
+  },
+  {
+    "id": 240,
+    "axis": "heat and spice",
+    "category_scope": "within category",
+    "question": "Which sauce-rich moment wins: a Cantonese black bean sauce over clams with garlic and ginger, or a Sichuan douban-jiang fermented-chili-bean sauce over fish?",
+    "option_a": "black bean clams",
+    "option_b": "douban-jiang fish",
+    "what_A_reveals": "prefers fermented black-bean savory",
+    "what_B_reveals": "prefers fermented spicy-bean depth"
+  },
+  {
+    "id": 241,
+    "axis": "contrast preference",
+    "category_scope": "within category",
+    "question": "Which lamb chop wins: a Mongolian dipped in cumin and chili powder over charcoal, or a New Zealand rack with mustard-herb crust and red wine jus?",
+    "option_a": "cumin-chili lamb skewer",
+    "option_b": "herb-crusted lamb rack",
+    "what_A_reveals": "prefers spicy-cumin direct-fire lamb",
+    "what_B_reveals": "prefers herb-crusted French-style lamb"
+  },
+  {
+    "id": 242,
+    "axis": "sauce preference",
+    "category_scope": "within category",
+    "question": "Which seafood sauce wins: a French sauce americaine with shellfish, brandy, tomato, and tarragon, or a Catalan romesco with red pepper, almond, garlic, and tomato?",
+    "option_a": "sauce americaine",
+    "option_b": "romesco",
+    "what_A_reveals": "prefers brandied-shellfish elegance",
+    "what_B_reveals": "prefers nutty-pepper rustic depth"
+  },
+  {
+    "id": 243,
+    "axis": "cuisine style",
+    "category_scope": "within category",
+    "question": "Which Japanese-Italian moment wins: a uni pasta with sea-urchin, butter, lemon, and shiso, or a wafu pasta with shoyu, butter, mushroom, and nori?",
+    "option_a": "uni pasta",
+    "option_b": "wafu mushroom pasta",
+    "what_A_reveals": "prefers oceanic luxury fusion",
+    "what_B_reveals": "prefers earthy umami-soy fusion"
+  },
+  {
+    "id": 244,
+    "axis": "temperature",
+    "category_scope": "within category",
+    "question": "Which Latin street moment wins: a hot empanada with crisp pastry and beef, olive, and hard-boiled egg filling, or a chilled ceviche from a market with fish, lime, onion, and cancha?",
+    "option_a": "hot empanada",
+    "option_b": "street ceviche",
+    "what_A_reveals": "prefers handheld hot pastry",
+    "what_B_reveals": "prefers chilled raw-fish acidic"
+  },
+  {
+    "id": 245,
+    "axis": "heat and spice",
+    "category_scope": "within category",
+    "question": "Which Korean-Japanese moment wins: a yangnyeom chicken with sweet-spicy gochujang glaze and fried garlic, or a karaage Japanese fried chicken with lemon and Kewpie mayo?",
+    "option_a": "yangnyeom chicken",
+    "option_b": "karaage",
+    "what_A_reveals": "prefers sweet-spicy lacquered Korean fry",
+    "what_B_reveals": "prefers ginger-soy clean Japanese fry"
+  },
+  {
+    "id": 246,
+    "axis": "cooking style",
+    "category_scope": "within category",
+    "question": "Which Egyptian-Levantine moment wins: a koshari with rice, lentils, pasta, fried onion, and tomato-vinegar sauce, or a maqluba flipped rice with eggplant, chicken, and pine nuts?",
+    "option_a": "koshari",
+    "option_b": "maqluba",
+    "what_A_reveals": "prefers Egyptian street-food layered comfort",
+    "what_B_reveals": "prefers Palestinian flipped-pot ceremonial"
+  },
+  {
+    "id": 247,
+    "axis": "cuisine style",
+    "category_scope": "within category",
+    "question": "Which slow-cooked Spanish moment wins: a fabada asturiana with white beans, chorizo, morcilla, and pork shoulder, or a rabo de toro oxtail braised with red wine, sherry, and chocolate?",
+    "option_a": "fabada asturiana",
+    "option_b": "rabo de toro",
+    "what_A_reveals": "prefers heavy bean-and-pork mountain",
+    "what_B_reveals": "prefers wine-chocolate-braised Andalucian"
+  },
+  {
+    "id": 248,
+    "axis": "freshness",
+    "category_scope": "within category",
+    "question": "Which raw-acid plate wins: a Filipino kinilaw with fish, vinegar, ginger, chili, and coconut, or a Mexican ceviche verde with fish, tomatillo, cucumber, and serrano?",
+    "option_a": "Filipino kinilaw",
+    "option_b": "ceviche verde",
+    "what_A_reveals": "prefers vinegar-ginger Filipino raw",
+    "what_B_reveals": "prefers tomatillo-cucumber Mexican raw"
+  },
+  {
+    "id": 249,
+    "axis": "contrast preference",
+    "category_scope": "within category",
+    "question": "Which Indian-Pakistani moment wins: a hot biryani with saffron, fried onion, and lamb under sealed crust, or a chilled raita with yogurt, cucumber, mint, and toasted cumin alongside?",
+    "option_a": "hot biryani",
+    "option_b": "yogurt-cucumber raita",
+    "what_A_reveals": "prefers ceremonial hot-and-spiced rice",
+    "what_B_reveals": "prefers cool soothing-acidic side"
+  },
+  {
+    "id": 250,
+    "axis": "cooking style",
+    "category_scope": "between categories",
+    "question": "Which final dinner wins: a long Sunday cassoulet with duck confit, beans, sausage, and breadcrumb crust eaten over hours, or a fast 15-minute Sichuan stir-fry with chili, peppercorn, and beef over rice?",
+    "option_a": "Sunday cassoulet",
+    "option_b": "Sichuan stir-fry",
+    "what_A_reveals": "prefers patient ritual-driven slow eating",
+    "what_B_reveals": "prefers fast intense flavor-burst eating"
+  }
+]

@@ -1,0 +1,4 @@
+project_id = "upofudganvjbdhxxpfti"
+
+[functions.generate-recipe-image]
+verify_jwt = true

@@ -63,6 +63,18 @@
 
 :root {
   --radius: 0.625rem;
+  --bg: #0E0E0C;
+  --surface: #16161300;
+  --surface-elev: #1C1C18;
+  --hairline: #2A2A24;
+  --fg: #F2EFE6;
+  --fg-muted: #B8B4A6;
+  --fg-low: #6E6A5E;
+  --saffron: #D97A1B;
+  --saffron-muted: #A35A12;
+  --font-display: "Cormorant Garamond", serif;
+  --font-body: "Inter Tight", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
   --background: oklch(1 0 0);
   --foreground: oklch(0.129 0.042 264.695);
   --card: oklch(1 0 0);
@@ -138,7 +150,203 @@
   }
 
   body {
-    background-color: var(--color-background);
-    color: var(--color-foreground);
+    background-color: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-body);
+    margin: 0;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  html {
+    background-color: var(--bg);
+  }
+
+  ::selection {
+    background-color: color-mix(in oklab, var(--saffron) 30%, transparent);
+    color: var(--fg);
   }
 }
+
+.culinario-nav-link:hover {
+  color: var(--fg) !important;
+}
+
+.culinario-cta:hover {
+  color: var(--saffron-muted) !important;
+}
+
+.culinario-input:focus {
+  border-bottom-color: var(--saffron) !important;
+}
+
+.culinario-cta:hover {
+  color: var(--saffron-muted) !important;
+}
+
+.culinario-cta-muted:hover {
+  color: var(--fg) !important;
+}
+
+.culinario-signout:hover {
+  color: var(--saffron) !important;
+}
+
+@keyframes culinario-pulse {
+  0%, 100% { color: var(--fg-muted); }
+  50% { color: var(--saffron); }
+}
+
+.culinario-loading {
+  animation: culinario-pulse 2.4s ease-in-out infinite;
+}
+
+@media (max-width: 640px) {
+  .culinario-meta {
+    grid-template-columns: 1fr !important;
+  }
+  .culinario-meta-col {
+    border-left: none !important;
+    border-top: 1px solid var(--hairline);
+    padding: 24px 0 !important;
+  }
+  .culinario-meta-col:first-child {
+    border-top: none;
+  }
+  .culinario-title {
+    font-size: clamp(40px, 12vw, 56px) !important;
+  }
+}
+
+/* ---------- Mobile responsive scaling (within locked aesthetic) ---------- */
+
+/* Container: 720px max, side padding scales by viewport */
+.culinario-page {
+  width: 100%;
+  max-width: 720px;
+  margin: 0 auto;
+  padding-left: 24px;
+  padding-right: 24px;
+  box-sizing: border-box;
+}
+@media (min-width: 640px) {
+  .culinario-page { padding-left: 32px; padding-right: 32px; }
+}
+
+/* Header — Approach 1: tighter gap + smaller nav font on mobile */
+@media (max-width: 640px) {
+  .culinario-header-inner { gap: 12px !important; padding-left: 24px !important; padding-right: 24px !important; }
+  .culinario-header-nav { gap: 14px !important; }
+  .culinario-header-nav a { font-size: 11px !important; letter-spacing: 0.1em !important; padding: 12px 0 !important; }
+  .culinario-wordmark { font-size: 16px !important; letter-spacing: 0.16em !important; }
+}
+
+/* 44px hit area around the 28px avatar circle */
+.culinario-avatar-tap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+/* Avatar dropdown stays in viewport on narrow screens */
+@media (max-width: 380px) {
+  .culinario-avatar-menu { right: auto !important; left: 0 !important; }
+}
+
+/* Display headline mobile sizing */
+@media (max-width: 640px) {
+  .culinario-display-h1 { font-size: 40px !important; line-height: 1.1 !important; }
+}
+
+/* Today metadata row: stack label/value on very narrow viewports */
+@media (max-width: 380px) {
+  .culinario-today-row { flex-direction: column !important; align-items: flex-start !important; gap: 4px !important; }
+}
+
+/* Today CTA: full width on mobile */
+@media (max-width: 480px) {
+  .culinario-today-cta-wrap { width: 100%; }
+  .culinario-today-cta-wrap > button { justify-content: center; width: 100%; min-height: 44px; }
+}
+
+/* Stage 1: 44px tap rows, slightly more breathing room on mobile */
+.culinario-surface-row { min-height: 44px; }
+@media (max-width: 640px) {
+  .culinario-surface-row { padding: 22px 0 !important; }
+}
+
+/* Stage 2: photo zone full width on mobile */
+.culinario-photo-zone {
+  width: 320px;
+  height: 240px;
+}
+@media (max-width: 640px) {
+  .culinario-photo-zone {
+    width: 100% !important;
+    height: auto !important;
+    aspect-ratio: 4 / 3;
+    max-width: 100%;
+  }
+}
+
+/* Photo thumbs: scroll horizontally if many */
+@media (max-width: 480px) {
+  .culinario-thumbs {
+    flex-wrap: nowrap !important;
+    overflow-x: auto;
+    justify-content: flex-start !important;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .culinario-thumbs::-webkit-scrollbar { display: none; }
+}
+
+/* Stage 3: 44px tap area for ingredient × removers */
+.culinario-x-tap {
+  min-width: 44px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Voice / people / dietary chips: 44px tap target on mobile */
+@media (max-width: 640px) {
+  .culinario-chip { min-height: 44px; }
+}
+
+/* Stage 5 recipe metadata: stack vertically on narrow */
+@media (max-width: 480px) {
+  .culinario-recipe-meta { grid-template-columns: 1fr !important; gap: 0 !important; }
+  .culinario-recipe-meta > div {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--hairline);
+  }
+  .culinario-recipe-meta > div > div:first-child { margin-bottom: 0 !important; }
+}
+
+/* Stage 5 rating: 44px tap targets */
+.culinario-rate-btn {
+  min-width: 44px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Onboarding nav buttons: stack on very narrow */
+@media (max-width: 400px) {
+  .culinario-nav-buttons { flex-direction: column-reverse !important; align-items: stretch !important; gap: 16px; }
+  .culinario-nav-buttons > * { justify-content: center; min-height: 44px; }
+}
+
+/* Prevent horizontal scroll globally */
+html, body { overflow-x: hidden; }

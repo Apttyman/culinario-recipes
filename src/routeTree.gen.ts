@@ -9,38 +9,248 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TodayRouteImport } from './routes/today'
+import { Route as SignUpRouteImport } from './routes/sign-up'
+import { Route as SignInRouteImport } from './routes/sign-in'
+import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as PortraitRouteImport } from './routes/portrait'
+import { Route as OnboardingRouteImport } from './routes/onboarding'
+import { Route as InverseRouteImport } from './routes/inverse'
+import { Route as CookbookRouteImport } from './routes/cookbook'
+import { Route as CaptureRouteImport } from './routes/capture'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as SessionNewRouteImport } from './routes/session.new'
+import { Route as RecipesIdRouteImport } from './routes/recipes.$id'
 
+const TodayRoute = TodayRouteImport.update({
+  id: '/today',
+  path: '/today',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SignUpRoute = SignUpRouteImport.update({
+  id: '/sign-up',
+  path: '/sign-up',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SignInRoute = SignInRouteImport.update({
+  id: '/sign-in',
+  path: '/sign-in',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PortraitRoute = PortraitRouteImport.update({
+  id: '/portrait',
+  path: '/portrait',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OnboardingRoute = OnboardingRouteImport.update({
+  id: '/onboarding',
+  path: '/onboarding',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InverseRoute = InverseRouteImport.update({
+  id: '/inverse',
+  path: '/inverse',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CookbookRoute = CookbookRouteImport.update({
+  id: '/cookbook',
+  path: '/cookbook',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CaptureRoute = CaptureRouteImport.update({
+  id: '/capture',
+  path: '/capture',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SessionNewRoute = SessionNewRouteImport.update({
+  id: '/session/new',
+  path: '/session/new',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RecipesIdRoute = RecipesIdRouteImport.update({
+  id: '/recipes/$id',
+  path: '/recipes/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/capture': typeof CaptureRoute
+  '/cookbook': typeof CookbookRoute
+  '/inverse': typeof InverseRoute
+  '/onboarding': typeof OnboardingRoute
+  '/portrait': typeof PortraitRoute
+  '/settings': typeof SettingsRoute
+  '/sign-in': typeof SignInRoute
+  '/sign-up': typeof SignUpRoute
+  '/today': typeof TodayRoute
+  '/recipes/$id': typeof RecipesIdRoute
+  '/session/new': typeof SessionNewRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/capture': typeof CaptureRoute
+  '/cookbook': typeof CookbookRoute
+  '/inverse': typeof InverseRoute
+  '/onboarding': typeof OnboardingRoute
+  '/portrait': typeof PortraitRoute
+  '/settings': typeof SettingsRoute
+  '/sign-in': typeof SignInRoute
+  '/sign-up': typeof SignUpRoute
+  '/today': typeof TodayRoute
+  '/recipes/$id': typeof RecipesIdRoute
+  '/session/new': typeof SessionNewRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/capture': typeof CaptureRoute
+  '/cookbook': typeof CookbookRoute
+  '/inverse': typeof InverseRoute
+  '/onboarding': typeof OnboardingRoute
+  '/portrait': typeof PortraitRoute
+  '/settings': typeof SettingsRoute
+  '/sign-in': typeof SignInRoute
+  '/sign-up': typeof SignUpRoute
+  '/today': typeof TodayRoute
+  '/recipes/$id': typeof RecipesIdRoute
+  '/session/new': typeof SessionNewRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/capture'
+    | '/cookbook'
+    | '/inverse'
+    | '/onboarding'
+    | '/portrait'
+    | '/settings'
+    | '/sign-in'
+    | '/sign-up'
+    | '/today'
+    | '/recipes/$id'
+    | '/session/new'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/capture'
+    | '/cookbook'
+    | '/inverse'
+    | '/onboarding'
+    | '/portrait'
+    | '/settings'
+    | '/sign-in'
+    | '/sign-up'
+    | '/today'
+    | '/recipes/$id'
+    | '/session/new'
+  id:
+    | '__root__'
+    | '/'
+    | '/capture'
+    | '/cookbook'
+    | '/inverse'
+    | '/onboarding'
+    | '/portrait'
+    | '/settings'
+    | '/sign-in'
+    | '/sign-up'
+    | '/today'
+    | '/recipes/$id'
+    | '/session/new'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  CaptureRoute: typeof CaptureRoute
+  CookbookRoute: typeof CookbookRoute
+  InverseRoute: typeof InverseRoute
+  OnboardingRoute: typeof OnboardingRoute
+  PortraitRoute: typeof PortraitRoute
+  SettingsRoute: typeof SettingsRoute
+  SignInRoute: typeof SignInRoute
+  SignUpRoute: typeof SignUpRoute
+  TodayRoute: typeof TodayRoute
+  RecipesIdRoute: typeof RecipesIdRoute
+  SessionNewRoute: typeof SessionNewRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/today': {
+      id: '/today'
+      path: '/today'
+      fullPath: '/today'
+      preLoaderRoute: typeof TodayRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sign-up': {
+      id: '/sign-up'
+      path: '/sign-up'
+      fullPath: '/sign-up'
+      preLoaderRoute: typeof SignUpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sign-in': {
+      id: '/sign-in'
+      path: '/sign-in'
+      fullPath: '/sign-in'
+      preLoaderRoute: typeof SignInRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/portrait': {
+      id: '/portrait'
+      path: '/portrait'
+      fullPath: '/portrait'
+      preLoaderRoute: typeof PortraitRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/onboarding': {
+      id: '/onboarding'
+      path: '/onboarding'
+      fullPath: '/onboarding'
+      preLoaderRoute: typeof OnboardingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inverse': {
+      id: '/inverse'
+      path: '/inverse'
+      fullPath: '/inverse'
+      preLoaderRoute: typeof InverseRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cookbook': {
+      id: '/cookbook'
+      path: '/cookbook'
+      fullPath: '/cookbook'
+      preLoaderRoute: typeof CookbookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/capture': {
+      id: '/capture'
+      path: '/capture'
+      fullPath: '/capture'
+      preLoaderRoute: typeof CaptureRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,11 +258,36 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/session/new': {
+      id: '/session/new'
+      path: '/session/new'
+      fullPath: '/session/new'
+      preLoaderRoute: typeof SessionNewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/recipes/$id': {
+      id: '/recipes/$id'
+      path: '/recipes/$id'
+      fullPath: '/recipes/$id'
+      preLoaderRoute: typeof RecipesIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  CaptureRoute: CaptureRoute,
+  CookbookRoute: CookbookRoute,
+  InverseRoute: InverseRoute,
+  OnboardingRoute: OnboardingRoute,
+  PortraitRoute: PortraitRoute,
+  SettingsRoute: SettingsRoute,
+  SignInRoute: SignInRoute,
+  SignUpRoute: SignUpRoute,
+  TodayRoute: TodayRoute,
+  RecipesIdRoute: RecipesIdRoute,
+  SessionNewRoute: SessionNewRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
