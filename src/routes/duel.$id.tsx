@@ -525,7 +525,7 @@ function Act3WalkOn({ name, bio, img, side, onAdvance }: { name: string; bio?: s
               <Typewriter text={bio} speed={22} delay={900} />
             </div>
           ) : (
-            <div style={{ fontStyle: "italic", color: PALETTE.muted }}>Steps into the kitchen, says nothing.</div>
+            <div style={{ fontStyle: "italic", color: PALETTE.muted }}>[The MC clears their throat.]</div>
           )}
         </div>
       </div>
