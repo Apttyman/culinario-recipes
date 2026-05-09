@@ -1,5 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import Confetti from "react-confetti";
 import { supabase } from "@/lib/supabase-client";
 import { useAuth } from "@/lib/auth-context";
 
@@ -17,48 +19,7 @@ const PALETTE = {
   muted: "#9a9a9a",
 };
 
-function FadeIn({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
-  const ref = useRef<HTMLDivElement | null>(null);
-  const [visible, setVisible] = useState(false);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const obs = new IntersectionObserver(
-      ([e]) => { if (e.isIntersecting) { setVisible(true); obs.disconnect(); } },
-      { threshold: 0.15 },
-    );
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, []);
-  return (
-    <div
-      ref={ref}
-      style={{
-        opacity: visible ? 1 : 0,
-        transform: visible ? "translateY(0)" : "translateY(24px)",
-        transition: `opacity 700ms ease ${delay}ms, transform 700ms ease ${delay}ms`,
-      }}
-    >
-      {children}
-    </div>
-  );
-}
-
-function Avatar({ src, alt, size = 96 }: { src?: string | null; alt: string; size?: number }) {
-  return (
-    <div
-      style={{
-        width: size, height: size, borderRadius: "50%",
-        background: src ? `center/cover no-repeat url(${src})` : "#1a1a1a",
-        border: `2px solid ${PALETTE.gold}`,
-        boxShadow: `0 0 24px ${PALETTE.gold}55`,
-        flexShrink: 0,
-      }}
-      aria-label={alt}
-    />
-  );
-}
-
+// ---------- helpers ----------
 async function resolveImage(r: any): Promise<string | null> {
   if (!r) return null;
   if (r.inverse_image_url) return r.inverse_image_url;
@@ -69,6 +30,135 @@ async function resolveImage(r: any): Promise<string | null> {
   return null;
 }
 
+function Avatar({ src, alt, size = 96, ring = false }: { src?: string | null; alt: string; size?: number; ring?: boolean }) {
+  return (
+    <div
+      aria-label={alt}
+      style={{
+        width: size, height: size, borderRadius: "50%",
+        background: src ? `center/cover no-repeat url(${src})` : "#1a1a1a",
+        border: `2px solid ${PALETTE.gold}`,
+        boxShadow: ring
+          ? `0 0 0 6px ${PALETTE.gold}33, 0 0 60px ${PALETTE.gold}aa`
+          : `0 0 24px ${PALETTE.gold}55`,
+        flexShrink: 0,
+      }}
+    />
+  );
+}
+
+// Stagger-letter title reveal
+function LetterReveal({ text, perLetter = 0.08, delay = 0, style }: { text: string; perLetter?: number; delay?: number; style?: React.CSSProperties }) {
+  return (
+    <span style={{ display: "inline-block", ...style }} aria-label={text}>
+      {Array.from(text).map((ch, i) => (
+        <motion.span
+          key={i}
+          initial={{ opacity: 0, y: 24, filter: "blur(8px)" }}
+          animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+          transition={{ delay: delay + i * perLetter, type: "spring", damping: 14, stiffness: 200 }}
+          style={{ display: "inline-block", whiteSpace: ch === " " ? "pre" : undefined }}
+        >
+          {ch}
+        </motion.span>
+      ))}
+    </span>
+  );
+}
+
+// Word-by-word reveal
+function WordReveal({ text, perWord = 0.18, delay = 0, style }: { text: string; perWord?: number; delay?: number; style?: React.CSSProperties }) {
+  const words = text.split(/(\s+)/);
+  return (
+    <span style={style}>
+      {words.map((w, i) =>
+        /^\s+$/.test(w) ? <span key={i}>{w}</span> : (
+          <motion.span
+            key={i}
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: delay + i * perWord, type: "spring", damping: 16, stiffness: 180 }}
+            style={{ display: "inline-block" }}
+          >
+            {w}
+          </motion.span>
+        )
+      )}
+    </span>
+  );
+}
+
+// Typewriter
+function Typewriter({ text, speed = 25, delay = 0, style }: { text: string; speed?: number; delay?: number; style?: React.CSSProperties }) {
+  const [i, setI] = useState(0);
+  useEffect(() => {
+    setI(0);
+    if (!text) return;
+    let cancelled = false;
+    const startT = setTimeout(() => {
+      if (cancelled) return;
+      const id = setInterval(() => {
+        setI((n) => {
+          if (n >= text.length) { clearInterval(id); return n; }
+          return n + 1;
+        });
+      }, speed);
+      (startT as any)._iv = id;
+    }, delay);
+    return () => {
+      cancelled = true;
+      clearTimeout(startT);
+      const id = (startT as any)._iv; if (id) clearInterval(id);
+    };
+  }, [text, speed, delay]);
+  return (
+    <span style={style}>
+      {text.slice(0, i)}
+      <motion.span
+        animate={{ opacity: [1, 0.2, 1] }}
+        transition={{ duration: 0.9, repeat: Infinity }}
+        style={{ display: "inline-block", width: 8, marginLeft: 2, color: PALETTE.gold }}
+      >
+        ▍
+      </motion.span>
+    </span>
+  );
+}
+
+function ActShell({ children, onAdvance }: { children: React.ReactNode; onAdvance: () => void }) {
+  return (
+    <div
+      onClick={onAdvance}
+      style={{
+        position: "fixed", inset: 0, background: PALETTE.bg, color: PALETTE.ink,
+        overflow: "hidden", cursor: "pointer",
+        fontFamily: "Inter, system-ui, sans-serif",
+        display: "flex", alignItems: "center", justifyContent: "center",
+        padding: 24,
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
+function TapHint({ label = "TAP TO CONTINUE" }: { label?: string }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: [0.3, 1, 0.3] }}
+      transition={{ duration: 1.8, repeat: Infinity, delay: 0.6 }}
+      style={{
+        position: "absolute", bottom: 40, left: 0, right: 0, textAlign: "center",
+        fontSize: 11, letterSpacing: "0.4em", color: PALETTE.muted,
+      }}
+    >
+      {label}
+    </motion.div>
+  );
+}
+
+// ---------- main ----------
 function DuelPage() {
   const { id } = Route.useParams();
   const { session, loading: authLoading } = useAuth();
@@ -77,6 +167,7 @@ function DuelPage() {
   useEffect(() => {
     if (!authLoading && !session) navigate({ to: "/sign-in" });
   }, [authLoading, session, navigate]);
+
   const [duel, setDuel] = useState<any>(null);
   const [recipeA, setRecipeA] = useState<any>(null);
   const [recipeB, setRecipeB] = useState<any>(null);
@@ -89,27 +180,28 @@ function DuelPage() {
     let cancelled = false;
     (async () => {
       setLoading(true);
-      const { data: d, error: dErr, status } = await supabase.from("duels" as any).select("*").eq("id", id).maybeSingle();
-      console.log("[duel] fetch", { id, status, error: dErr, data: d });
+      const { data: d, error: dErr } = await supabase.from("duels" as any).select("*").eq("id", id).maybeSingle();
       if (cancelled) return;
-      if (dErr) { setError(`${dErr.code ?? "?"}: ${dErr.message} ${dErr.details ?? ""} ${dErr.hint ?? ""}`); setLoading(false); return; }
-      if (!d) { setError(`No duel row matched id ${id}. Check that the row exists and that RLS lets you read it.`); setLoading(false); return; }
+      if (dErr) { setError(`${dErr.code ?? "?"}: ${dErr.message}`); setLoading(false); return; }
+      if (!d) { setError(`No duel row matched id ${id}.`); setLoading(false); return; }
       setDuel(d);
       const ids = [(d as any).recipe_a_id, (d as any).recipe_b_id].filter(Boolean);
-      const { data: rs } = await supabase.from("recipes").select("*").in("id", ids);
-      const a = (rs ?? []).find((r: any) => r.id === (d as any).recipe_a_id);
-      const b = (rs ?? []).find((r: any) => r.id === (d as any).recipe_b_id);
-      if (cancelled) return;
-      setRecipeA(a); setRecipeB(b);
-      const [ua, ub] = await Promise.all([resolveImage(a), resolveImage(b)]);
-      if (cancelled) return;
-      setImgA(ua); setImgB(ub);
+      if (ids.length) {
+        const { data: rs } = await supabase.from("recipes").select("*").in("id", ids);
+        const a = (rs ?? []).find((r: any) => r.id === (d as any).recipe_a_id);
+        const b = (rs ?? []).find((r: any) => r.id === (d as any).recipe_b_id);
+        if (cancelled) return;
+        setRecipeA(a); setRecipeB(b);
+        const [ua, ub] = await Promise.all([resolveImage(a), resolveImage(b)]);
+        if (cancelled) return;
+        setImgA(ua); setImgB(ub);
+      }
       setLoading(false);
     })();
     return () => { cancelled = true; };
   }, [id]);
 
-  // Poll for image updates if recipes don't have images yet
+  // Poll for image updates
   useEffect(() => {
     if (!recipeA && !recipeB) return;
     if ((recipeA?.inverse_image_url || recipeA?.image_path) && (recipeB?.inverse_image_url || recipeB?.image_path)) return;
@@ -129,282 +221,800 @@ function DuelPage() {
     return () => clearInterval(t);
   }, [recipeA?.id, recipeB?.id, recipeA?.inverse_image_url, recipeB?.inverse_image_url]);
 
+  // ---------- act state ----------
+  const [act, setAct] = useState(0); // 0..8
+  const [trashIdx, setTrashIdx] = useState(0); // 0..4 lines revealed
+  const [openRecipe, setOpenRecipe] = useState<any | null>(null);
+  const [winSize, setWinSize] = useState({ w: 1200, h: 800 });
+
+  useEffect(() => {
+    const onResize = () => setWinSize({ w: window.innerWidth, h: window.innerHeight });
+    onResize();
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+
+  const chefA = duel?.chef_a ?? "Chef A";
+  const chefB = duel?.chef_b ?? "Chef B";
+  const challenge = duel?.challenge ?? "";
+  const host = duel?.host_name ?? "Your Host";
+  const verdict = duel?.host_verdict ?? duel?.verdict ?? "";
+  const adBreak = duel?.ad_break ?? "";
+  const winnerSlug = (duel?.winner_slug ?? "").toString().toLowerCase();
+  const isAWinner = winnerSlug === "a" || winnerSlug === "chef_a" || winnerSlug === (duel?.chef_a_slug ?? "").toLowerCase();
+  const winnerName = isAWinner ? chefA : chefB;
+  const winnerImg = isAWinner ? imgA : imgB;
+
+  const trashTalk = useMemo<Array<{ speaker: string; text: string; side: "a" | "b" }>>(() => {
+    const raw = duel?.trash_talk;
+    if (!Array.isArray(raw)) return [];
+    return raw.slice(0, 4).map((t: any, i: number) => {
+      const text = (typeof t === "string" ? t : (t?.text ?? t?.line ?? "")).toString();
+      const speaker = typeof t === "object" ? (t?.speaker ?? (i % 2 === 0 ? chefA : chefB)) : (i % 2 === 0 ? chefA : chefB);
+      const side: "a" | "b" =
+        speaker === chefA ? "a" :
+        speaker === chefB ? "b" :
+        (i % 2 === 0 ? "a" : "b");
+      return { speaker, text, side };
+    }).filter((t) => t.text);
+  }, [duel?.trash_talk, chefA, chefB]);
+
+  // Build the act order; skip acts whose data is missing.
+  const actOrder = useMemo(() => {
+    const acts: number[] = [1]; // title
+    if (challenge || host) acts.push(2);
+    if (duel?.walk_on_a || imgA) acts.push(3);
+    if (duel?.walk_on_b || imgB) acts.push(4);
+    acts.push(5); // dishes (always — placeholders ok)
+    if (trashTalk.length > 0) acts.push(6);
+    acts.push(7); // verdict
+    if (adBreak) acts.push(8);
+    acts.push(9); // sendoff
+    return acts;
+  }, [challenge, host, duel?.walk_on_a, duel?.walk_on_b, imgA, imgB, trashTalk.length, adBreak]);
+
+  const currentActNum = actOrder[Math.min(act, actOrder.length - 1)];
+
+  const advance = useCallback(() => {
+    if (openRecipe) return; // tap on modal handled separately
+    if (currentActNum === 6 && trashIdx < trashTalk.length) {
+      setTrashIdx((n) => n + 1);
+      return;
+    }
+    if (currentActNum === 6 && trashIdx >= trashTalk.length) {
+      setAct((a) => Math.min(a + 1, actOrder.length - 1));
+      return;
+    }
+    setAct((a) => Math.min(a + 1, actOrder.length - 1));
+  }, [openRecipe, currentActNum, trashIdx, trashTalk.length, actOrder.length]);
+
+  // keyboard: space advances
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.code === "Space" || e.key === " ") {
+        e.preventDefault();
+        advance();
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [advance]);
+
+  // ---------- render guards ----------
   if (authLoading || !session || loading) {
     return (
-      <div style={{ minHeight: "100vh", background: PALETTE.bg, color: PALETTE.gold, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "Georgia, serif", fontStyle: "italic", fontSize: 24 }}>
+      <div style={{ position: "fixed", inset: 0, background: PALETTE.bg, color: PALETTE.gold, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "Georgia, serif", fontStyle: "italic", fontSize: 24 }}>
         Lighting the studio…
       </div>
     );
   }
-
   if (error || !duel) {
     return <div style={{ minHeight: "100vh", background: PALETTE.bg, color: PALETTE.red, padding: 64 }}>{error ?? "No duel found."}</div>;
   }
 
-  const chefA = duel.chef_a ?? "Chef A";
-  const chefB = duel.chef_b ?? "Chef B";
-  const challenge = duel.challenge ?? "";
-  const host = duel.host_name ?? "Your Host";
-  const verdict = duel.verdict ?? "";
-  const winnerSlug = (duel.winner_slug ?? "").toString().toLowerCase();
-  const isAWinner = winnerSlug === "a" || winnerSlug === "chef_a" || winnerSlug === (duel.chef_a_slug ?? "").toLowerCase();
-  const winnerName = isAWinner ? chefA : chefB;
-  const adBreak = duel.ad_break ?? "";
-  const trashTalk: Array<{ speaker: string; text: string; side?: "a" | "b" }> = (() => {
-    const raw = duel.trash_talk;
-    if (Array.isArray(raw)) {
-      return raw.map((t: any, i: number) => ({
-        speaker: t.speaker ?? (i % 2 === 0 ? chefA : chefB),
-        text: t.text ?? t.line ?? String(t),
-        side: (t.speaker === chefA ? "a" : t.speaker === chefB ? "b" : i % 2 === 0 ? "a" : "b") as "a" | "b",
-      }));
-    }
-    return [];
-  })();
+  const reset = () => { setAct(0); setTrashIdx(0); setOpenRecipe(null); };
 
+  // ---------- acts ----------
   return (
-    <div style={{ minHeight: "100vh", background: PALETTE.bg, color: PALETTE.ink, fontFamily: "Inter, system-ui, sans-serif" }}>
-      <style>{`
-        @keyframes neon-flicker {
-          0%, 100% { text-shadow: 0 0 6px ${PALETTE.neon}, 0 0 14px ${PALETTE.neon}, 0 0 30px ${PALETTE.neon}; }
-          50% { text-shadow: 0 0 4px ${PALETTE.neon}, 0 0 8px ${PALETTE.neon}; }
-        }
-        @keyframes confetti-pop {
-          0% { transform: scale(0.9); } 50% { transform: scale(1.05); } 100% { transform: scale(1); }
-        }
-      `}</style>
-
-      {/* 1. Title card */}
-      <FadeIn>
-        <section style={{ padding: "80px 24px 60px", textAlign: "center", borderBottom: `1px solid ${PALETTE.red}33` }}>
-          <h1 style={{
-            fontFamily: "Georgia, 'Times New Roman', serif",
-            fontStyle: "italic", fontWeight: 900,
-            fontSize: "clamp(48px, 10vw, 120px)",
-            color: PALETTE.gold, letterSpacing: "0.04em",
-            transform: "skew(-8deg)", margin: 0,
-            textShadow: `0 6px 0 #000, 0 10px 30px ${PALETTE.gold}55`,
-          }}>
-            TONIGHT'S DUEL
-          </h1>
-          <div style={{
-            marginTop: 36,
-            fontFamily: "Georgia, serif", fontWeight: 800,
-            fontSize: "clamp(36px, 7vw, 80px)",
-            display: "flex", flexWrap: "wrap", gap: 24, justifyContent: "center", alignItems: "center",
-          }}>
-            <span style={{ color: PALETTE.ink, textShadow: `4px 4px 0 ${PALETTE.red}` }}>{chefA}</span>
-            <span style={{ color: PALETTE.gold, fontStyle: "italic", fontSize: "0.7em" }}>VS</span>
-            <span style={{ color: PALETTE.ink, textShadow: `4px 4px 0 ${PALETTE.red}` }}>{chefB}</span>
-          </div>
-          {challenge && (
-            <p style={{ marginTop: 28, fontStyle: "italic", fontSize: 22, color: PALETTE.muted }}>
-              Challenge: {challenge}
-            </p>
+    <>
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={currentActNum}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.4 }}
+          style={{ position: "fixed", inset: 0 }}
+        >
+          {currentActNum === 1 && <Act1Title chefA={chefA} chefB={chefB} onAdvance={advance} />}
+          {currentActNum === 2 && <Act2Challenge challenge={challenge} host={host} onAdvance={advance} />}
+          {currentActNum === 3 && <Act3WalkOn name={chefA} bio={duel.walk_on_a} img={imgA} side="left" onAdvance={advance} />}
+          {currentActNum === 4 && <Act3WalkOn name={chefB} bio={duel.walk_on_b} img={imgB} side="right" onAdvance={advance} />}
+          {currentActNum === 5 && (
+            <Act5Dishes
+              recipeA={recipeA} recipeB={recipeB} imgA={imgA} imgB={imgB}
+              chefA={chefA} chefB={chefB}
+              onAdvance={advance}
+              onOpenRecipe={(r) => setOpenRecipe(r)}
+            />
           )}
-        </section>
-      </FadeIn>
+          {currentActNum === 6 && (
+            <Act6TrashTalk
+              lines={trashTalk} revealed={trashIdx}
+              imgA={imgA} imgB={imgB}
+              onAdvance={advance}
+            />
+          )}
+          {currentActNum === 7 && (
+            <Act7Verdict
+              verdict={verdict} winnerName={winnerName} winnerImg={winnerImg}
+              winSize={winSize} onAdvance={advance}
+            />
+          )}
+          {currentActNum === 8 && <Act8AdBreak adBreak={adBreak} onAdvance={advance} />}
+          {currentActNum === 9 && (
+            <Act9Sendoff
+              chefA={chefA} chefB={chefB}
+              recipeA={recipeA} recipeB={recipeB}
+              onReplay={reset}
+            />
+          )}
+        </motion.div>
+      </AnimatePresence>
 
-      {/* 2. Host */}
-      <FadeIn>
-        <section style={{ padding: "20px 24px", textAlign: "center", color: PALETTE.muted, letterSpacing: "0.2em", textTransform: "uppercase", fontSize: 13 }}>
-          Hosted by <span style={{ color: PALETTE.gold, fontFamily: "Georgia, serif", fontStyle: "italic", textTransform: "none", letterSpacing: 0, fontSize: 18 }}>{host}</span>
-        </section>
-      </FadeIn>
+      {/* Recipe modal */}
+      <AnimatePresence>
+        {openRecipe && (
+          <RecipeModal recipe={openRecipe} img={openRecipe.id === recipeA?.id ? imgA : imgB} onClose={() => setOpenRecipe(null)} />
+        )}
+      </AnimatePresence>
+    </>
+  );
+}
 
-      {/* 3. Walk-on */}
-      <FadeIn>
-        <section style={{ padding: "60px 24px", maxWidth: 1100, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 48 }}>
-          {[
-            { name: chefA, walk: duel.walk_on_a, img: imgA },
-            { name: chefB, walk: duel.walk_on_b, img: imgB },
-          ].map((c, i) => (
-            <div key={i} style={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
-              <Avatar src={c.img} alt={c.name} size={140} />
-              <h2 style={{ fontFamily: "Georgia, serif", fontWeight: 800, fontSize: 40, margin: "20px 0 16px", color: PALETTE.ink }}>{c.name}</h2>
-              {c.walk && (
-                <p style={{
-                  fontStyle: "italic", fontSize: 17, lineHeight: 1.6, color: PALETTE.ink,
-                  borderLeft: `4px solid ${PALETTE.red}`, paddingLeft: 18, textAlign: "left", maxWidth: 460,
-                }}>
-                  {c.walk}
-                </p>
-              )}
+// ---------- ACT 1 ----------
+function Act1Title({ chefA, chefB, onAdvance }: { chefA: string; chefB: string; onAdvance: () => void }) {
+  return (
+    <ActShell onAdvance={onAdvance}>
+      <div style={{ textAlign: "center", maxWidth: 1100 }}>
+        <h1 style={{
+          fontFamily: "Georgia, 'Times New Roman', serif",
+          fontStyle: "italic", fontWeight: 900,
+          fontSize: "clamp(48px, 11vw, 140px)",
+          color: PALETTE.gold, letterSpacing: "0.04em",
+          margin: 0, lineHeight: 1,
+          textShadow: `0 6px 0 #000, 0 14px 40px ${PALETTE.gold}66`,
+        }}>
+          <LetterReveal text="TONIGHT'S DUEL" perLetter={0.08} />
+        </h1>
+        <motion.div
+          initial={{ opacity: 0, scale: 0.85 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 1.2, type: "spring", damping: 12, stiffness: 140 }}
+          style={{
+            marginTop: 56,
+            fontFamily: "Georgia, serif", fontWeight: 800,
+            fontSize: "clamp(32px, 7vw, 88px)",
+            display: "flex", flexWrap: "wrap", gap: 28, justifyContent: "center", alignItems: "center",
+          }}
+        >
+          <span style={{ color: PALETTE.ink, textShadow: `5px 5px 0 ${PALETTE.red}` }}>{chefA}</span>
+          <motion.span
+            animate={{ rotate: [-3, 3, -3] }}
+            transition={{ duration: 2.4, repeat: Infinity }}
+            style={{ color: PALETTE.gold, fontStyle: "italic", fontSize: "0.7em" }}
+          >
+            VS
+          </motion.span>
+          <span style={{ color: PALETTE.ink, textShadow: `5px 5px 0 ${PALETTE.red}` }}>{chefB}</span>
+        </motion.div>
+      </div>
+      <TapHint label="TAP TO BEGIN" />
+    </ActShell>
+  );
+}
+
+// ---------- ACT 2 ----------
+function Act2Challenge({ challenge, host, onAdvance }: { challenge: string; host: string; onAdvance: () => void }) {
+  return (
+    <ActShell onAdvance={onAdvance}>
+      <div style={{ textAlign: "center", maxWidth: 900 }}>
+        <motion.div
+          initial={{ opacity: 0, letterSpacing: "0.1em" }}
+          animate={{ opacity: 1, letterSpacing: "0.4em" }}
+          transition={{ duration: 0.8 }}
+          style={{ fontSize: 14, color: PALETTE.red, textTransform: "uppercase", marginBottom: 28 }}
+        >
+          Tonight's Challenge
+        </motion.div>
+        <h2 style={{
+          fontFamily: "Georgia, serif", fontStyle: "italic", fontWeight: 700,
+          fontSize: "clamp(36px, 6vw, 72px)", lineHeight: 1.2,
+          color: PALETTE.gold, margin: "0 0 48px",
+          textShadow: `0 4px 30px ${PALETTE.gold}33`,
+        }}>
+          <WordReveal text={challenge || "An open challenge."} perWord={0.16} delay={0.6} />
+        </h2>
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1.6 + ((challenge?.split(/\s+/).length ?? 1) * 0.16), duration: 0.6 }}
+          style={{ fontSize: 13, letterSpacing: "0.3em", color: PALETTE.muted, textTransform: "uppercase" }}
+        >
+          Hosted by <span style={{ color: PALETTE.ink, fontFamily: "Georgia, serif", fontStyle: "italic", fontSize: 22, letterSpacing: 0, textTransform: "none" }}> {host}</span>
+        </motion.div>
+      </div>
+      <TapHint />
+    </ActShell>
+  );
+}
+
+// ---------- ACT 3 / 4 (walk-on) ----------
+function Act3WalkOn({ name, bio, img, side, onAdvance }: { name: string; bio?: string | null; img?: string | null; side: "left" | "right"; onAdvance: () => void }) {
+  const fromX = side === "left" ? -260 : 260;
+  return (
+    <ActShell onAdvance={onAdvance}>
+      <div style={{
+        display: "flex", flexDirection: side === "left" ? "row" : "row-reverse",
+        alignItems: "center", gap: 56, maxWidth: 1200, width: "100%",
+        flexWrap: "wrap", justifyContent: "center",
+      }}>
+        <motion.div
+          initial={{ x: fromX, opacity: 0, scale: 0.7 }}
+          animate={{ x: 0, opacity: 1, scale: 1 }}
+          transition={{ type: "spring", damping: 14, stiffness: 110 }}
+        >
+          <Avatar src={img} alt={name} size={260} ring />
+        </motion.div>
+        <div style={{ flex: 1, minWidth: 280, maxWidth: 600, textAlign: side === "left" ? "left" : "right" }}>
+          <motion.h2
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4, type: "spring", damping: 14 }}
+            style={{
+              fontFamily: "Georgia, serif", fontStyle: "italic", fontWeight: 900,
+              fontSize: "clamp(48px, 9vw, 110px)", lineHeight: 1, margin: "0 0 24px",
+              color: PALETTE.ink, textShadow: `5px 5px 0 ${PALETTE.red}`,
+            }}
+          >
+            {name}
+          </motion.h2>
+          {bio ? (
+            <div style={{
+              fontStyle: "italic", fontSize: 18, lineHeight: 1.65, color: PALETTE.ink,
+              borderLeft: side === "left" ? `4px solid ${PALETTE.gold}` : "none",
+              borderRight: side === "right" ? `4px solid ${PALETTE.gold}` : "none",
+              padding: side === "left" ? "8px 0 8px 22px" : "8px 22px 8px 0",
+              minHeight: 120,
+            }}>
+              <Typewriter text={bio} speed={22} delay={900} />
             </div>
-          ))}
-        </section>
-      </FadeIn>
+          ) : (
+            <div style={{ fontStyle: "italic", color: PALETTE.muted }}>Steps into the kitchen, says nothing.</div>
+          )}
+        </div>
+      </div>
+      <TapHint />
+    </ActShell>
+  );
+}
 
-      {/* 4. Recipe cards */}
-      <FadeIn>
-        <section style={{ padding: "40px 24px 60px", maxWidth: 1100, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 32 }}>
+// ---------- ACT 5 ----------
+function Act5Dishes({
+  recipeA, recipeB, imgA, imgB, chefA, chefB, onAdvance, onOpenRecipe,
+}: {
+  recipeA: any; recipeB: any; imgA: string | null; imgB: string | null;
+  chefA: string; chefB: string;
+  onAdvance: () => void; onOpenRecipe: (r: any) => void;
+}) {
+  return (
+    <ActShell onAdvance={onAdvance}>
+      <div style={{ width: "100%", maxWidth: 1200, textAlign: "center" }}>
+        <motion.h2
+          initial={{ opacity: 0, y: -16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          style={{
+            fontFamily: "Georgia, serif", fontStyle: "italic", fontWeight: 800,
+            fontSize: "clamp(28px, 5vw, 52px)", color: PALETTE.gold, margin: "0 0 48px",
+          }}
+        >
+          And here are their dishes.
+        </motion.h2>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 32 }}>
           {[
-            { r: recipeA, img: imgA, chef: chefA },
-            { r: recipeB, img: imgB, chef: chefB },
-          ].map(({ r, img, chef }, i) => r ? (
-            <Link
+            { r: recipeA, img: imgA, chef: chefA, delay: 0.2 },
+            { r: recipeB, img: imgB, chef: chefB, delay: 1.7 },
+          ].map(({ r, img, chef, delay }, i) => (
+            <motion.button
               key={i}
-              to="/recipes/$id"
-              params={{ id: r.id }}
-              style={{ textDecoration: "none", color: "inherit" }}
-            >
-              <article style={{
-                background: "#141414", border: `1px solid ${PALETTE.gold}44`,
-                borderRadius: 6, overflow: "hidden",
-                transition: "transform 200ms ease, border-color 200ms ease",
+              type="button"
+              initial={{ opacity: 0, y: 40, scale: 0.9 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ delay, type: "spring", damping: 14, stiffness: 120 }}
+              whileHover={{ y: -6, scale: 1.02 }}
+              onClick={(e) => {
+                e.stopPropagation();
+                if (r) onOpenRecipe(r);
               }}
-                onMouseEnter={(e) => { e.currentTarget.style.transform = "translateY(-4px)"; e.currentTarget.style.borderColor = PALETTE.gold; }}
-                onMouseLeave={(e) => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.borderColor = `${PALETTE.gold}44`; }}
-              >
-                {img ? (
+              style={{
+                background: "#141414", border: `1px solid ${PALETTE.gold}55`,
+                borderRadius: 8, overflow: "hidden", textAlign: "left",
+                cursor: "pointer", padding: 0, color: "inherit",
+              }}
+            >
+              {r ? (
+                img ? (
                   <div style={{ width: "100%", aspectRatio: "4/3", background: `center/cover no-repeat url(${img})` }} />
                 ) : (
                   <div style={{ width: "100%", aspectRatio: "4/3", background: "#1a1a1a", display: "flex", alignItems: "center", justifyContent: "center", color: PALETTE.muted, fontStyle: "italic", fontSize: 13 }}>
                     Plating the dish…
                   </div>
-                )}
-                <div style={{ padding: 24 }}>
-                  <div style={{ fontSize: 11, letterSpacing: "0.2em", textTransform: "uppercase", color: PALETTE.gold }}>
-                    {chef}'s entry
-                  </div>
-                  <h3 style={{ fontFamily: "Georgia, serif", fontStyle: "italic", fontSize: 28, margin: "10px 0 12px", color: PALETTE.ink }}>{r.title}</h3>
-                  <div style={{ fontSize: 12, letterSpacing: "0.15em", textTransform: "uppercase", color: PALETTE.muted, marginBottom: 14 }}>
-                    {(r.cuisine ?? "").toUpperCase()} · {r.time_estimate_minutes ?? "—"} MIN · {(r.difficulty ?? "").toUpperCase()}
-                  </div>
-                  {r.body?.inverse_blurb && (
-                    <p style={{ fontStyle: "italic", color: PALETTE.muted, fontSize: 15, lineHeight: 1.5, margin: 0 }}>
-                      "{r.body.inverse_blurb}"
-                    </p>
-                  )}
+                )
+              ) : (
+                <div style={{ width: "100%", aspectRatio: "4/3", background: "#1a1a1a", display: "flex", alignItems: "center", justifyContent: "center", color: PALETTE.muted, fontStyle: "italic" }}>
+                  Recipe unavailable
                 </div>
-              </article>
-            </Link>
-          ) : null)}
-        </section>
-      </FadeIn>
+              )}
+              <div style={{ padding: 22 }}>
+                <div style={{ fontSize: 11, letterSpacing: "0.2em", textTransform: "uppercase", color: PALETTE.gold }}>
+                  {chef}'s entry
+                </div>
+                <h3 style={{ fontFamily: "Georgia, serif", fontStyle: "italic", fontSize: 26, margin: "10px 0 10px", color: PALETTE.ink }}>
+                  {r?.title ?? "—"}
+                </h3>
+                <div style={{ fontSize: 11, letterSpacing: "0.15em", textTransform: "uppercase", color: PALETTE.muted }}>
+                  {(r?.cuisine ?? "—").toString().toUpperCase()} · {r?.time_estimate_minutes ?? "—"} MIN · {(r?.difficulty ?? "—").toString().toUpperCase()}
+                </div>
+              </div>
+            </motion.button>
+          ))}
+        </div>
+      </div>
+      <TapHint label="TAP A DISH TO PEEK · TAP BACKGROUND TO CONTINUE" />
+    </ActShell>
+  );
+}
 
-      {/* 5. Trash talk */}
-      {trashTalk.length > 0 && (
-        <FadeIn>
-          <section style={{ padding: "60px 24px", maxWidth: 900, margin: "0 auto" }}>
-            <h2 style={{
-              textAlign: "center", color: PALETTE.neon,
-              fontFamily: "Georgia, serif", fontStyle: "italic", fontWeight: 900,
-              fontSize: "clamp(28px, 5vw, 48px)", letterSpacing: "0.08em",
-              animation: "neon-flicker 2.4s infinite",
-              margin: "0 0 48px",
-            }}>
-              ROUND ONE: TRASH TALK
-            </h2>
-            <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
-              {trashTalk.map((t, i) => {
-                const left = t.side === "a" || (!t.side && i % 2 === 0);
-                const avatar = left ? imgA : imgB;
-                return (
-                  <div key={i} style={{ display: "flex", flexDirection: left ? "row" : "row-reverse", alignItems: "flex-end", gap: 14 }}>
-                    <Avatar src={avatar} alt={t.speaker} size={56} />
-                    <div style={{ maxWidth: "70%" }}>
-                      <div style={{ fontSize: 11, letterSpacing: "0.2em", textTransform: "uppercase", color: PALETTE.gold, marginBottom: 6, textAlign: left ? "left" : "right" }}>
-                        {t.speaker}
-                      </div>
-                      <div style={{
-                        background: left ? "#1c1c1c" : PALETTE.red,
-                        color: PALETTE.ink,
-                        padding: "14px 20px",
-                        borderRadius: left ? "18px 18px 18px 4px" : "18px 18px 4px 18px",
-                        fontSize: 16, lineHeight: 1.5,
-                      }}>
-                        {t.text}
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </section>
-        </FadeIn>
-      )}
-
-      {/* 6. Verdict */}
-      <FadeIn>
-        <section style={{ padding: "80px 24px", textAlign: "center", borderTop: `1px solid ${PALETTE.gold}33`, borderBottom: `1px solid ${PALETTE.gold}33` }}>
-          <h2 style={{ fontFamily: "Georgia, serif", fontStyle: "italic", fontSize: "clamp(36px, 6vw, 64px)", color: PALETTE.gold, margin: "0 0 24px" }}>
-            THE VERDICT
-          </h2>
-          {verdict && (
-            <p style={{ maxWidth: 720, margin: "0 auto 40px", fontSize: 20, lineHeight: 1.6, fontStyle: "italic", color: PALETTE.ink }}>
-              "{verdict}"
-            </p>
-          )}
-          <div style={{
-            fontFamily: "Georgia, serif", fontWeight: 900,
-            fontSize: "clamp(40px, 8vw, 96px)",
-            color: PALETTE.gold,
-            textShadow: `0 0 40px ${PALETTE.gold}88, 4px 4px 0 ${PALETTE.red}`,
-            animation: "confetti-pop 800ms ease",
-          }}>
-            🎉 WINNER: {winnerName} 🎉
+// ---------- Recipe Modal ----------
+function RecipeModal({ recipe, img, onClose }: { recipe: any; img: string | null; onClose: () => void }) {
+  const navigate = useNavigate();
+  return (
+    <motion.div
+      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+      transition={{ duration: 0.25 }}
+      onClick={onClose}
+      style={{
+        position: "fixed", inset: 0, background: "rgba(0,0,0,0.85)",
+        display: "flex", alignItems: "center", justifyContent: "center",
+        padding: 24, zIndex: 100, backdropFilter: "blur(8px)",
+      }}
+    >
+      <motion.div
+        initial={{ y: 40, scale: 0.95, opacity: 0 }}
+        animate={{ y: 0, scale: 1, opacity: 1 }}
+        exit={{ y: 40, scale: 0.95, opacity: 0 }}
+        transition={{ type: "spring", damping: 18, stiffness: 180 }}
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          background: "#141414", border: `1px solid ${PALETTE.gold}66`,
+          borderRadius: 10, maxWidth: 640, width: "100%", maxHeight: "86vh",
+          overflow: "auto", color: PALETTE.ink,
+        }}
+      >
+        {img && <div style={{ width: "100%", aspectRatio: "16/9", background: `center/cover no-repeat url(${img})` }} />}
+        <div style={{ padding: 28 }}>
+          <h3 style={{ fontFamily: "Georgia, serif", fontStyle: "italic", fontSize: 32, margin: "0 0 8px", color: PALETTE.gold }}>{recipe.title}</h3>
+          <div style={{ fontSize: 11, letterSpacing: "0.2em", textTransform: "uppercase", color: PALETTE.muted, marginBottom: 18 }}>
+            {(recipe.cuisine ?? "").toString().toUpperCase()} · {recipe.time_estimate_minutes ?? "—"} MIN · {(recipe.difficulty ?? "").toString().toUpperCase()}
           </div>
-        </section>
-      </FadeIn>
-
-      {/* 7. Ad break */}
-      {adBreak && (
-        <FadeIn>
-          <section style={{ padding: "60px 24px", textAlign: "center", background: "linear-gradient(135deg, #2a004a 0%, #4a0066 100%)" }}>
-            <div style={{
-              fontFamily: "'Comic Sans MS', cursive", fontWeight: 900,
-              fontSize: "clamp(28px, 5vw, 48px)",
-              color: "#fff200",
-              textShadow: "3px 3px 0 #ff00aa, 6px 6px 0 #00ffff",
-              transform: "rotate(-2deg)",
-              margin: "0 0 24px",
-            }}>
-              ★ COMMERCIAL BREAK ★
-            </div>
-            <p style={{ maxWidth: 600, margin: "0 auto", fontSize: 18, color: "#fff", fontWeight: 600, lineHeight: 1.5 }}>
-              {adBreak}
-            </p>
-            <p style={{ marginTop: 20, fontSize: 9, color: "#ddd", maxWidth: 500, margin: "20px auto 0", lineHeight: 1.4 }}>
-              Side effects may include sudden cravings, spontaneous applause, mild euphoria, the urge to call your mother, and an inexplicable desire to deglaze things. Not available in all dimensions. Results not typical. Consult your sommelier before use.
-            </p>
-          </section>
-        </FadeIn>
-      )}
-
-      {/* 8. CTA buttons */}
-      <FadeIn>
-        <section style={{ padding: "80px 24px 120px", display: "flex", flexWrap: "wrap", gap: 20, justifyContent: "center" }}>
-          {recipeA && (
+          {recipe.body?.inverse_blurb && (
+            <p style={{ fontStyle: "italic", color: PALETTE.ink, lineHeight: 1.6, margin: "0 0 16px" }}>"{recipe.body.inverse_blurb}"</p>
+          )}
+          {recipe.body?.plated_description && (
+            <p style={{ color: PALETTE.muted, lineHeight: 1.6, margin: "0 0 24px" }}>{recipe.body.plated_description}</p>
+          )}
+          <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
             <button
+              onClick={() => navigate({ to: "/recipes/$id", params: { id: recipe.id } })}
+              style={{ background: PALETTE.gold, color: "#000", border: 0, padding: "14px 22px", fontSize: 12, fontWeight: 800, letterSpacing: "0.2em", textTransform: "uppercase", cursor: "pointer", borderRadius: 4 }}
+            >
+              Open recipe ↗
+            </button>
+            <button
+              onClick={onClose}
+              style={{ background: "transparent", color: PALETTE.muted, border: `1px solid ${PALETTE.muted}55`, padding: "14px 22px", fontSize: 12, fontWeight: 700, letterSpacing: "0.2em", textTransform: "uppercase", cursor: "pointer", borderRadius: 4 }}
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+}
+
+// ---------- ACT 6 — TRASH TALK ----------
+function Act6TrashTalk({
+  lines, revealed, imgA, imgB, onAdvance,
+}: {
+  lines: Array<{ speaker: string; text: string; side: "a" | "b" }>;
+  revealed: number;
+  imgA: string | null; imgB: string | null;
+  onAdvance: () => void;
+}) {
+  const showErupt = revealed >= lines.length;
+  return (
+    <div
+      onClick={onAdvance}
+      style={{
+        position: "fixed", inset: 0, background: PALETTE.bg, color: PALETTE.ink,
+        overflow: "hidden", cursor: "pointer", padding: "32px 16px",
+        display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+      }}
+    >
+      <style>{`
+        @keyframes neon-flicker {
+          0%, 100% { text-shadow: 0 0 8px ${PALETTE.neon}, 0 0 18px ${PALETTE.neon}, 0 0 36px ${PALETTE.neon}, 0 0 64px ${PALETTE.neon}aa; }
+          45% { text-shadow: 0 0 4px ${PALETTE.neon}, 0 0 9px ${PALETTE.neon}; }
+          70% { text-shadow: 0 0 12px ${PALETTE.neon}, 0 0 22px ${PALETTE.neon}; }
+        }
+      `}</style>
+      <h2 style={{
+        textAlign: "center", color: PALETTE.neon,
+        fontFamily: "Georgia, serif", fontStyle: "italic", fontWeight: 900,
+        fontSize: "clamp(28px, 5.5vw, 56px)", letterSpacing: "0.08em",
+        animation: "neon-flicker 2.4s infinite",
+        margin: "0 0 32px",
+      }}>
+        ROUND ONE: TRASH TALK
+      </h2>
+      <div style={{ width: "100%", maxWidth: 820, display: "flex", flexDirection: "column", gap: 18 }}>
+        <AnimatePresence initial={false}>
+          {lines.slice(0, revealed).map((t, i) => {
+            const left = t.side === "a";
+            const avatar = left ? imgA : imgB;
+            // Punch direction & intensity per line (3rd & 4th hit harder)
+            const fromX = left ? -480 : 480;
+            const damping = i === 2 ? 9 : i === 3 ? 7 : 12;
+            const stiffness = i === 2 ? 320 : i === 3 ? 380 : 220;
+            const tilt = left ? -1.5 : 1.5;
+            return (
+              <motion.div
+                key={i}
+                initial={{ x: fromX, opacity: 0, rotate: tilt * 6, scale: 0.7 }}
+                animate={{ x: 0, opacity: 1, rotate: tilt, scale: 1 }}
+                transition={{ type: "spring", damping, stiffness, mass: 0.9 }}
+                style={{
+                  display: "flex", flexDirection: left ? "row" : "row-reverse",
+                  alignItems: "flex-end", gap: 14,
+                }}
+              >
+                <Avatar src={avatar} alt={t.speaker} size={64} />
+                <div style={{ maxWidth: "76%" }}>
+                  <div style={{
+                    fontSize: 11, letterSpacing: "0.22em", textTransform: "uppercase",
+                    color: PALETTE.gold, marginBottom: 6, textAlign: left ? "left" : "right",
+                  }}>
+                    {t.speaker}
+                  </div>
+                  <motion.div
+                    initial={{ scale: 0.9 }}
+                    animate={{ scale: [0.9, 1.06, 1] }}
+                    transition={{ duration: 0.45 }}
+                    style={{
+                      background: left ? "#1c1c1c" : PALETTE.red,
+                      color: PALETTE.ink,
+                      padding: "16px 22px",
+                      borderRadius: left ? "22px 22px 22px 4px" : "22px 22px 4px 22px",
+                      border: `2px solid ${left ? "#2a2a2a" : "#a82c38"}`,
+                      fontSize: i >= 2 ? 19 : 17,
+                      fontWeight: i >= 2 ? 600 : 500,
+                      lineHeight: 1.45,
+                      boxShadow: i === 3
+                        ? `0 12px 40px ${PALETTE.red}88, 0 0 0 4px ${PALETTE.red}22`
+                        : `0 6px 18px rgba(0,0,0,0.5)`,
+                    }}
+                  >
+                    {t.text}
+                  </motion.div>
+                </div>
+              </motion.div>
+            );
+          })}
+        </AnimatePresence>
+      </div>
+
+      <AnimatePresence>
+        {showErupt && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            transition={{ delay: 0.4, duration: 0.6 }}
+            style={{ marginTop: 36, textAlign: "center" }}
+          >
+            <div style={{
+              fontFamily: "Georgia, serif", fontStyle: "italic", fontSize: 22,
+              color: PALETTE.gold, margin: "0 0 12px",
+            }}>
+              🔥 the audience erupts 🔥
+            </div>
+            <div style={{ fontSize: 11, letterSpacing: "0.4em", color: PALETTE.muted }}>
+              TAP FOR THE VERDICT
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {!showErupt && <TapHint label={`TAP — ${revealed}/${lines.length}`} />}
+    </div>
+  );
+}
+
+// ---------- ACT 7 — VERDICT ----------
+function Act7Verdict({
+  verdict, winnerName, winnerImg, winSize, onAdvance,
+}: {
+  verdict: string; winnerName: string; winnerImg: string | null;
+  winSize: { w: number; h: number }; onAdvance: () => void;
+}) {
+  const [stage, setStage] = useState(0); // 0: deliberation, 1: verdict text, 2: winner
+  useEffect(() => {
+    setStage(0);
+    const t1 = setTimeout(() => setStage(1), 2000);
+    const t2 = setTimeout(() => setStage(2), 4500);
+    return () => { clearTimeout(t1); clearTimeout(t2); };
+  }, []);
+  return (
+    <ActShell onAdvance={onAdvance}>
+      {stage >= 2 && (
+        <Confetti
+          width={winSize.w}
+          height={winSize.h}
+          numberOfPieces={400}
+          recycle={false}
+          gravity={0.25}
+          colors={[PALETTE.gold, PALETTE.red, "#fff", PALETTE.neon]}
+          style={{ position: "fixed", inset: 0, pointerEvents: "none", zIndex: 5 }}
+        />
+      )}
+      <div style={{ textAlign: "center", maxWidth: 1000, position: "relative", zIndex: 10 }}>
+        <AnimatePresence mode="wait">
+          {stage === 0 && (
+            <motion.div
+              key="delib"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.6 }}
+              style={{
+                fontFamily: "Georgia, serif", fontStyle: "italic", fontWeight: 700,
+                fontSize: "clamp(32px, 5.5vw, 64px)", color: PALETTE.gold,
+                letterSpacing: "0.08em",
+              }}
+            >
+              After long deliberation
+              <motion.span
+                animate={{ opacity: [0, 1, 0] }}
+                transition={{ duration: 1.2, repeat: Infinity }}
+              > …</motion.span>
+            </motion.div>
+          )}
+          {stage === 1 && (
+            <motion.p
+              key="verdict"
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 1.2 }}
+              style={{
+                fontStyle: "italic", fontSize: "clamp(20px, 3vw, 28px)",
+                lineHeight: 1.55, color: PALETTE.ink, maxWidth: 760, margin: "0 auto",
+              }}
+            >
+              "{verdict || "The judges hesitate. The room is silent."}"
+            </motion.p>
+          )}
+          {stage === 2 && (
+            <motion.div
+              key="winner"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.4 }}
+              style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 32 }}
+            >
+              <motion.div
+                initial={{ scale: 0.4, rotate: -12 }}
+                animate={{ scale: 1, rotate: 0 }}
+                transition={{ type: "spring", damping: 8, stiffness: 140 }}
+              >
+                <Avatar src={winnerImg} alt={winnerName} size={200} ring />
+              </motion.div>
+              <motion.div
+                initial={{ scale: 0.3, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ delay: 0.2, type: "spring", damping: 7, stiffness: 160 }}
+                style={{
+                  fontFamily: "Georgia, serif", fontWeight: 900, fontStyle: "italic",
+                  fontSize: "clamp(48px, 10vw, 120px)", color: PALETTE.gold,
+                  textShadow: `0 0 50px ${PALETTE.gold}, 6px 6px 0 ${PALETTE.red}`,
+                  lineHeight: 1, letterSpacing: "0.02em", textAlign: "center",
+                }}
+              >
+                WINNER: {winnerName}
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+      {stage === 2 && <TapHint />}
+    </ActShell>
+  );
+}
+
+// ---------- ACT 8 — AD BREAK ----------
+function Act8AdBreak({ adBreak, onAdvance }: { adBreak: string; onAdvance: () => void }) {
+  return (
+    <div
+      onClick={onAdvance}
+      style={{
+        position: "fixed", inset: 0, cursor: "pointer", overflow: "hidden",
+        background: "repeating-linear-gradient(135deg, #6a0dad 0 60px, #4b0082 60px 120px)",
+        display: "flex", alignItems: "center", justifyContent: "center", padding: 24,
+      }}
+    >
+      <style>{`
+        @keyframes vhs-scan {
+          0% { transform: translateY(-100%); } 100% { transform: translateY(100%); }
+        }
+        @keyframes star-spin {
+          0% { transform: rotate(0deg) scale(1); } 50% { transform: rotate(180deg) scale(1.3); } 100% { transform: rotate(360deg) scale(1); }
+        }
+        @keyframes wobble {
+          0%, 100% { transform: rotate(-3deg); } 50% { transform: rotate(3deg); }
+        }
+        @keyframes vhs-jitter {
+          0% { transform: translateX(0); } 25% { transform: translateX(-2px); } 75% { transform: translateX(2px); } 100% { transform: translateX(0); }
+        }
+      `}</style>
+
+      {/* VHS scan lines */}
+      <div style={{
+        position: "absolute", inset: 0, pointerEvents: "none", opacity: 0.25,
+        background: "repeating-linear-gradient(0deg, rgba(0,0,0,0.6) 0 2px, transparent 2px 4px)",
+      }} />
+      {/* moving scan band */}
+      <div style={{
+        position: "absolute", left: 0, right: 0, height: "20%",
+        background: "linear-gradient(180deg, transparent, rgba(255,255,255,0.12), transparent)",
+        animation: "vhs-scan 4s linear infinite", pointerEvents: "none",
+      }} />
+
+      {/* Corner stars */}
+      {[
+        { top: 16, left: 16 }, { top: 16, right: 16 }, { bottom: 16, left: 16 }, { bottom: 16, right: 16 },
+      ].map((pos, i) => (
+        <div key={i} style={{
+          position: "absolute", ...pos as any, fontSize: 60, color: "#fff200",
+          textShadow: "3px 3px 0 #ff0066", animation: "star-spin 3s linear infinite",
+        }}>★</div>
+      ))}
+
+      <div style={{ position: "relative", textAlign: "center", maxWidth: 800, zIndex: 5, animation: "vhs-jitter 0.3s infinite" }}>
+        <div style={{
+          fontFamily: "'Comic Sans MS', 'Comic Sans', cursive",
+          fontWeight: 900, fontSize: "clamp(36px, 7vw, 78px)",
+          color: "#fff200", lineHeight: 1.1,
+          textShadow: "4px 4px 0 #ff0066, 8px 8px 0 #00ffff, 12px 12px 30px rgba(0,0,0,0.6)",
+          animation: "wobble 1.6s ease-in-out infinite",
+          margin: "0 0 32px",
+        }}>
+          ★ COMMERCIAL BREAK ★
+        </div>
+        <p style={{
+          fontFamily: "'Comic Sans MS', cursive", fontWeight: 700,
+          fontSize: "clamp(20px, 3.2vw, 30px)",
+          color: "#fff200", lineHeight: 1.4, margin: 0,
+          textShadow: "3px 3px 0 #ff0066",
+          background: "rgba(0,0,0,0.25)", padding: "20px 28px", borderRadius: 8,
+          border: "4px dashed #fff200",
+        }}>
+          {adBreak}
+        </p>
+        <p style={{
+          marginTop: 20, fontSize: 9, color: "#ddd", maxWidth: 600,
+          marginLeft: "auto", marginRight: "auto", lineHeight: 1.4,
+          fontFamily: "'Comic Sans MS', cursive",
+        }}>
+          Side effects may include kitchen rage, spontaneous appetite, mild sadness.
+          Receipts not valid in California or anywhere reasonable people live.
+        </p>
+      </div>
+      <TapHint label="TAP TO RETURN TO THE SHOW" />
+    </div>
+  );
+}
+
+// ---------- ACT 9 — SEND-OFF ----------
+function Act9Sendoff({
+  chefA, chefB, recipeA, recipeB, onReplay,
+}: {
+  chefA: string; chefB: string; recipeA: any; recipeB: any; onReplay: () => void;
+}) {
+  const navigate = useNavigate();
+  return (
+    <div
+      style={{
+        position: "fixed", inset: 0, background: PALETTE.bg, color: PALETTE.ink,
+        overflow: "auto", padding: 32,
+        display: "flex", alignItems: "center", justifyContent: "center",
+        fontFamily: "Inter, system-ui, sans-serif",
+      }}
+    >
+      <div style={{ maxWidth: 900, width: "100%", textAlign: "center" }}>
+        <motion.h2
+          initial={{ opacity: 0, y: -16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7 }}
+          style={{
+            fontFamily: "Georgia, serif", fontStyle: "italic", fontWeight: 800,
+            fontSize: "clamp(28px, 4.5vw, 46px)", color: PALETTE.gold,
+            margin: "0 0 12px",
+          }}
+        >
+          Both recipes are now in your cookbook.
+        </motion.h2>
+        <p style={{ color: PALETTE.muted, margin: "0 0 48px", fontSize: 14, letterSpacing: "0.2em", textTransform: "uppercase" }}>
+          That's a wrap.
+        </p>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 18, marginBottom: 56 }}>
+          {recipeA && (
+            <motion.button
+              whileHover={{ y: -4 }}
               onClick={() => navigate({ to: "/recipes/$id", params: { id: recipeA.id } })}
               style={{
                 background: "transparent", color: PALETTE.gold,
                 border: `2px solid ${PALETTE.gold}`,
-                padding: "18px 32px", fontSize: 14, fontWeight: 700,
-                letterSpacing: "0.2em", textTransform: "uppercase",
-                cursor: "pointer", borderRadius: 0,
+                padding: "22px 28px", fontSize: 13, fontWeight: 800,
+                letterSpacing: "0.18em", textTransform: "uppercase",
+                cursor: "pointer", borderRadius: 4,
               }}
             >
               Cook {chefA}'s recipe ↗
-            </button>
+            </motion.button>
           )}
           {recipeB && (
-            <button
+            <motion.button
+              whileHover={{ y: -4 }}
               onClick={() => navigate({ to: "/recipes/$id", params: { id: recipeB.id } })}
               style={{
                 background: PALETTE.red, color: PALETTE.ink,
                 border: `2px solid ${PALETTE.red}`,
-                padding: "18px 32px", fontSize: 14, fontWeight: 700,
-                letterSpacing: "0.2em", textTransform: "uppercase",
-                cursor: "pointer", borderRadius: 0,
+                padding: "22px 28px", fontSize: 13, fontWeight: 800,
+                letterSpacing: "0.18em", textTransform: "uppercase",
+                cursor: "pointer", borderRadius: 4,
               }}
             >
               Cook {chefB}'s recipe ↗
-            </button>
+            </motion.button>
           )}
-        </section>
-      </FadeIn>
+        </div>
+        <div style={{ display: "flex", gap: 24, justifyContent: "center", flexWrap: "wrap" }}>
+          <button
+            onClick={onReplay}
+            style={{ background: "transparent", border: 0, color: PALETTE.muted, fontSize: 13, letterSpacing: "0.2em", textTransform: "uppercase", cursor: "pointer" }}
+          >
+            ↺ Replay duel
+          </button>
+          <Link
+            to="/inverse"
+            style={{ color: PALETTE.muted, fontSize: 13, letterSpacing: "0.2em", textTransform: "uppercase", textDecoration: "none" }}
+          >
+            ← Back to inverse
+          </Link>
+        </div>
+      </div>
     </div>
   );
 }
