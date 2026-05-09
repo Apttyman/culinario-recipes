@@ -141,70 +141,103 @@ function Today() {
           </span>
         </button>
 
-        <div style={{ marginTop: 16, display: "flex", justifyContent: "center" }}>
+        <div style={{ marginTop: 24, display: "flex", flexDirection: "column", alignItems: "stretch", gap: 0 }}>
           <button
             onClick={() => navigate({ to: "/inverse" })}
-            className="battle-bubble"
+            className="culinario-mode-btn"
             style={{
               position: "relative",
-              padding: "14px 28px",
-              borderRadius: 999,
-              border: "1px solid rgba(255,255,255,0.25)",
-              background: "linear-gradient(135deg, rgba(80,200,255,0.35), rgba(180,80,255,0.35) 50%, rgba(255,140,200,0.35))",
-              backdropFilter: "blur(18px) saturate(180%)",
-              WebkitBackdropFilter: "blur(18px) saturate(180%)",
-              boxShadow: "0 10px 30px -8px rgba(120,80,255,0.45), inset 0 1px 0 rgba(255,255,255,0.35)",
+              padding: "18px 24px",
+              borderRadius: 0,
+              border: "1px solid var(--hairline)",
+              borderBottom: "none",
+              background: "transparent",
               cursor: "pointer",
-              fontFamily: "var(--font-mono)", fontWeight: 700, fontSize: 12,
-              letterSpacing: "0.28em", textTransform: "uppercase", color: "#fff",
-              textShadow: "0 1px 0 rgba(0,0,0,0.4)",
+              display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16,
+              textAlign: "left",
               overflow: "hidden",
             }}
           >
-            ✦ Inverse Mode ✦
+            <span style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+              <span style={{
+                fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.2em",
+                textTransform: "uppercase", color: "var(--fg-low)",
+              }}>№ 007</span>
+              <span style={{
+                fontFamily: "var(--font-display)", fontWeight: 300, fontStyle: "italic",
+                fontSize: 24, color: "var(--fg)", lineHeight: 1,
+              }}>Inverse Mode</span>
+            </span>
+            <span className="culinario-mode-arrow" style={{
+              fontFamily: "var(--font-mono)", fontSize: 11, letterSpacing: "0.2em",
+              textTransform: "uppercase", color: "var(--saffron)",
+              display: "inline-flex", alignItems: "center", gap: 8,
+            }}>
+              Enter ↗
+            </span>
           </button>
-        </div>
 
-        <div style={{ marginTop: 14, display: "flex", justifyContent: "center" }}>
           <button
             onClick={() => navigate({ to: "/duel/" })}
-            className="battle-bubble"
+            className="culinario-mode-btn"
             style={{
               position: "relative",
-              padding: "14px 28px",
-              borderRadius: 999,
-              border: "1px solid rgba(255,255,255,0.25)",
-              background: "linear-gradient(135deg, rgba(255,72,120,0.35), rgba(120,60,255,0.35) 50%, rgba(255,200,40,0.35))",
-              backdropFilter: "blur(18px) saturate(180%)",
-              WebkitBackdropFilter: "blur(18px) saturate(180%)",
-              boxShadow: "0 10px 30px -8px rgba(255,72,120,0.45), inset 0 1px 0 rgba(255,255,255,0.35)",
+              padding: "18px 24px",
+              borderRadius: 0,
+              border: "1px solid var(--hairline)",
+              background: "transparent",
               cursor: "pointer",
-              fontFamily: "var(--font-mono)", fontWeight: 700, fontSize: 12,
-              letterSpacing: "0.28em", textTransform: "uppercase", color: "#fff",
-              textShadow: "0 1px 0 rgba(0,0,0,0.4)",
+              display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16,
+              textAlign: "left",
               overflow: "hidden",
             }}
           >
-            ⚔ Battling Chef Mode ⚔
+            <span style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+              <span style={{
+                fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.2em",
+                textTransform: "uppercase", color: "var(--fg-low)",
+              }}>№ 008</span>
+              <span style={{
+                fontFamily: "var(--font-display)", fontWeight: 300, fontStyle: "italic",
+                fontSize: 24, color: "var(--fg)", lineHeight: 1,
+              }}>Battling Chef Mode</span>
+            </span>
+            <span className="culinario-mode-arrow" style={{
+              fontFamily: "var(--font-mono)", fontSize: 11, letterSpacing: "0.2em",
+              textTransform: "uppercase", color: "var(--saffron)",
+              display: "inline-flex", alignItems: "center", gap: 8,
+            }}>
+              Enter ↗
+            </span>
           </button>
         </div>
         <style>{`
-          @keyframes battle-shimmer {
-            0% { background-position: 0% 50%; }
-            100% { background-position: 200% 50%; }
+          @keyframes culinario-mode-sweep {
+            0%   { transform: translateX(-120%); }
+            100% { transform: translateX(120%); }
           }
-          @keyframes battle-bob {
-            0%,100% { transform: translateY(0) rotate(-1deg); }
-            50%     { transform: translateY(-3px) rotate(1deg); }
+          .culinario-mode-btn {
+            transition: background 220ms ease, border-color 220ms ease;
           }
-          .battle-bubble {
-            background-size: 200% 200% !important;
-            animation: battle-shimmer 6s linear infinite, battle-bob 3.4s ease-in-out infinite;
-            transition: transform 200ms ease, box-shadow 200ms ease;
+          .culinario-mode-btn::before {
+            content: "";
+            position: absolute; inset: 0;
+            background: linear-gradient(110deg,
+              transparent 35%,
+              color-mix(in oklab, var(--saffron) 18%, transparent) 50%,
+              transparent 65%);
+            transform: translateX(-120%);
+            pointer-events: none;
           }
-          .battle-bubble:hover {
-            transform: translateY(-2px) scale(1.04);
-            box-shadow: 0 16px 40px -10px rgba(255,72,120,0.6), inset 0 1px 0 rgba(255,255,255,0.5) !important;
+          .culinario-mode-btn:hover {
+            background: color-mix(in oklab, var(--saffron) 5%, transparent);
+            border-color: color-mix(in oklab, var(--saffron) 50%, var(--hairline)) !important;
+          }
+          .culinario-mode-btn:hover::before {
+            animation: culinario-mode-sweep 1100ms ease forwards;
+          }
+          .culinario-mode-btn:hover .culinario-mode-arrow {
+            color: var(--saffron);
           }
         `}</style>
 
