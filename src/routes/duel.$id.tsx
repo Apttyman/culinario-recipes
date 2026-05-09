@@ -729,8 +729,8 @@ function Act6TrashTalk({
       onClick={onAdvance}
       style={{
         position: "fixed", inset: 0, background: PALETTE.bg, color: PALETTE.ink,
-        overflow: "hidden", cursor: "pointer", padding: "32px 16px",
-        display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+        overflowY: "auto", overflowX: "hidden", cursor: "pointer", padding: "48px 16px 96px",
+        display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start",
       }}
     >
       <div style={{ width: "100%", maxWidth: 820, display: "flex", flexDirection: "column", gap: 18 }}>
