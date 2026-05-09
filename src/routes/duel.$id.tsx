@@ -382,7 +382,8 @@ function DuelPage() {
           )}
           {currentActNum === 7 && (
             <Act7Verdict
-              verdict={verdict} winnerName={winnerName} winnerImg={winnerImg}
+              verdict={verdict} hostName={host}
+              winnerName={winnerName} winnerImg={winnerImg}
               winSize={winSize} onAdvance={advance}
             />
           )}
@@ -842,27 +843,52 @@ function Act6TrashTalk({
 
 // ---------- ACT 7 — VERDICT ----------
 function Act7Verdict({
-  verdict, winnerName, winnerImg, winSize, onAdvance,
+  verdict, hostName, winnerName, winnerImg, winSize, onAdvance,
 }: {
-  verdict: string; winnerName: string; winnerImg: string | null;
+  verdict: string; hostName: string;
+  winnerName: string; winnerImg: string | null;
   winSize: { w: number; h: number }; onAdvance: () => void;
 }) {
   // 0 = "After long deliberation…" (auto → 1 after 2.2s)
-  // 1 = verdict text (tap to advance — user controls reading speed)
+  // 1 = verdict typewriter (auto → 2 after typing + 2s hold; tap to skip)
   // 2 = winner reveal + confetti (tap to leave act)
   const [stage, setStage] = useState(0);
+  const verdictText = verdict || "The judges hesitate. The room is silent.";
+  const [typedCount, setTypedCount] = useState(0);
+  const [doneTyping, setDoneTyping] = useState(false);
 
   useEffect(() => {
-    setStage(0);
+    setStage(0); setTypedCount(0); setDoneTyping(false);
     const t1 = setTimeout(() => setStage((s) => (s === 0 ? 1 : s)), 2200);
     return () => { clearTimeout(t1); };
   }, []);
 
+  // Typewriter for stage 1
+  useEffect(() => {
+    if (stage !== 1) return;
+    if (typedCount >= verdictText.length) { setDoneTyping(true); return; }
+    const t = setTimeout(() => setTypedCount((n) => n + 1), 30);
+    return () => clearTimeout(t);
+  }, [stage, typedCount, verdictText]);
+
+  // After typing finishes, hold 2s then auto-advance to winner
+  useEffect(() => {
+    if (stage !== 1 || !doneTyping) return;
+    const t = setTimeout(() => setStage(2), 2000);
+    return () => clearTimeout(t);
+  }, [stage, doneTyping]);
+
   const handleTap = () => {
-    if (stage === 0) { setStage(1); return; }      // skip the deliberation pause
-    if (stage === 1) { setStage(2); return; }      // user finished reading verdict
-    onAdvance();                                   // stage 2 → leave act
+    if (stage === 0) { setStage(1); return; }
+    if (stage === 1) {
+      // skip typewriter; if already done, jump to winner
+      if (!doneTyping) { setTypedCount(verdictText.length); setDoneTyping(true); return; }
+      setStage(2); return;
+    }
+    onAdvance();
   };
+
+  const typed = verdictText.slice(0, typedCount);
 
   return (
     <div
@@ -913,33 +939,56 @@ function Act7Verdict({
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 1.4, ease: "easeOut" }}
-              style={{ width: "100%" }}
+              transition={{ duration: 0.6, ease: "easeOut" }}
+              style={{ width: "100%", display: "flex", flexDirection: "column", alignItems: "center", gap: 24 }}
             >
               <div style={{
                 fontSize: 12, letterSpacing: "0.4em", color: PALETTE.muted,
-                textTransform: "uppercase", marginBottom: 24,
+                textTransform: "uppercase",
               }}>
                 The Verdict
               </div>
+              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <div style={{
+                  width: 48, height: 48, borderRadius: "50%",
+                  background: `linear-gradient(135deg, ${PALETTE.gold}, ${PALETTE.red})`,
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  fontSize: 22, border: `2px solid ${PALETTE.gold}`,
+                  boxShadow: `0 0 18px ${PALETTE.gold}80`,
+                }} aria-hidden>🎙️</div>
+                <div style={{
+                  fontSize: 11, letterSpacing: "0.3em", color: PALETTE.muted,
+                  textTransform: "uppercase",
+                }}>{hostName}</div>
+              </div>
               <p style={{
                 fontFamily: "Georgia, serif", fontStyle: "italic",
-                fontSize: "clamp(22px, 3.2vw, 32px)",
-                lineHeight: 1.55, color: PALETTE.ink, maxWidth: 820, margin: "0 auto",
+                fontSize: "clamp(18px, 2.2vw, 22px)",
+                lineHeight: 1.6, color: "#fff", maxWidth: 600, margin: "0 auto",
+                textAlign: "center", minHeight: "1.6em",
               }}>
-                "{verdict || "The judges hesitate. The room is silent."}"
+                {typed}
+                {!doneTyping && (
+                  <motion.span
+                    animate={{ opacity: [0, 1, 0] }}
+                    transition={{ duration: 0.8, repeat: Infinity }}
+                    style={{ display: "inline-block", marginLeft: 2 }}
+                  >▍</motion.span>
+                )}
               </p>
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: [0.3, 1, 0.3] }}
-                transition={{ duration: 2, repeat: Infinity, delay: 1.6 }}
-                style={{
-                  marginTop: 56, fontSize: 11, letterSpacing: "0.4em",
-                  color: PALETTE.muted, textTransform: "uppercase",
-                }}
-              >
-                Tap when ready · the winner awaits
-              </motion.div>
+              {doneTyping && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: [0.3, 1, 0.3] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                  style={{
+                    marginTop: 16, fontSize: 11, letterSpacing: "0.4em",
+                    color: PALETTE.muted, textTransform: "uppercase",
+                  }}
+                >
+                  …
+                </motion.div>
+              )}
             </motion.div>
           )}
           {stage === 2 && (
