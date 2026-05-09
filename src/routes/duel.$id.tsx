@@ -159,8 +159,11 @@ function ActShell({ children, onAdvance, scrollable = false }: { children: React
         position: "fixed", inset: 0, background: PALETTE.bg, color: PALETTE.ink,
         overflowX: "hidden", overflowY: scrollable ? "auto" : "hidden", cursor: "pointer",
         fontFamily: "Inter, system-ui, sans-serif",
-        display: "flex", alignItems: scrollable ? "flex-start" : "center", justifyContent: "center",
-        padding: scrollable ? "24px 24px 104px" : 24,
+        display: "flex", flexDirection: "column", alignItems: "center", justifyContent: scrollable ? "flex-start" : "center",
+        height: "100dvh", maxHeight: "100dvh", boxSizing: "border-box",
+        padding: scrollable ? "24px 24px calc(144px + env(safe-area-inset-bottom, 0px))" : 24,
+        overscrollBehaviorY: scrollable ? "contain" : undefined,
+        touchAction: scrollable ? "pan-y" : undefined,
         WebkitOverflowScrolling: "touch",
       }}
     >
@@ -176,8 +179,9 @@ function TapHint({ label = "TAP TO CONTINUE" }: { label?: string }) {
       animate={{ opacity: [0.3, 1, 0.3] }}
       transition={{ duration: 1.8, repeat: Infinity, delay: 0.6 }}
       style={{
-        position: "absolute", bottom: 40, left: 0, right: 0, textAlign: "center",
+        position: "fixed", bottom: "calc(40px + env(safe-area-inset-bottom, 0px))", left: 0, right: 0, textAlign: "center",
         fontSize: 11, letterSpacing: "0.4em", color: PALETTE.muted,
+        pointerEvents: "none", zIndex: 20,
       }}
     >
       {label}
