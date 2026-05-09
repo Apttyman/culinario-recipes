@@ -162,7 +162,7 @@ function InversePage() {
                 zIndex: 1,
               }}
             >
-              {conjuring ? "Conjuring three dishes…" : "Conjure their menu ↗"}
+              {conjuring ? "Conjuring three dishes…" : results ? "Reconjure their menu ↗" : "Conjure their menu ↗"}
             </button>
           </div>
           {error && (
