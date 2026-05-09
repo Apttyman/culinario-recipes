@@ -90,9 +90,9 @@ const RecipesIdRoute = RecipesIdRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const DuelIdRoute = DuelIdRouteImport.update({
-  id: '/$id',
-  path: '/$id',
-  getParentRoute: () => DuelRoute,
+  id: '/duel/$id',
+  path: '/duel/$id',
+  getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
@@ -206,6 +206,7 @@ export interface RootRouteChildren {
   SignInRoute: typeof SignInRoute
   SignUpRoute: typeof SignUpRoute
   TodayRoute: typeof TodayRoute
+  DuelIdRoute: typeof DuelIdRoute
   RecipesIdRoute: typeof RecipesIdRoute
   SessionNewRoute: typeof SessionNewRoute
   DuelIndexRoute: typeof DuelIndexRoute
@@ -306,10 +307,10 @@ declare module '@tanstack/react-router' {
     }
     '/duel/$id': {
       id: '/duel/$id'
-      path: '/$id'
+      path: '/duel/$id'
       fullPath: '/duel/$id'
       preLoaderRoute: typeof DuelIdRouteImport
-      parentRoute: typeof DuelRoute
+      parentRoute: typeof rootRouteImport
     }
   }
 }
@@ -325,6 +326,7 @@ const rootRouteChildren: RootRouteChildren = {
   SignInRoute: SignInRoute,
   SignUpRoute: SignUpRoute,
   TodayRoute: TodayRoute,
+  DuelIdRoute: DuelIdRoute,
   RecipesIdRoute: RecipesIdRoute,
   SessionNewRoute: SessionNewRoute,
   DuelIndexRoute: DuelIndexRoute,
@@ -332,13 +334,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
