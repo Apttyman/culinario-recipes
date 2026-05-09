@@ -151,6 +151,154 @@ function DuelStartPage() {
           {err && <div style={{ ...eyebrow, color: "var(--saffron)" }}>{err}</div>}
         </div>
       </main>
+      {busy && <DuelOverlay chefA={chefA.trim()} chefB={chefB.trim()} phrase={phrases[phraseIdx]} />}
+    </div>
+  );
+}
+
+function DuelOverlay({ chefA, chefB, phrase }: { chefA: string; chefB: string; phrase: string }) {
+  return (
+    <div
+      aria-live="polite"
+      style={{
+        position: "fixed", inset: 0, zIndex: 60,
+        display: "flex", alignItems: "center", justifyContent: "center",
+        background: "color-mix(in oklab, var(--bg) 55%, transparent)",
+        backdropFilter: "blur(18px) saturate(140%)",
+        WebkitBackdropFilter: "blur(18px) saturate(140%)",
+        animation: "duel-fade-in 360ms ease-out both",
+        overflow: "hidden",
+        padding: 24,
+      }}
+    >
+      <div className="duel-orb duel-orb-1" />
+      <div className="duel-orb duel-orb-2" />
+      <div className="duel-orb duel-orb-3" />
+
+      <div
+        style={{
+          position: "relative",
+          padding: "44px 56px",
+          borderRadius: 28,
+          border: "1px solid color-mix(in oklab, var(--fg) 14%, transparent)",
+          background: "color-mix(in oklab, var(--bg) 35%, transparent)",
+          backdropFilter: "blur(24px) saturate(180%)",
+          WebkitBackdropFilter: "blur(24px) saturate(180%)",
+          boxShadow: "0 30px 80px -20px rgba(0,0,0,0.45), inset 0 1px 0 color-mix(in oklab, white 18%, transparent)",
+          textAlign: "center",
+          maxWidth: 560,
+          animation: "duel-pop 520ms cubic-bezier(.2,.9,.3,1.2) both",
+        }}
+      >
+        <div style={eyebrow}>№ 008 — Battling Chef Mode</div>
+        <div
+          style={{
+            display: "flex", alignItems: "center", justifyContent: "center",
+            gap: 18, flexWrap: "wrap",
+            margin: "14px 0 22px",
+            fontFamily: "var(--font-display)", fontStyle: "italic", fontWeight: 300,
+            fontSize: "clamp(28px, 4.5vw, 44px)", lineHeight: 1.1,
+          }}
+        >
+          <span
+            style={{
+              background: "linear-gradient(110deg, var(--fg) 30%, var(--saffron) 50%, var(--fg) 70%)",
+              backgroundSize: "200% 100%",
+              WebkitBackgroundClip: "text", backgroundClip: "text",
+              color: "transparent",
+              animation: "duel-shimmer 2.4s linear infinite",
+            }}
+          >
+            {chefA || "Chef A"}
+          </span>
+          <span style={{ color: "var(--saffron)", fontSize: "0.7em", letterSpacing: "0.06em" }}>vs</span>
+          <span
+            style={{
+              background: "linear-gradient(110deg, var(--fg) 30%, var(--saffron) 50%, var(--fg) 70%)",
+              backgroundSize: "200% 100%",
+              WebkitBackgroundClip: "text", backgroundClip: "text",
+              color: "transparent",
+              animation: "duel-shimmer 2.4s linear infinite",
+              animationDelay: "1.2s",
+            }}
+          >
+            {chefB || "Chef B"}
+          </span>
+        </div>
+
+        <div style={{ display: "flex", gap: 10, justifyContent: "center", marginBottom: 18 }}>
+          {[0, 1, 2].map((i) => (
+            <span key={i} className="duel-plate" style={{ animationDelay: `${i * 160}ms` }} />
+          ))}
+        </div>
+
+        <div
+          key={phrase}
+          style={{
+            ...eyebrow, color: "var(--fg-muted)",
+            animation: "duel-fade-in 380ms ease-out both",
+          }}
+        >
+          {phrase}
+        </div>
+      </div>
+
+      <style>{`
+        @keyframes duel-fade-in {
+          from { opacity: 0; transform: translateY(6px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes duel-pop {
+          0%   { opacity: 0; transform: scale(0.92); }
+          100% { opacity: 1; transform: scale(1); }
+        }
+        @keyframes duel-shimmer {
+          0%   { background-position: 200% 0; }
+          100% { background-position: -200% 0; }
+        }
+        @keyframes duel-float-a {
+          0%,100% { transform: translate(0,0) scale(1); }
+          50%     { transform: translate(40px,-30px) scale(1.08); }
+        }
+        @keyframes duel-float-b {
+          0%,100% { transform: translate(0,0) scale(1); }
+          50%     { transform: translate(-50px,40px) scale(1.12); }
+        }
+        @keyframes duel-float-c {
+          0%,100% { transform: translate(0,0) scale(1); }
+          50%     { transform: translate(30px,50px) scale(0.95); }
+        }
+        .duel-orb {
+          position: absolute; border-radius: 9999px; filter: blur(40px);
+          opacity: 0.55; pointer-events: none;
+        }
+        .duel-orb-1 {
+          width: 360px; height: 360px; top: -80px; left: -60px;
+          background: radial-gradient(circle at 30% 30%, #e63946, transparent 60%);
+          animation: duel-float-a 9s ease-in-out infinite;
+        }
+        .duel-orb-2 {
+          width: 420px; height: 420px; bottom: -120px; right: -80px;
+          background: radial-gradient(circle at 50% 50%, var(--saffron), transparent 60%);
+          animation: duel-float-b 11s ease-in-out infinite;
+        }
+        .duel-orb-3 {
+          width: 300px; height: 300px; top: 40%; left: 55%;
+          background: radial-gradient(circle at 50% 50%, #39ff14, transparent 60%);
+          animation: duel-float-c 13s ease-in-out infinite;
+        }
+        @keyframes duel-bounce {
+          0%,80%,100% { transform: translateY(0); opacity: 0.4; }
+          40%         { transform: translateY(-10px); opacity: 1; }
+        }
+        .duel-plate {
+          width: 12px; height: 12px; border-radius: 9999px;
+          background: var(--saffron);
+          box-shadow: 0 0 14px color-mix(in oklab, var(--saffron) 70%, transparent);
+          animation: duel-bounce 1.2s ease-in-out infinite;
+          display: inline-block;
+        }
+      `}</style>
     </div>
   );
 }
