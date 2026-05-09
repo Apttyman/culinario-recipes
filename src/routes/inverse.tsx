@@ -147,6 +147,7 @@ function InversePage() {
   const [error, setError] = useState<string | null>(null);
   const [results, setResults] = useState<{ celebrity: string; recipes: any[] } | null>(null);
   const [phraseIdx, setPhraseIdx] = useState(0);
+  const [duelOpen, setDuelOpen] = useState(false);
   const phrases = useMemo(() => [
     "Lighting the candles…",
     "Borrowing their palate…",
