@@ -42,8 +42,27 @@ function Avatar({ src, alt, size = 96, ring = false }: { src?: string | null; al
           ? `0 0 0 6px ${PALETTE.gold}33, 0 0 60px ${PALETTE.gold}aa`
           : `0 0 24px ${PALETTE.gold}55`,
         flexShrink: 0,
+        display: "flex", alignItems: "flex-end", justifyContent: "center",
+        overflow: "hidden",
       }}
-    />
+    >
+      {!src && (
+        <svg
+          viewBox="0 0 64 64"
+          width={size * 0.78}
+          height={size * 0.78}
+          aria-hidden="true"
+          style={{ display: "block", opacity: 0.55 }}
+        >
+          <circle cx="32" cy="22" r="11" fill={PALETTE.gold} opacity="0.55" />
+          <path
+            d="M10 60c0-12 10-20 22-20s22 8 22 20"
+            fill={PALETTE.gold}
+            opacity="0.55"
+          />
+        </svg>
+      )}
+    </div>
   );
 }
 
