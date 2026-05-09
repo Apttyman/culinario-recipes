@@ -1,20 +1,16 @@
 import { supabase } from "@/lib/supabase-client";
 
-// Fire-and-forget: invoke the synthesize-portrait edge function in the
-// background. Never throw — synthesis failures must not break user actions.
-export function triggerPortraitSynthesis() {
+// Awaits the synthesize-portrait edge function and logs the resolved response.
+// Never throws — synthesis failures must not break user actions.
+export async function triggerPortraitSynthesis() {
   console.log("[portrait] triggerPortraitSynthesis() called");
   try {
-    const p = supabase.functions.invoke("synthesize-portrait", { body: {} });
-    console.log("[portrait] invoke() returned", p);
-    void p.then(
-      (res) => {
-        console.log("[portrait] synthesis response", res);
-        if (res?.error) console.warn("[portrait] synthesis error", res.error);
-      },
-      (e) => console.warn("[portrait] synthesis threw", e),
-    );
+    const { data, error } = await supabase.functions.invoke("synthesize-portrait", { body: {} });
+    console.log("[portrait] synthesis resolved", { data, error });
+    if (error) console.error("[portrait] synthesis error", error);
+    return { data, error };
   } catch (e) {
-    console.warn("[portrait] synthesis invoke failed (sync throw)", e);
+    console.error("[portrait] synthesis threw", e);
+    return { data: null, error: e };
   }
 }
