@@ -81,30 +81,19 @@ function RecipePage() {
       const body = recipe?.body ?? {};
       const isInverse = Boolean(recipe?.is_inverse ?? body.inverse_celebrity);
       const inverseCelebrity = recipe?.inverse_celebrity ?? body.inverse_celebrity;
-      if (isInverse) {
-        const dishDescription = [recipe?.title, body.inverse_blurb ?? body.rationale]
-          .filter(Boolean)
-          .join(" — ");
-        const { data, error } = await supabase.functions.invoke("generate-inverse-image", {
-          body: {
-            dish_description: dishDescription,
-            celebrity: inverseCelebrity ?? "",
-          },
-        });
-        if (error) throw error;
-        if ((data as any)?.error) throw new Error((data as any).error);
-        const url = (data as any)?.image_url;
-        if (!url) throw new Error("No image_url returned");
-        console.log("[inverse-image]", { mood: (data as any)?.mood, beat: (data as any)?.beat });
-        setImageUrl(url);
-      } else {
-        const { data, error } = await supabase.functions.invoke("generate-recipe-image", {
-          body: { recipe_id: id },
-        });
-        if (error) throw error;
-        if ((data as any)?.error) throw new Error((data as any).error);
-        await load();
-      }
+      const fnName = isInverse ? "generate-inverse-image" : "generate-recipe-image";
+      const { data, error } = await supabase.functions.invoke(fnName, {
+        body: {
+          recipe_id: id,
+          dish_description: isInverse
+            ? [recipe?.title, body.inverse_blurb ?? body.rationale].filter(Boolean).join(" — ")
+            : undefined,
+          celebrity: isInverse ? (inverseCelebrity ?? "") : undefined,
+        },
+      });
+      if (error) throw error;
+      if ((data as any)?.error) throw new Error((data as any).error);
+      await load();
     } catch (e: any) {
       setImgError(e?.message ?? "Generation failed");
     } finally {
@@ -112,12 +101,21 @@ function RecipePage() {
     }
   };
 
+  // Auto-generate image for inverse recipes that don't yet have one.
+  useEffect(() => {
+    if (!recipe) return;
+    if (recipe.image_path) return;
+    if (imgLoading) return;
+    const body = recipe.body ?? {};
+    const isInverse = Boolean(recipe.is_inverse ?? body.inverse_celebrity);
+    if (!isInverse) return;
+    generateImage();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [recipe?.id, recipe?.image_path]);
+
   const regenerateImage = async () => {
-    const isInverse = Boolean(recipe?.is_inverse ?? recipe?.body?.inverse_celebrity);
-    if (!isInverse) {
-      await supabase.from("recipes").update({ image_path: null }).eq("id", id);
-      setRecipe((r: any) => r ? { ...r, image_path: null } : r);
-    }
+    await supabase.from("recipes").update({ image_path: null }).eq("id", id);
+    setRecipe((r: any) => r ? { ...r, image_path: null } : r);
     setImageUrl(null);
     await generateImage();
   };
