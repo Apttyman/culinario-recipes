@@ -436,7 +436,7 @@ function RecipePage() {
 
         <div style={{ marginTop: 48 }}>
           {fromDuel ? (
-            <button onClick={() => navigate({ to: "/duel/$id", params: { id: fromDuel } })} style={{ ...ctaStyle, color: "var(--fg-muted)" }}>
+            <button onClick={() => navigate({ to: "/duel/$id", params: { id: fromDuel }, search: { act: duelAct ?? 0 } })} style={{ ...ctaStyle, color: "var(--fg-muted)" }}>
               ← Back to the duel
             </button>
           ) : (
