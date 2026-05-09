@@ -55,7 +55,7 @@ function Cookbook() {
       case "all": return recipes;
       case "cooked": return recipes.filter((r) => r.cooked_at);
       case "rated": return recipes.filter((r) => r.rating != null);
-      case "unrated": return recipes.filter((r) => r.cooked_at && r.rating == null);
+      case "unrated": return recipes.filter((r) => r.rating == null);
       default: return recipes.filter((r) => r.cuisine === filter);
     }
   }, [recipes, filter]);
