@@ -8,6 +8,9 @@ import { triggerPortraitSynthesis } from "@/lib/portrait";
 
 export const Route = createFileRoute("/recipes/$id")({
   head: () => ({ meta: [{ title: "Recipe — Culinario" }] }),
+  validateSearch: (search: Record<string, unknown>) => ({
+    from: typeof search.from === "string" ? search.from : undefined,
+  }),
   component: RecipePage,
 });
 
@@ -41,6 +44,7 @@ const sectionHeader: React.CSSProperties = {
 function RecipePage() {
   const { session } = useAuth();
   const { id } = Route.useParams();
+  const { from: fromDuel } = Route.useSearch();
   const navigate = useNavigate();
   const [recipe, setRecipe] = useState<any>(null);
   const [voice, setVoice] = useState<any>(null);
@@ -427,9 +431,15 @@ function RecipePage() {
         </div>
 
         <div style={{ marginTop: 48 }}>
-          <button onClick={() => navigate({ to: "/cookbook" })} style={{ ...ctaStyle, color: "var(--fg-muted)" }}>
-            ← Cookbook
-          </button>
+          {fromDuel ? (
+            <button onClick={() => navigate({ to: "/duel/$id", params: { id: fromDuel } })} style={{ ...ctaStyle, color: "var(--fg-muted)" }}>
+              ← Back to the duel
+            </button>
+          ) : (
+            <button onClick={() => navigate({ to: "/cookbook" })} style={{ ...ctaStyle, color: "var(--fg-muted)" }}>
+              ← Cookbook
+            </button>
+          )}
         </div>
       </main>
     </div>
