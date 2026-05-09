@@ -159,6 +159,49 @@ function Today() {
           </button>
         </div>
 
+        <div style={{ marginTop: 14, display: "flex", justifyContent: "center" }}>
+          <button
+            onClick={() => navigate({ to: "/inverse", search: { duel: 1 } as any })}
+            className="battle-bubble"
+            style={{
+              position: "relative",
+              padding: "14px 28px",
+              borderRadius: 999,
+              border: "1px solid rgba(255,255,255,0.25)",
+              background: "linear-gradient(135deg, rgba(255,72,120,0.35), rgba(120,60,255,0.35) 50%, rgba(255,200,40,0.35))",
+              backdropFilter: "blur(18px) saturate(180%)",
+              WebkitBackdropFilter: "blur(18px) saturate(180%)",
+              boxShadow: "0 10px 30px -8px rgba(255,72,120,0.45), inset 0 1px 0 rgba(255,255,255,0.35)",
+              cursor: "pointer",
+              fontFamily: "var(--font-mono)", fontWeight: 700, fontSize: 12,
+              letterSpacing: "0.28em", textTransform: "uppercase", color: "#fff",
+              textShadow: "0 1px 0 rgba(0,0,0,0.4)",
+              overflow: "hidden",
+            }}
+          >
+            ⚔ Battling Chef Mode ⚔
+          </button>
+        </div>
+        <style>{`
+          @keyframes battle-shimmer {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 200% 50%; }
+          }
+          @keyframes battle-bob {
+            0%,100% { transform: translateY(0) rotate(-1deg); }
+            50%     { transform: translateY(-3px) rotate(1deg); }
+          }
+          .battle-bubble {
+            background-size: 200% 200% !important;
+            animation: battle-shimmer 6s linear infinite, battle-bob 3.4s ease-in-out infinite;
+            transition: transform 200ms ease, box-shadow 200ms ease;
+          }
+          .battle-bubble:hover {
+            transform: translateY(-2px) scale(1.04);
+            box-shadow: 0 16px 40px -10px rgba(255,72,120,0.6), inset 0 1px 0 rgba(255,255,255,0.5) !important;
+          }
+        `}</style>
+
         {/* WE'VE NOTICED */}
         <div style={{ marginTop: 64 }}>
           <div style={{ display: "flex", alignItems: "baseline", gap: 12, marginBottom: 24 }}>
