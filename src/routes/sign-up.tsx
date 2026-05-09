@@ -107,12 +107,6 @@ function SignUp() {
           </button>
         </form>
 
-        <hr style={hairline} />
-
-        <button onClick={onGoogle} style={{ ...ctaStyle, color: "var(--fg-muted)" }} className="culinario-cta-muted">
-          Continue with Google <ArrowUpRight />
-        </button>
-
         <div style={{ marginTop: 48 }}>
           <Link
             to="/sign-in"
