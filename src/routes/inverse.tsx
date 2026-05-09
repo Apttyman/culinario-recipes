@@ -5,7 +5,6 @@ import { supabase } from "@/lib/supabase-client";
 import { AppHeader } from "@/components/AppHeader";
 
 export const Route = createFileRoute("/inverse")({
-  validateSearch: (s: Record<string, unknown>) => ({ duel: s.duel ? 1 : undefined }) as { duel?: 1 },
   head: () => ({
     meta: [
       { title: "Inverse Mode — Culinario" },
@@ -21,125 +20,6 @@ const eyebrow: React.CSSProperties = {
 };
 const hairline: React.CSSProperties = { border: 0, height: 1, background: "var(--hairline)", margin: "32px 0" };
 
-function DuelDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
-  const navigate = useNavigate();
-  const [chefA, setChefA] = useState("");
-  const [chefB, setChefB] = useState("");
-  const [challenge, setChallenge] = useState("");
-  const [busy, setBusy] = useState(false);
-  const [err, setErr] = useState<string | null>(null);
-
-  if (!open) return null;
-
-  const start = async () => {
-    if (!chefA.trim() || !chefB.trim() || busy) return;
-    setBusy(true); setErr(null);
-    try {
-      const { data, error } = await supabase.functions.invoke("generate-duel", {
-        body: { chef_a: chefA.trim(), chef_b: chefB.trim(), challenge: challenge.trim() || undefined },
-      });
-      if (error) throw error;
-      if ((data as any)?.error) throw new Error((data as any).error);
-      const duelId = (data as any)?.duel_id ?? (data as any)?.id;
-      const recipeAId = (data as any)?.recipe_a_id;
-      const recipeBId = (data as any)?.recipe_b_id;
-      if (!duelId) throw new Error("No duel returned.");
-      // Fire-and-forget image generation for both linked recipes
-      [recipeAId, recipeBId].filter(Boolean).forEach((rid: string) => {
-        supabase.functions.invoke("generate-inverse-image", { body: { recipe_id: rid } }).catch(() => {});
-      });
-      navigate({ to: "/duel/$id", params: { id: duelId } });
-    } catch (e: any) {
-      setErr(e?.message ?? "Failed to start the duel.");
-      setBusy(false);
-    }
-  };
-
-  return (
-    <div
-      role="dialog"
-      aria-modal="true"
-      onClick={onClose}
-      style={{
-        position: "fixed", inset: 0, zIndex: 60,
-        background: "color-mix(in oklab, var(--bg) 60%, transparent)",
-        backdropFilter: "blur(14px)", WebkitBackdropFilter: "blur(14px)",
-        display: "flex", alignItems: "center", justifyContent: "center", padding: 24,
-      }}
-    >
-      <div
-        onClick={(e) => e.stopPropagation()}
-        style={{
-          width: "100%", maxWidth: 480,
-          background: "var(--bg)", color: "var(--fg)",
-          border: "1px solid var(--hairline)", padding: 32,
-          display: "flex", flexDirection: "column", gap: 18,
-        }}
-      >
-        <div style={eyebrow}>№ 008 — Cooking Duel</div>
-        <h2 style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontWeight: 300, fontSize: 32, margin: "4px 0 8px" }}>
-          Stage a duel.
-        </h2>
-        <label style={eyebrow}>Chef A</label>
-        <input
-          autoFocus
-          value={chefA} onChange={(e) => setChefA(e.target.value)}
-          placeholder="e.g. Julia Child"
-          style={inputStyle}
-        />
-        <label style={eyebrow}>Chef B</label>
-        <input
-          value={chefB} onChange={(e) => setChefB(e.target.value)}
-          placeholder="e.g. Anthony Bourdain"
-          style={inputStyle}
-        />
-        <label style={eyebrow}>Challenge (optional)</label>
-        <input
-          value={challenge} onChange={(e) => setChallenge(e.target.value)}
-          placeholder="e.g. one chicken, one hour"
-          style={inputStyle}
-        />
-        {err && <div style={{ ...eyebrow, color: "var(--saffron)" }}>{err}</div>}
-        <div style={{ display: "flex", gap: 12, marginTop: 8 }}>
-          <button
-            type="button" onClick={onClose}
-            style={{ ...buttonStyle, color: "var(--fg-muted)", borderColor: "var(--hairline)" }}
-          >
-            Cancel
-          </button>
-          <button
-            type="button" onClick={start}
-            disabled={!chefA.trim() || !chefB.trim() || busy}
-            style={{
-              ...buttonStyle,
-              color: !chefA.trim() || !chefB.trim() || busy ? "var(--fg-low)" : "var(--saffron)",
-              borderColor: !chefA.trim() || !chefB.trim() || busy ? "var(--hairline)" : "var(--saffron)",
-              cursor: !chefA.trim() || !chefB.trim() || busy ? "not-allowed" : "pointer",
-              flex: 1,
-            }}
-          >
-            {busy ? "Setting the table…" : "Start the duel ↗"}
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-const inputStyle: React.CSSProperties = {
-  width: "100%", background: "transparent", color: "var(--fg)",
-  border: 0, borderBottom: "1px solid var(--hairline)",
-  fontFamily: "var(--font-display)", fontStyle: "italic",
-  fontSize: 20, padding: "6px 0", outline: "none",
-  boxSizing: "border-box",
-};
-const buttonStyle: React.CSSProperties = {
-  fontFamily: "var(--font-body)", fontWeight: 600, fontSize: 12,
-  textTransform: "uppercase", letterSpacing: "0.2em",
-  background: "transparent", border: "1px solid", padding: "12px 18px",
-  cursor: "pointer", borderRadius: 0,
-};
-
 function InversePage() {
   const { session, loading } = useAuth();
   const navigate = useNavigate();
@@ -148,8 +28,6 @@ function InversePage() {
   const [error, setError] = useState<string | null>(null);
   const [results, setResults] = useState<{ celebrity: string; recipes: any[] } | null>(null);
   const [phraseIdx, setPhraseIdx] = useState(0);
-  const search = Route.useSearch();
-  const [duelOpen, setDuelOpen] = useState(Boolean(search.duel));
   const phrases = useMemo(() => [
     "Lighting the candles…",
     "Borrowing their palate…",
@@ -264,7 +142,7 @@ function InversePage() {
               minWidth: 0, maxWidth: "100%", boxSizing: "border-box",
             }}
           />
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 12 }}>
+          <div>
             <button
               type="button"
               onClick={conjure}
@@ -285,19 +163,6 @@ function InversePage() {
               }}
             >
               {conjuring ? "Conjuring three dishes…" : results ? "Reconjure their menu ↗" : "Conjure their menu ↗"}
-            </button>
-            <button
-              type="button"
-              onClick={() => setDuelOpen(true)}
-              style={{
-                fontFamily: "var(--font-body)", fontWeight: 600, fontSize: 12,
-                textTransform: "uppercase", letterSpacing: "0.2em",
-                color: "var(--fg)", background: "transparent",
-                border: "1px solid var(--fg)", padding: "14px 22px",
-                minHeight: 48, borderRadius: 0, cursor: "pointer",
-              }}
-            >
-              Generate duel ⚔
             </button>
           </div>
           {error && (
@@ -353,7 +218,7 @@ function InversePage() {
       </main>
 
       {conjuring && <ConjuringOverlay name={celebrity.trim()} phrase={phrases[phraseIdx]} />}
-      <DuelDialog open={duelOpen} onClose={() => setDuelOpen(false)} />
+      
     </div>
   );
 }

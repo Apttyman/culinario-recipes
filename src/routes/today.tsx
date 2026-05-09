@@ -167,7 +167,7 @@ function Today() {
 
         <div style={{ marginTop: 14, display: "flex", justifyContent: "center" }}>
           <button
-            onClick={() => navigate({ to: "/inverse", search: { duel: 1 } as any })}
+            onClick={() => navigate({ to: "/duel" })}
             className="battle-bubble"
             style={{
               position: "relative",
