@@ -607,6 +607,7 @@ function Act5Dishes({
 function RecipeModal({ recipe, img, onClose }: { recipe: any; img: string | null; onClose: () => void }) {
   const navigate = useNavigate();
   const { id: duelId } = Route.useParams();
+  const { act: currentAct } = Route.useSearch();
   return (
     <motion.div
       initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
