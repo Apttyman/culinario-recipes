@@ -251,7 +251,7 @@ function DuelPage() {
   const search = Route.useSearch();
   const initialAct = typeof search.act === "number" ? search.act : 0;
   const [act, setAct] = useState(initialAct); // 0..8
-  const [trashIdx, setTrashIdx] = useState(0); // 0..N lines revealed
+  const [trashIdx, setTrashIdx] = useState(1); // start with first line already revealed
   const [openRecipe, setOpenRecipe] = useState<any | null>(null);
   const [winSize, setWinSize] = useState({ w: 1200, h: 800 });
 
