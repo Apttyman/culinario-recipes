@@ -724,12 +724,20 @@ function Act6TrashTalk({
     return () => clearTimeout(t);
   }, [showRound, revealed]);
 
+  const scrollerRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    const el = scrollerRef.current;
+    if (!el) return;
+    el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
+  }, [revealed]);
+
   return (
     <div
+      ref={scrollerRef}
       onClick={onAdvance}
       style={{
         position: "fixed", inset: 0, background: PALETTE.bg, color: PALETTE.ink,
-        overflowY: "auto", overflowX: "hidden", cursor: "pointer", padding: "48px 16px 96px",
+        overflowY: "auto", overflowX: "hidden", cursor: "pointer", padding: "48px 16px 120px",
         display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start",
       }}
     >
