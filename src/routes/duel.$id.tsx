@@ -363,8 +363,8 @@ function DuelPage() {
         >
           {currentActNum === 1 && <Act1Title chefA={chefA} chefB={chefB} onAdvance={advance} />}
           {currentActNum === 2 && <Act2Challenge challenge={challenge} host={host} onAdvance={advance} />}
-          {currentActNum === 3 && <Act3WalkOn name={chefA} bio={duel.walk_on_a} img={portraitA} side="left" onAdvance={advance} />}
-          {currentActNum === 4 && <Act3WalkOn name={chefB} bio={duel.walk_on_b} img={portraitB} side="right" onAdvance={advance} />}
+          {currentActNum === 3 && <Act3WalkOn name={chefA} bio={duel?.trash_talk?.walk_on_a ?? duel.walk_on_a} img={portraitA} side="left" onAdvance={advance} />}
+          {currentActNum === 4 && <Act3WalkOn name={chefB} bio={duel?.trash_talk?.walk_on_b ?? duel.walk_on_b} img={portraitB} side="right" onAdvance={advance} />}
           {currentActNum === 5 && (
             <Act5Dishes
               recipeA={recipeA} recipeB={recipeB} imgA={imgA} imgB={imgB}
@@ -525,7 +525,7 @@ function Act3WalkOn({ name, bio, img, side, onAdvance }: { name: string; bio?: s
               <Typewriter text={bio} speed={22} delay={900} />
             </div>
           ) : (
-            <div style={{ fontStyle: "italic", color: PALETTE.muted }}>Steps into the kitchen, says nothing.</div>
+            <div style={{ fontStyle: "italic", color: PALETTE.muted }}>[The MC clears their throat.]</div>
           )}
         </div>
       </div>
