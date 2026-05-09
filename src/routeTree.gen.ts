@@ -16,10 +16,10 @@ import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as PortraitRouteImport } from './routes/portrait'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as InverseRouteImport } from './routes/inverse'
-import { Route as DuelRouteImport } from './routes/duel'
 import { Route as CookbookRouteImport } from './routes/cookbook'
 import { Route as CaptureRouteImport } from './routes/capture'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as DuelIndexRouteImport } from './routes/duel.index'
 import { Route as SessionNewRouteImport } from './routes/session.new'
 import { Route as RecipesIdRouteImport } from './routes/recipes.$id'
 import { Route as DuelIdRouteImport } from './routes/duel.$id'
@@ -59,11 +59,6 @@ const InverseRoute = InverseRouteImport.update({
   path: '/inverse',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DuelRoute = DuelRouteImport.update({
-  id: '/duel',
-  path: '/duel',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const CookbookRoute = CookbookRouteImport.update({
   id: '/cookbook',
   path: '/cookbook',
@@ -77,6 +72,11 @@ const CaptureRoute = CaptureRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DuelIndexRoute = DuelIndexRouteImport.update({
+  id: '/duel/',
+  path: '/duel/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SessionNewRoute = SessionNewRouteImport.update({
@@ -99,7 +99,6 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/capture': typeof CaptureRoute
   '/cookbook': typeof CookbookRoute
-  '/duel': typeof DuelRouteWithChildren
   '/inverse': typeof InverseRoute
   '/onboarding': typeof OnboardingRoute
   '/portrait': typeof PortraitRoute
@@ -110,12 +109,12 @@ export interface FileRoutesByFullPath {
   '/duel/$id': typeof DuelIdRoute
   '/recipes/$id': typeof RecipesIdRoute
   '/session/new': typeof SessionNewRoute
+  '/duel/': typeof DuelIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/capture': typeof CaptureRoute
   '/cookbook': typeof CookbookRoute
-  '/duel': typeof DuelRouteWithChildren
   '/inverse': typeof InverseRoute
   '/onboarding': typeof OnboardingRoute
   '/portrait': typeof PortraitRoute
@@ -126,13 +125,13 @@ export interface FileRoutesByTo {
   '/duel/$id': typeof DuelIdRoute
   '/recipes/$id': typeof RecipesIdRoute
   '/session/new': typeof SessionNewRoute
+  '/duel': typeof DuelIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/capture': typeof CaptureRoute
   '/cookbook': typeof CookbookRoute
-  '/duel': typeof DuelRouteWithChildren
   '/inverse': typeof InverseRoute
   '/onboarding': typeof OnboardingRoute
   '/portrait': typeof PortraitRoute
@@ -143,6 +142,7 @@ export interface FileRoutesById {
   '/duel/$id': typeof DuelIdRoute
   '/recipes/$id': typeof RecipesIdRoute
   '/session/new': typeof SessionNewRoute
+  '/duel/': typeof DuelIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -150,7 +150,6 @@ export interface FileRouteTypes {
     | '/'
     | '/capture'
     | '/cookbook'
-    | '/duel'
     | '/inverse'
     | '/onboarding'
     | '/portrait'
@@ -161,12 +160,12 @@ export interface FileRouteTypes {
     | '/duel/$id'
     | '/recipes/$id'
     | '/session/new'
+    | '/duel/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/capture'
     | '/cookbook'
-    | '/duel'
     | '/inverse'
     | '/onboarding'
     | '/portrait'
@@ -177,12 +176,12 @@ export interface FileRouteTypes {
     | '/duel/$id'
     | '/recipes/$id'
     | '/session/new'
+    | '/duel'
   id:
     | '__root__'
     | '/'
     | '/capture'
     | '/cookbook'
-    | '/duel'
     | '/inverse'
     | '/onboarding'
     | '/portrait'
@@ -193,13 +192,13 @@ export interface FileRouteTypes {
     | '/duel/$id'
     | '/recipes/$id'
     | '/session/new'
+    | '/duel/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CaptureRoute: typeof CaptureRoute
   CookbookRoute: typeof CookbookRoute
-  DuelRoute: typeof DuelRouteWithChildren
   InverseRoute: typeof InverseRoute
   OnboardingRoute: typeof OnboardingRoute
   PortraitRoute: typeof PortraitRoute
@@ -209,6 +208,7 @@ export interface RootRouteChildren {
   TodayRoute: typeof TodayRoute
   RecipesIdRoute: typeof RecipesIdRoute
   SessionNewRoute: typeof SessionNewRoute
+  DuelIndexRoute: typeof DuelIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -262,13 +262,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof InverseRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/duel': {
-      id: '/duel'
-      path: '/duel'
-      fullPath: '/duel'
-      preLoaderRoute: typeof DuelRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/cookbook': {
       id: '/cookbook'
       path: '/cookbook'
@@ -288,6 +281,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/duel/': {
+      id: '/duel/'
+      path: '/duel'
+      fullPath: '/duel/'
+      preLoaderRoute: typeof DuelIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/session/new': {
@@ -314,21 +314,10 @@ declare module '@tanstack/react-router' {
   }
 }
 
-interface DuelRouteChildren {
-  DuelIdRoute: typeof DuelIdRoute
-}
-
-const DuelRouteChildren: DuelRouteChildren = {
-  DuelIdRoute: DuelIdRoute,
-}
-
-const DuelRouteWithChildren = DuelRoute._addFileChildren(DuelRouteChildren)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CaptureRoute: CaptureRoute,
   CookbookRoute: CookbookRoute,
-  DuelRoute: DuelRouteWithChildren,
   InverseRoute: InverseRoute,
   OnboardingRoute: OnboardingRoute,
   PortraitRoute: PortraitRoute,
@@ -338,6 +327,7 @@ const rootRouteChildren: RootRouteChildren = {
   TodayRoute: TodayRoute,
   RecipesIdRoute: RecipesIdRoute,
   SessionNewRoute: SessionNewRoute,
+  DuelIndexRoute: DuelIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

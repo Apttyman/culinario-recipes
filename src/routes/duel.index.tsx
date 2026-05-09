@@ -4,7 +4,7 @@ import { useAuth } from "@/lib/auth-context";
 import { supabase } from "@/lib/supabase-client";
 import { AppHeader } from "@/components/AppHeader";
 
-export const Route = createFileRoute("/duel")({
+export const Route = createFileRoute("/duel/")({
   head: () => ({
     meta: [
       { title: "Battling Chef Mode — Culinario" },
