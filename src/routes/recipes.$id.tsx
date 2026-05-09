@@ -91,7 +91,7 @@ function RecipePage() {
       const body = recipe?.body ?? {};
       const isInverse = Boolean(recipe?.is_inverse ?? body.inverse_celebrity);
       const fnName = isInverse ? "generate-inverse-image" : "generate-recipe-image";
-      alert("recipe_id is: " + JSON.stringify({ recipeId: recipe?.id, urlId: id, fullRecipe: recipe }));
+      
       const { data, error } = await supabase.functions.invoke(fnName, {
         body: { recipe_id: recipeId },
       });
