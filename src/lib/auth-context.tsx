@@ -1,6 +1,7 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase-client";
+import { triggerPortraitSynthesis } from "@/lib/portrait";
 
 export type Profile = {
   id: string;
@@ -23,6 +24,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
+  const portraitFiredRef = useRef<string | null>(null);
+
+  const maybeFirePortrait = (uid: string) => {
+    if (portraitFiredRef.current === uid) return;
+    portraitFiredRef.current = uid;
+    void triggerPortraitSynthesis().catch(() => {});
+  };
 
   const loadProfile = async (uid: string) => {
     const { data } = await supabase
@@ -38,14 +46,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setSession(s);
       if (s?.user) {
         setTimeout(() => loadProfile(s.user.id), 0);
+        maybeFirePortrait(s.user.id);
       } else {
         setProfile(null);
       }
     });
     supabase.auth.getSession().then(({ data }) => {
       setSession(data.session);
-      if (data.session?.user) loadProfile(data.session.user.id).finally(() => setLoading(false));
-      else setLoading(false);
+      if (data.session?.user) {
+        maybeFirePortrait(data.session.user.id);
+        loadProfile(data.session.user.id).finally(() => setLoading(false));
+      } else setLoading(false);
     });
     return () => sub.subscription.unsubscribe();
   }, []);
