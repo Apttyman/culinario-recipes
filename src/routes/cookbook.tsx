@@ -227,41 +227,59 @@ function Cookbook() {
           {statusChip("unrated", "Unrated")}
         </div>
 
-        {/* Selects */}
-        <div style={{
-          marginTop: 24,
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))",
-          gap: 20,
-        }}>
-          <div style={{ display: "flex", flexDirection: "column" }}>
-            <span style={fieldLabel}>Cuisine</span>
-            <select value={cuisine} onChange={(e) => setCuisine(e.target.value)} style={selectStyle}>
-              <option value="all">Any cuisine</option>
-              {cuisines.map((c) => <option key={c} value={c}>{c}</option>)}
-            </select>
-          </div>
-          <div style={{ display: "flex", flexDirection: "column" }}>
-            <span style={fieldLabel}>Difficulty</span>
-            <select value={difficulty} onChange={(e) => setDifficulty(e.target.value)} style={selectStyle}>
-              <option value="all">Any level</option>
-              {difficulties.map((d) => <option key={d} value={d}>{d}</option>)}
-            </select>
-          </div>
-          <div style={{ display: "flex", flexDirection: "column" }}>
-            <span style={fieldLabel}>Max time</span>
-            <select value={maxTime} onChange={(e) => setMaxTime(e.target.value)} style={selectStyle}>
-              <option value="any">Any length</option>
-              <option value="15">≤ 15 min</option>
-              <option value="30">≤ 30 min</option>
-              <option value="45">≤ 45 min</option>
-              <option value="60">≤ 60 min</option>
-              <option value="120">≤ 2 hrs</option>
-            </select>
-          </div>
-          <div style={{ display: "flex", flexDirection: "column" }}>
-            <span style={fieldLabel}>Sort by</span>
-            <select value={sort} onChange={(e) => setSort(e.target.value as Sort)} style={selectStyle}>
+        {/* Group-by chip filters */}
+        <div style={{ marginTop: 32, display: "flex", flexDirection: "column", gap: 24 }}>
+          {cuisines.length > 0 && (
+            <div>
+              <div style={fieldLabel}>Cuisine</div>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                <button onClick={() => setCuisine("all")} style={pill(cuisine === "all")}>
+                  <span>All</span><span style={pillCount}>{recipes?.length ?? 0}</span>
+                </button>
+                {cuisines.map(([name, count]) => (
+                  <button key={name} onClick={() => setCuisine(name)} style={pill(cuisine === name)}>
+                    <span>{name}</span><span style={pillCount}>{count}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {difficulties.length > 0 && (
+            <div>
+              <div style={fieldLabel}>Pace</div>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                <button onClick={() => setDifficulty("all")} style={pill(difficulty === "all")}>
+                  <span>Any</span>
+                </button>
+                {difficulties.map(([name, count]) => (
+                  <button key={name} onClick={() => setDifficulty(name)} style={pill(difficulty === name)}>
+                    <span>{name}</span><span style={pillCount}>{count}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {timeCounts.length > 0 && (
+            <div>
+              <div style={fieldLabel}>Time on the clock</div>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                <button onClick={() => setMaxTime("any")} style={pill(maxTime === "any")}>
+                  <span>Any length</span>
+                </button>
+                {timeCounts.map((b) => (
+                  <button key={b.key} onClick={() => setMaxTime(b.key)} style={pill(maxTime === b.key)}>
+                    <span>{b.label}</span><span style={pillCount}>{b.count}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+            <span style={fieldLabel}>Sort</span>
+            <select value={sort} onChange={(e) => setSort(e.target.value as Sort)} style={sortStyle}>
               <option value="newest">Newest first</option>
               <option value="oldest">Oldest first</option>
               <option value="rating">Highest rated</option>
