@@ -260,18 +260,9 @@ function DuelPage() {
   }, [duel?.trash_talk, chefA, chefB]);
 
   // Build the act order; skip acts whose data is missing.
-  const actOrder = useMemo(() => {
-    const acts: number[] = [1]; // title
-    if (challenge || host) acts.push(2);
-    if (duel?.walk_on_a || imgA) acts.push(3);
-    if (duel?.walk_on_b || imgB) acts.push(4);
-    acts.push(5); // dishes (always — placeholders ok)
-    if (trashTalk.length > 0) acts.push(6);
-    acts.push(7); // verdict
-    if (adBreak) acts.push(8);
-    acts.push(9); // sendoff
-    return acts;
-  }, [challenge, host, duel?.walk_on_a, duel?.walk_on_b, imgA, imgB, trashTalk.length, adBreak]);
+  // Fixed 1..9 order so the sequence never shifts as data trickles in.
+  // Acts render placeholders if their data is missing.
+  const actOrder = useMemo(() => [1, 2, 3, 4, 5, 6, 7, 8, 9], []);
 
   const currentActNum = actOrder[Math.min(act, actOrder.length - 1)];
 
@@ -281,12 +272,9 @@ function DuelPage() {
       setTrashIdx((n) => n + 1);
       return;
     }
-    if (currentActNum === 6 && trashIdx >= trashTalk.length) {
-      setAct((a) => Math.min(a + 1, actOrder.length - 1));
-      return;
-    }
     setAct((a) => Math.min(a + 1, actOrder.length - 1));
   }, [openRecipe, currentActNum, trashIdx, trashTalk.length, actOrder.length]);
+
 
   // keyboard: space advances
   useEffect(() => {
