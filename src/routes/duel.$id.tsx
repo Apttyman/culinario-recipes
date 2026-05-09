@@ -645,7 +645,7 @@ function RecipeModal({ recipe, img, onClose }: { recipe: any; img: string | null
           )}
           <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
             <button
-              onClick={() => navigate({ to: "/recipes/$id", params: { id: recipe.id }, search: { from: duelId } })}
+              onClick={() => navigate({ to: "/recipes/$id", params: { id: recipe.id }, search: { from: duelId, act: currentAct ?? 0 } })}
               style={{ background: PALETTE.gold, color: "#000", border: 0, padding: "14px 22px", fontSize: 12, fontWeight: 800, letterSpacing: "0.2em", textTransform: "uppercase", cursor: "pointer", borderRadius: 4 }}
             >
               Open recipe ↗
