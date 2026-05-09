@@ -80,6 +80,11 @@ function RecipePage() {
   }, [recipe?.image_path, recipe?.inverse_image_url]);
 
   const generateImage = async () => {
+    const recipeId = recipe?.id ?? id;
+    if (!recipeId) {
+      setImgError("Recipe not loaded yet");
+      return;
+    }
     setImgLoading(true);
     setImgError(null);
     try {
@@ -87,7 +92,7 @@ function RecipePage() {
       const isInverse = Boolean(recipe?.is_inverse ?? body.inverse_celebrity);
       const fnName = isInverse ? "generate-inverse-image" : "generate-recipe-image";
       const { data, error } = await supabase.functions.invoke(fnName, {
-        body: { recipe_id: id },
+        body: { recipe_id: recipeId },
       });
       if (error) throw error;
       if ((data as any)?.error) throw new Error((data as any).error);
