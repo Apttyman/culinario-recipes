@@ -141,103 +141,112 @@ function Today() {
           </span>
         </button>
 
-        <div style={{ marginTop: 24, display: "flex", flexDirection: "column", alignItems: "stretch", gap: 0 }}>
+        <div style={{ marginTop: 24, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
           <button
             onClick={() => navigate({ to: "/inverse" })}
-            className="culinario-mode-btn"
+            className="culinario-glass-btn culinario-glass-btn--inverse"
             style={{
               position: "relative",
-              padding: "18px 24px",
-              borderRadius: 0,
-              border: "1px solid var(--hairline)",
-              borderBottom: "none",
-              background: "transparent",
+              padding: "22px 24px",
+              minHeight: 96,
+              borderRadius: 18,
+              border: "1px solid color-mix(in oklab, var(--fg) 12%, transparent)",
+              background: "color-mix(in oklab, var(--surface-elev) 55%, transparent)",
+              backdropFilter: "blur(22px) saturate(160%)",
+              WebkitBackdropFilter: "blur(22px) saturate(160%)",
+              boxShadow: "0 14px 40px -18px color-mix(in oklab, var(--saffron) 50%, transparent), inset 0 1px 0 color-mix(in oklab, white 14%, transparent)",
               cursor: "pointer",
-              display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16,
-              textAlign: "left",
-              overflow: "hidden",
+              display: "flex", flexDirection: "column", alignItems: "flex-start", justifyContent: "space-between",
+              gap: 10, textAlign: "left", overflow: "hidden",
             }}
           >
-            <span style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-              <span style={{
-                fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.2em",
-                textTransform: "uppercase", color: "var(--fg-low)",
-              }}>№ 007</span>
-              <span style={{
-                fontFamily: "var(--font-display)", fontWeight: 300, fontStyle: "italic",
-                fontSize: 24, color: "var(--fg)", lineHeight: 1,
-              }}>Inverse Mode</span>
-            </span>
-            <span className="culinario-mode-arrow" style={{
-              fontFamily: "var(--font-mono)", fontSize: 11, letterSpacing: "0.2em",
-              textTransform: "uppercase", color: "var(--saffron)",
-              display: "inline-flex", alignItems: "center", gap: 8,
-            }}>
-              Enter ↗
-            </span>
+            <span className="culinario-glass-eyebrow">Inverse Mode</span>
+            <span className="culinario-glass-title">Cook as someone else.</span>
+            <span className="culinario-glass-cta">Enter ↗</span>
           </button>
 
           <button
             onClick={() => navigate({ to: "/duel/" })}
-            className="culinario-mode-btn"
+            className="culinario-glass-btn culinario-glass-btn--duel"
             style={{
               position: "relative",
-              padding: "18px 24px",
-              borderRadius: 0,
-              border: "1px solid var(--hairline)",
-              background: "transparent",
+              padding: "22px 24px",
+              minHeight: 96,
+              borderRadius: 18,
+              border: "1px solid color-mix(in oklab, var(--fg) 12%, transparent)",
+              background: "color-mix(in oklab, var(--surface-elev) 55%, transparent)",
+              backdropFilter: "blur(22px) saturate(160%)",
+              WebkitBackdropFilter: "blur(22px) saturate(160%)",
+              boxShadow: "0 14px 40px -18px color-mix(in oklab, var(--saffron) 50%, transparent), inset 0 1px 0 color-mix(in oklab, white 14%, transparent)",
               cursor: "pointer",
-              display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16,
-              textAlign: "left",
-              overflow: "hidden",
+              display: "flex", flexDirection: "column", alignItems: "flex-start", justifyContent: "space-between",
+              gap: 10, textAlign: "left", overflow: "hidden",
             }}
           >
-            <span style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-              <span style={{
-                fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.2em",
-                textTransform: "uppercase", color: "var(--fg-low)",
-              }}>№ 008</span>
-              <span style={{
-                fontFamily: "var(--font-display)", fontWeight: 300, fontStyle: "italic",
-                fontSize: 24, color: "var(--fg)", lineHeight: 1,
-              }}>Battling Chef Mode</span>
-            </span>
-            <span className="culinario-mode-arrow" style={{
-              fontFamily: "var(--font-mono)", fontSize: 11, letterSpacing: "0.2em",
-              textTransform: "uppercase", color: "var(--saffron)",
-              display: "inline-flex", alignItems: "center", gap: 8,
-            }}>
-              Enter ↗
-            </span>
+            <span className="culinario-glass-eyebrow">Battling Chef Mode</span>
+            <span className="culinario-glass-title">Pit two chefs. Pick a winner.</span>
+            <span className="culinario-glass-cta">Enter ↗</span>
           </button>
         </div>
         <style>{`
-          @keyframes culinario-mode-sweep {
+          @keyframes culinario-glass-sweep {
             0%   { transform: translateX(-120%); }
             100% { transform: translateX(120%); }
           }
-          .culinario-mode-btn {
-            transition: background 220ms ease, border-color 220ms ease;
+          .culinario-glass-btn {
+            transition: transform 240ms ease, box-shadow 240ms ease, border-color 240ms ease;
           }
-          .culinario-mode-btn::before {
+          .culinario-glass-btn::after {
+            content: "";
+            position: absolute; inset: -1px;
+            border-radius: inherit;
+            pointer-events: none;
+            background: radial-gradient(120% 80% at 0% 0%, color-mix(in oklab, var(--saffron) 22%, transparent), transparent 55%),
+                        radial-gradient(120% 80% at 100% 100%, color-mix(in oklab, var(--saffron) 14%, transparent), transparent 55%);
+            opacity: 0.7;
+          }
+          .culinario-glass-btn--duel::after {
+            background: radial-gradient(120% 80% at 100% 0%, color-mix(in oklab, var(--saffron) 24%, transparent), transparent 55%),
+                        radial-gradient(120% 80% at 0% 100%, color-mix(in oklab, var(--fg) 10%, transparent), transparent 55%);
+          }
+          .culinario-glass-btn::before {
             content: "";
             position: absolute; inset: 0;
             background: linear-gradient(110deg,
               transparent 35%,
-              color-mix(in oklab, var(--saffron) 18%, transparent) 50%,
+              color-mix(in oklab, white 22%, transparent) 50%,
               transparent 65%);
             transform: translateX(-120%);
             pointer-events: none;
+            border-radius: inherit;
           }
-          .culinario-mode-btn:hover {
-            background: color-mix(in oklab, var(--saffron) 5%, transparent);
-            border-color: color-mix(in oklab, var(--saffron) 50%, var(--hairline)) !important;
+          .culinario-glass-btn:hover {
+            transform: translateY(-2px);
+            border-color: color-mix(in oklab, var(--saffron) 55%, transparent) !important;
+            box-shadow: 0 22px 50px -18px color-mix(in oklab, var(--saffron) 70%, transparent), inset 0 1px 0 color-mix(in oklab, white 22%, transparent) !important;
           }
-          .culinario-mode-btn:hover::before {
-            animation: culinario-mode-sweep 1100ms ease forwards;
+          .culinario-glass-btn:hover::before {
+            animation: culinario-glass-sweep 1100ms ease forwards;
           }
-          .culinario-mode-btn:hover .culinario-mode-arrow {
-            color: var(--saffron);
+          .culinario-glass-eyebrow {
+            position: relative; z-index: 1;
+            font-family: var(--font-mono); font-size: 10; letter-spacing: 0.22em;
+            text-transform: uppercase; color: var(--fg-muted);
+            font-size: 10px;
+          }
+          .culinario-glass-title {
+            position: relative; z-index: 1;
+            font-family: var(--font-display); font-style: italic; font-weight: 300;
+            font-size: 22px; line-height: 1.1; color: var(--fg);
+          }
+          .culinario-glass-cta {
+            position: relative; z-index: 1;
+            font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.22em;
+            text-transform: uppercase; color: var(--saffron);
+          }
+          @media (max-width: 640px) {
+            .culinario-glass-btn { min-height: 88px; padding: 18px 18px; }
+            .culinario-glass-title { font-size: 19px; }
           }
         `}</style>
 
