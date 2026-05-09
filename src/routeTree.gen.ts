@@ -21,6 +21,7 @@ import { Route as CaptureRouteImport } from './routes/capture'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SessionNewRouteImport } from './routes/session.new'
 import { Route as RecipesIdRouteImport } from './routes/recipes.$id'
+import { Route as DuelIdRouteImport } from './routes/duel.$id'
 
 const TodayRoute = TodayRouteImport.update({
   id: '/today',
@@ -82,6 +83,11 @@ const RecipesIdRoute = RecipesIdRouteImport.update({
   path: '/recipes/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DuelIdRoute = DuelIdRouteImport.update({
+  id: '/duel/$id',
+  path: '/duel/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -94,6 +100,7 @@ export interface FileRoutesByFullPath {
   '/sign-in': typeof SignInRoute
   '/sign-up': typeof SignUpRoute
   '/today': typeof TodayRoute
+  '/duel/$id': typeof DuelIdRoute
   '/recipes/$id': typeof RecipesIdRoute
   '/session/new': typeof SessionNewRoute
 }
@@ -108,6 +115,7 @@ export interface FileRoutesByTo {
   '/sign-in': typeof SignInRoute
   '/sign-up': typeof SignUpRoute
   '/today': typeof TodayRoute
+  '/duel/$id': typeof DuelIdRoute
   '/recipes/$id': typeof RecipesIdRoute
   '/session/new': typeof SessionNewRoute
 }
@@ -123,6 +131,7 @@ export interface FileRoutesById {
   '/sign-in': typeof SignInRoute
   '/sign-up': typeof SignUpRoute
   '/today': typeof TodayRoute
+  '/duel/$id': typeof DuelIdRoute
   '/recipes/$id': typeof RecipesIdRoute
   '/session/new': typeof SessionNewRoute
 }
@@ -139,6 +148,7 @@ export interface FileRouteTypes {
     | '/sign-in'
     | '/sign-up'
     | '/today'
+    | '/duel/$id'
     | '/recipes/$id'
     | '/session/new'
   fileRoutesByTo: FileRoutesByTo
@@ -153,6 +163,7 @@ export interface FileRouteTypes {
     | '/sign-in'
     | '/sign-up'
     | '/today'
+    | '/duel/$id'
     | '/recipes/$id'
     | '/session/new'
   id:
@@ -167,6 +178,7 @@ export interface FileRouteTypes {
     | '/sign-in'
     | '/sign-up'
     | '/today'
+    | '/duel/$id'
     | '/recipes/$id'
     | '/session/new'
   fileRoutesById: FileRoutesById
@@ -182,6 +194,7 @@ export interface RootRouteChildren {
   SignInRoute: typeof SignInRoute
   SignUpRoute: typeof SignUpRoute
   TodayRoute: typeof TodayRoute
+  DuelIdRoute: typeof DuelIdRoute
   RecipesIdRoute: typeof RecipesIdRoute
   SessionNewRoute: typeof SessionNewRoute
 }
@@ -272,6 +285,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RecipesIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/duel/$id': {
+      id: '/duel/$id'
+      path: '/duel/$id'
+      fullPath: '/duel/$id'
+      preLoaderRoute: typeof DuelIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -286,6 +306,7 @@ const rootRouteChildren: RootRouteChildren = {
   SignInRoute: SignInRoute,
   SignUpRoute: SignUpRoute,
   TodayRoute: TodayRoute,
+  DuelIdRoute: DuelIdRoute,
   RecipesIdRoute: RecipesIdRoute,
   SessionNewRoute: SessionNewRoute,
 }
