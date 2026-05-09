@@ -117,20 +117,25 @@ function Today() {
 
         <button
           onClick={() => navigate({ to: "/capture" })}
+          className="culinario-glass-btn culinario-glass-btn--begin"
           style={{
+            position: "relative",
             display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
             gap: 24, width: "100%", height: 280,
-            border: "1px solid var(--hairline)", background: "transparent",
+            borderRadius: 18,
+            border: "1px solid color-mix(in oklab, var(--fg) 12%, transparent)",
+            background: "color-mix(in oklab, var(--surface-elev) 55%, transparent)",
+            backdropFilter: "blur(22px) saturate(160%)",
+            WebkitBackdropFilter: "blur(22px) saturate(160%)",
+            boxShadow: "0 14px 40px -18px color-mix(in oklab, var(--saffron) 50%, transparent), inset 0 1px 0 color-mix(in oklab, white 14%, transparent)",
             color: "var(--fg)", cursor: "pointer", padding: 24,
+            overflow: "hidden",
           }}
         >
-          <span style={{
-            fontFamily: "var(--font-display)", fontWeight: 300, fontStyle: "italic",
-            fontSize: 48, lineHeight: 1, color: "var(--fg)",
+          <span className="culinario-glass-title" style={{
+            fontSize: 48, lineHeight: 1, textAlign: "center",
           }}>Begin a session.</span>
-          <span style={{
-            fontFamily: "var(--font-body)", fontWeight: 600, fontSize: 12,
-            textTransform: "uppercase", letterSpacing: "0.2em", color: "var(--saffron)",
+          <span className="culinario-glass-cta" style={{
             display: "inline-flex", alignItems: "center", gap: 10,
           }}>
             Begin
