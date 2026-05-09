@@ -85,16 +85,9 @@ function RecipePage() {
     try {
       const body = recipe?.body ?? {};
       const isInverse = Boolean(recipe?.is_inverse ?? body.inverse_celebrity);
-      const inverseCelebrity = recipe?.inverse_celebrity ?? body.inverse_celebrity;
       const fnName = isInverse ? "generate-inverse-image" : "generate-recipe-image";
       const { data, error } = await supabase.functions.invoke(fnName, {
-        body: {
-          recipe_id: id,
-          dish_description: isInverse
-            ? [recipe?.title, body.inverse_blurb ?? body.rationale].filter(Boolean).join(" — ")
-            : undefined,
-          celebrity: isInverse ? (inverseCelebrity ?? "") : undefined,
-        },
+        body: { recipe_id: id },
       });
       if (error) throw error;
       if ((data as any)?.error) throw new Error((data as any).error);
