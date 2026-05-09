@@ -579,6 +579,7 @@ function Act5Dishes({
 // ---------- Recipe Modal ----------
 function RecipeModal({ recipe, img, onClose }: { recipe: any; img: string | null; onClose: () => void }) {
   const navigate = useNavigate();
+  const { id: duelId } = Route.useParams();
   return (
     <motion.div
       initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
@@ -943,6 +944,7 @@ function Act9Sendoff({
   chefA: string; chefB: string; recipeA: any; recipeB: any; onReplay: () => void;
 }) {
   const navigate = useNavigate();
+  const { id: duelId } = Route.useParams();
   return (
     <div
       style={{
