@@ -311,7 +311,7 @@ function DuelPage() {
       setTrashIdx((n) => n + 1);
       return;
     }
-    setAct((a) => Math.min(a + 1, actOrder.length - 1));
+    setAct((a: number) => Math.min(a + 1, actOrder.length - 1));
   }, [openRecipe, currentActNum, trashIdx, trashTalk.length, actOrder.length]);
 
 
