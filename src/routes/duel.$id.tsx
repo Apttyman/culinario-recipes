@@ -1011,6 +1011,7 @@ function Act9Sendoff({
 }) {
   const navigate = useNavigate();
   const { id: duelId } = Route.useParams();
+  const { act: currentAct } = Route.useSearch();
   return (
     <div
       style={{
