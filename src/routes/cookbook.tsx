@@ -139,32 +139,37 @@ function Cookbook() {
     );
   };
 
-  const selectStyle: React.CSSProperties = {
-    appearance: "none",
-    WebkitAppearance: "none",
-    background: "transparent",
-    color: "var(--fg)",
-    colorScheme: "dark",
-    border: 0,
-    borderBottom: "1px solid var(--hairline)",
-    fontFamily: "var(--font-mono)",
-    fontSize: 12,
-    letterSpacing: "0.12em",
+  const fieldLabel: React.CSSProperties = {
+    fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.22em",
+    textTransform: "uppercase", color: "var(--fg-low)", marginBottom: 10,
+  };
+
+  const pill = (active: boolean): React.CSSProperties => ({
+    fontFamily: "var(--font-mono)", fontSize: 11, letterSpacing: "0.14em",
     textTransform: "uppercase",
-    padding: "8px 22px 8px 0",
+    padding: "6px 12px",
+    background: active ? "color-mix(in oklab, var(--saffron) 14%, transparent)" : "transparent",
+    color: active ? "var(--fg)" : "var(--fg-muted)",
+    border: `1px solid ${active ? "var(--saffron)" : "var(--hairline)"}`,
+    borderRadius: 999,
     cursor: "pointer",
-    outline: "none",
-    minWidth: 0,
+    display: "inline-flex", alignItems: "baseline", gap: 8,
+    transition: "background 120ms, color 120ms, border-color 120ms",
+  });
+  const pillCount: React.CSSProperties = {
+    fontSize: 10, color: "var(--fg-low)", letterSpacing: "0.1em",
+  };
+
+  const sortStyle: React.CSSProperties = {
+    appearance: "none", WebkitAppearance: "none",
+    background: "transparent", color: "var(--fg)", colorScheme: "dark",
+    border: 0, borderBottom: "1px solid var(--hairline)",
+    fontFamily: "var(--font-mono)", fontSize: 11, letterSpacing: "0.14em",
+    textTransform: "uppercase", padding: "6px 22px 6px 0", cursor: "pointer", outline: "none",
     backgroundImage:
       "linear-gradient(45deg, transparent 50%, var(--fg-muted) 50%), linear-gradient(135deg, var(--fg-muted) 50%, transparent 50%)",
     backgroundPosition: "calc(100% - 12px) 50%, calc(100% - 7px) 50%",
-    backgroundSize: "5px 5px, 5px 5px",
-    backgroundRepeat: "no-repeat",
-  };
-
-  const fieldLabel: React.CSSProperties = {
-    fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.22em",
-    textTransform: "uppercase", color: "var(--fg-low)", marginBottom: 6,
+    backgroundSize: "5px 5px, 5px 5px", backgroundRepeat: "no-repeat",
   };
 
   return (
