@@ -85,9 +85,11 @@ function DuelPage() {
     let cancelled = false;
     (async () => {
       setLoading(true);
-      const { data: d, error: dErr } = await supabase.from("duels" as any).select("*").eq("id", id).single();
+      const { data: d, error: dErr, status } = await supabase.from("duels" as any).select("*").eq("id", id).maybeSingle();
+      console.log("[duel] fetch", { id, status, error: dErr, data: d });
       if (cancelled) return;
-      if (dErr || !d) { setError(dErr?.message ?? "Duel not found"); setLoading(false); return; }
+      if (dErr) { setError(`${dErr.code ?? "?"}: ${dErr.message} ${dErr.details ?? ""} ${dErr.hint ?? ""}`); setLoading(false); return; }
+      if (!d) { setError(`No duel row matched id ${id}. Check that the row exists and that RLS lets you read it.`); setLoading(false); return; }
       setDuel(d);
       const ids = [(d as any).recipe_a_id, (d as any).recipe_b_id].filter(Boolean);
       const { data: rs } = await supabase.from("recipes").select("*").in("id", ids);
