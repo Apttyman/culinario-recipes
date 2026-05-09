@@ -40,7 +40,13 @@ function Cookbook() {
     if (!session?.user) return;
     supabase.from("recipes").select("*").eq("user_id", session.user.id)
       .order("created_at", { ascending: false })
-      .then(({ data }) => setRecipes(data ?? []));
+      .then(({ data }) => {
+        setRecipes(data ?? []);
+        // eslint-disable-next-line no-console
+        console.log("[cookbook] sample recipe fields", (data ?? []).slice(0, 3).map((r: any) => ({
+          title: r.title, cuisine: r.cuisine, difficulty: r.difficulty, time: r.time_estimate_minutes,
+        })));
+      });
   }, [session]);
 
   const stats = useMemo(() => {
@@ -122,6 +128,7 @@ function Cookbook() {
     WebkitAppearance: "none",
     background: "transparent",
     color: "var(--fg)",
+    colorScheme: "dark",
     border: 0,
     borderBottom: "1px solid var(--hairline)",
     fontFamily: "var(--font-mono)",
