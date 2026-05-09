@@ -246,10 +246,23 @@ function DuelPage() {
   }, [recipeA?.id, recipeB?.id, recipeA?.inverse_image_url, recipeB?.inverse_image_url]);
 
   // ---------- act state ----------
-  const [act, setAct] = useState(0); // 0..8
-  const [trashIdx, setTrashIdx] = useState(0); // 0..4 lines revealed
+  const search = Route.useSearch();
+  const initialAct = typeof search.act === "number" ? search.act : 0;
+  const [act, setAct] = useState(initialAct); // 0..8
+  const [trashIdx, setTrashIdx] = useState(0); // 0..N lines revealed
   const [openRecipe, setOpenRecipe] = useState<any | null>(null);
   const [winSize, setWinSize] = useState({ w: 1200, h: 800 });
+
+  // Sync act -> URL so deep-links and back-navigation resume at the right beat
+  useEffect(() => {
+    navigate({
+      to: "/duel/$id",
+      params: { id },
+      search: { act },
+      replace: true,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [act]);
 
   useEffect(() => {
     const onResize = () => setWinSize({ w: window.innerWidth, h: window.innerHeight });
