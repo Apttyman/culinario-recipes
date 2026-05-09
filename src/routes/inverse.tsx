@@ -218,7 +218,7 @@ function InversePage() {
       </main>
 
       {conjuring && <ConjuringOverlay name={celebrity.trim()} phrase={phrases[phraseIdx]} />}
-      <DuelDialog open={duelOpen} onClose={() => setDuelOpen(false)} />
+      
     </div>
   );
 }
