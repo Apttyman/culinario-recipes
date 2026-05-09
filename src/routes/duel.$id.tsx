@@ -1077,10 +1077,10 @@ function Act9Sendoff({
             ↺ Replay duel
           </button>
           <Link
-            to="/inverse"
+            to="/today"
             style={{ color: PALETTE.muted, fontSize: 13, letterSpacing: "0.2em", textTransform: "uppercase", textDecoration: "none" }}
           >
-            ← Back to inverse
+            ← Back to today
           </Link>
         </div>
       </div>
