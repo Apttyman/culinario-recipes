@@ -35,13 +35,15 @@ async function resolveImage(r: any): Promise<string | null> {
   return null;
 }
 
-function Avatar({ src, alt, size = 96, ring = false }: { src?: string | null; alt: string; size?: number; ring?: boolean }) {
+function Avatar({ src, alt, size = 96, ring = false, zoom = false }: { src?: string | null; alt: string; size?: number; ring?: boolean; zoom?: boolean }) {
   return (
     <div
       aria-label={alt}
       style={{
         width: size, height: size, borderRadius: "50%",
-        background: src ? `center/cover no-repeat url(${src})` : "#1a1a1a",
+        background: src
+          ? `${zoom ? "center 22%" : "center"}/${zoom ? "170%" : "cover"} no-repeat url(${src})`
+          : "#1a1a1a",
         border: `2px solid ${PALETTE.gold}`,
         boxShadow: ring
           ? `0 0 0 6px ${PALETTE.gold}33, 0 0 60px ${PALETTE.gold}aa`
