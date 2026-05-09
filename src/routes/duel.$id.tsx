@@ -317,6 +317,11 @@ function DuelPage() {
     setAct((a: number) => Math.min(a + 1, actOrder.length - 1));
   }, [openRecipe, currentActNum, trashIdx, trashTalk.length, actOrder.length]);
 
+  // Ensure trash talk never shows an empty 0/N screen
+  useEffect(() => {
+    if (currentActNum === 6 && trashIdx < 1 && trashTalk.length > 0) setTrashIdx(1);
+  }, [currentActNum, trashIdx, trashTalk.length]);
+
 
   // keyboard: space advances
   useEffect(() => {
