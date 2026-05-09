@@ -187,7 +187,9 @@ function RecipePage() {
     load();
   };
   const setRating = async (n: number) => {
-    await supabase.from("recipes").update({ rating: n }).eq("id", id);
+    console.log("[recipe] setRating", n, "recipe", id, "user", session?.user?.id);
+    const { error: rErr } = await supabase.from("recipes").update({ rating: n }).eq("id", id);
+    if (rErr) console.warn("[recipe] rating update error", rErr);
     if (session?.user) {
       const cuisine = recipe.cuisine ? ` (${recipe.cuisine})` : "";
       insertSignal({
@@ -198,6 +200,8 @@ function RecipePage() {
         signal_weight: ratingWeight(n),
         metadata: { recipe_id: id, rating: n },
       });
+    } else {
+      console.warn("[recipe] no session.user when rating — signal NOT inserted");
     }
     triggerPortraitSynthesis();
     load();
