@@ -44,6 +44,7 @@ const sectionHeader: React.CSSProperties = {
 function RecipePage() {
   const { session } = useAuth();
   const { id } = Route.useParams();
+  const { from: fromDuel } = Route.useSearch();
   const navigate = useNavigate();
   const [recipe, setRecipe] = useState<any>(null);
   const [voice, setVoice] = useState<any>(null);
