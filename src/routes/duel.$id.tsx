@@ -151,16 +151,17 @@ function Typewriter({ text, speed = 25, delay = 0, style }: { text: string; spee
   );
 }
 
-function ActShell({ children, onAdvance }: { children: React.ReactNode; onAdvance: () => void }) {
+function ActShell({ children, onAdvance, scrollable = false }: { children: React.ReactNode; onAdvance: () => void; scrollable?: boolean }) {
   return (
     <div
       onClick={onAdvance}
       style={{
         position: "fixed", inset: 0, background: PALETTE.bg, color: PALETTE.ink,
-        overflow: "hidden", cursor: "pointer",
+        overflowX: "hidden", overflowY: scrollable ? "auto" : "hidden", cursor: "pointer",
         fontFamily: "Inter, system-ui, sans-serif",
-        display: "flex", alignItems: "center", justifyContent: "center",
-        padding: 24,
+        display: "flex", alignItems: scrollable ? "flex-start" : "center", justifyContent: "center",
+        padding: scrollable ? "24px 24px 104px" : 24,
+        WebkitOverflowScrolling: "touch",
       }}
     >
       {children}
@@ -544,7 +545,7 @@ function Act5Dishes({
   onAdvance: () => void; onOpenRecipe: (r: any) => void;
 }) {
   return (
-    <ActShell onAdvance={onAdvance}>
+    <ActShell onAdvance={onAdvance} scrollable>
       <div style={{ width: "100%", maxWidth: 1200, textAlign: "center" }}>
         <motion.h2
           initial={{ opacity: 0, y: -16 }}
@@ -557,7 +558,7 @@ function Act5Dishes({
         >
           And here are their dishes.
         </motion.h2>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 32 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(280px, 100%), 1fr))", gap: 32 }}>
           {[
             { r: recipeA, img: imgA, chef: chefA, delay: 0.2 },
             { r: recipeB, img: imgB, chef: chefB, delay: 1.7 },
@@ -576,7 +577,7 @@ function Act5Dishes({
               style={{
                 background: "#141414", border: `1px solid ${PALETTE.gold}55`,
                 borderRadius: 8, overflow: "hidden", textAlign: "left",
-                cursor: "pointer", padding: 0, color: "inherit",
+                cursor: "pointer", padding: 0, color: "inherit", minWidth: 0,
               }}
             >
               {r ? (
