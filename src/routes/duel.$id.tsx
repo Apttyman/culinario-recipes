@@ -342,7 +342,7 @@ function DuelPage() {
     return <div style={{ minHeight: "100vh", background: PALETTE.bg, color: PALETTE.red, padding: 64 }}>{error ?? "No duel found."}</div>;
   }
 
-  const reset = () => { setAct(0); setTrashIdx(0); setOpenRecipe(null); };
+  const reset = () => { setAct(0); setTrashIdx(1); setOpenRecipe(null); };
 
   // ---------- acts ----------
   return (
