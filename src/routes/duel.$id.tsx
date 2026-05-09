@@ -35,13 +35,15 @@ async function resolveImage(r: any): Promise<string | null> {
   return null;
 }
 
-function Avatar({ src, alt, size = 96, ring = false }: { src?: string | null; alt: string; size?: number; ring?: boolean }) {
+function Avatar({ src, alt, size = 96, ring = false, zoom = false }: { src?: string | null; alt: string; size?: number; ring?: boolean; zoom?: boolean }) {
   return (
     <div
       aria-label={alt}
       style={{
         width: size, height: size, borderRadius: "50%",
-        background: src ? `center/cover no-repeat url(${src})` : "#1a1a1a",
+        background: src
+          ? `${zoom ? "center 22%" : "center"}/${zoom ? "170%" : "cover"} no-repeat url(${src})`
+          : "#1a1a1a",
         border: `2px solid ${PALETTE.gold}`,
         boxShadow: ring
           ? `0 0 0 6px ${PALETTE.gold}33, 0 0 60px ${PALETTE.gold}aa`
@@ -249,7 +251,7 @@ function DuelPage() {
   const search = Route.useSearch();
   const initialAct = typeof search.act === "number" ? search.act : 0;
   const [act, setAct] = useState(initialAct); // 0..8
-  const [trashIdx, setTrashIdx] = useState(0); // 0..N lines revealed
+  const [trashIdx, setTrashIdx] = useState(1); // start with first line already revealed
   const [openRecipe, setOpenRecipe] = useState<any | null>(null);
   const [winSize, setWinSize] = useState({ w: 1200, h: 800 });
 
@@ -315,6 +317,11 @@ function DuelPage() {
     setAct((a: number) => Math.min(a + 1, actOrder.length - 1));
   }, [openRecipe, currentActNum, trashIdx, trashTalk.length, actOrder.length]);
 
+  // Ensure trash talk never shows an empty 0/N screen
+  useEffect(() => {
+    if (currentActNum === 6 && trashIdx < 1 && trashTalk.length > 0) setTrashIdx(1);
+  }, [currentActNum, trashIdx, trashTalk.length]);
+
 
   // keyboard: space advances
   useEffect(() => {
@@ -340,7 +347,7 @@ function DuelPage() {
     return <div style={{ minHeight: "100vh", background: PALETTE.bg, color: PALETTE.red, padding: 64 }}>{error ?? "No duel found."}</div>;
   }
 
-  const reset = () => { setAct(0); setTrashIdx(0); setOpenRecipe(null); };
+  const reset = () => { setAct(0); setTrashIdx(1); setOpenRecipe(null); };
 
   // ---------- acts ----------
   return (
@@ -748,7 +755,7 @@ function Act6TrashTalk({
                   alignItems: "flex-end", gap: 14,
                 }}
               >
-                <Avatar src={avatar} alt={t.speaker} size={64} />
+                <Avatar src={avatar} alt={t.speaker} size={128} zoom ring />
                 <div style={{ maxWidth: "76%" }}>
                   <div style={{
                     fontSize: 11, letterSpacing: "0.22em", textTransform: "uppercase",
@@ -760,12 +767,14 @@ function Act6TrashTalk({
                     style={{
                       background: left ? "#1c1c1c" : PALETTE.red,
                       color: PALETTE.ink,
-                      padding: "16px 22px",
+                      padding: "18px 24px",
                       borderRadius: left ? "22px 22px 22px 4px" : "22px 22px 4px 22px",
                       border: `2px solid ${left ? "#2a2a2a" : "#a82c38"}`,
-                      fontSize: 18,
-                      fontWeight: 500,
-                      lineHeight: 1.45,
+                      fontFamily: '"Bangers", "Comic Sans MS", "Impact", system-ui, sans-serif',
+                      fontSize: 26,
+                      fontWeight: 400,
+                      letterSpacing: "0.04em",
+                      lineHeight: 1.25,
                       boxShadow: "0 6px 18px rgba(0,0,0,0.5)",
                       minHeight: 24,
                     }}
