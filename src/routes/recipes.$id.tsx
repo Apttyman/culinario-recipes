@@ -65,6 +65,11 @@ function RecipePage() {
   useEffect(() => {
     let cancelled = false;
     (async () => {
+      // Prefer the inverse-mode image_url if present (set by edge function).
+      if (recipe?.inverse_image_url) {
+        if (!cancelled) setImageUrl(recipe.inverse_image_url);
+        return;
+      }
       if (!recipe?.image_path) { setImageUrl(null); return; }
       const { data, error } = await supabase.storage
         .from("recipe-images")
@@ -72,7 +77,7 @@ function RecipePage() {
       if (!cancelled && !error && data) setImageUrl(data.signedUrl);
     })();
     return () => { cancelled = true; };
-  }, [recipe?.image_path]);
+  }, [recipe?.image_path, recipe?.inverse_image_url]);
 
   const generateImage = async () => {
     setImgLoading(true);
@@ -93,6 +98,12 @@ function RecipePage() {
       });
       if (error) throw error;
       if ((data as any)?.error) throw new Error((data as any).error);
+      // Edge function already persisted to DB. Mirror returned image_url in local state
+      // so the image renders immediately without a re-fetch round-trip.
+      const returnedUrl = (data as any)?.image_url ?? null;
+      if (isInverse && returnedUrl) {
+        setRecipe((r: any) => r ? { ...r, inverse_image_url: returnedUrl } : r);
+      }
       await load();
     } catch (e: any) {
       setImgError(e?.message ?? "Generation failed");
