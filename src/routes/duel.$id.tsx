@@ -382,7 +382,8 @@ function DuelPage() {
           )}
           {currentActNum === 7 && (
             <Act7Verdict
-              verdict={verdict} winnerName={winnerName} winnerImg={winnerImg}
+              verdict={verdict} hostName={host}
+              winnerName={winnerName} winnerImg={winnerImg}
               winSize={winSize} onAdvance={advance}
             />
           )}
