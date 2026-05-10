@@ -882,10 +882,11 @@ function Act6TrashTalk({
 
 // ---------- ACT 7 — VERDICT ----------
 function Act7Verdict({
-  verdict, hostName, winnerName, winnerImg, winSize, onAdvance,
+  verdict, hostName, winnerName, winnerImg, winnerFaceBox, winSize, onAdvance,
 }: {
   verdict: string; hostName: string;
   winnerName: string; winnerImg: string | null;
+  winnerFaceBox?: FaceBox;
   winSize: { w: number; h: number }; onAdvance: () => void;
 }) {
   // 0 = "After long deliberation…" (auto → 1 after 2.2s)
