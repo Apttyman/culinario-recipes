@@ -37,21 +37,21 @@ async function resolveImage(r: any): Promise<string | null> {
 
 type FaceBox = { x: number; y: number; width: number; height: number } | null | undefined;
 
-function getFaceCropStyle(faceBox: FaceBox): React.CSSProperties {
-  if (!faceBox || typeof faceBox.x !== "number") {
-    return { backgroundPosition: "center", backgroundSize: "cover", backgroundRepeat: "no-repeat" };
+function getFaceCropStyle(faceBox) {
+  if (!faceBox || typeof faceBox.x !== 'number') {
+    return { backgroundPosition: 'center', backgroundSize: 'cover' };
   }
   const cx = (faceBox.x + faceBox.width / 2) * 100;
   const cy = (faceBox.y + faceBox.height / 2) * 100;
-  const targetFacePortion = 0.6;
-  const scale = Math.min(1 / faceBox.width, 1 / faceBox.height) * targetFacePortion;
+  const targetFacePortion = 0.7;
+  const rawScale = Math.min(1 / faceBox.width, 1 / faceBox.height) * targetFacePortion;
+  const scale = Math.max(2.5, Math.min(8, rawScale));
   return {
     backgroundPosition: `${cx}% ${cy}%`,
     backgroundSize: `${scale * 100}%`,
-    backgroundRepeat: "no-repeat",
+    backgroundRepeat: 'no-repeat',
   };
 }
-
 function Avatar({ src, alt, size = 96, ring = false, zoom = false, faceBox }: { src?: string | null; alt: string; size?: number; ring?: boolean; zoom?: boolean; faceBox?: FaceBox }) {
   const hasFaceBox = !!(faceBox && typeof faceBox.x === "number");
   const cropStyle: React.CSSProperties = src
