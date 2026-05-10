@@ -1044,7 +1044,7 @@ function Act7Verdict({
                 animate={{ scale: 1, rotate: 0 }}
                 transition={{ type: "spring", damping: 8, stiffness: 140 }}
               >
-                <Avatar src={winnerImg} alt={winnerName} size={200} ring />
+                <Avatar src={winnerImg} alt={winnerName} size={200} ring faceBox={winnerFaceBox} />
               </motion.div>
               <motion.div
                 initial={{ scale: 0.3, opacity: 0 }}
