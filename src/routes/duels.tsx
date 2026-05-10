@@ -22,7 +22,6 @@ type DuelRow = {
   chef_a_portrait_url: string | null;
   chef_b_portrait_url: string | null;
   winner_slug: string | null;
-  chef_a_slug: string | null;
   created_at: string | null;
 };
 
@@ -67,7 +66,7 @@ function DuelsListPage() {
     (async () => {
       const { data, error } = await supabase
         .from("duels" as any)
-        .select("id, chef_a, chef_b, challenge, chef_a_portrait_url, chef_b_portrait_url, winner_slug, chef_a_slug, created_at")
+        .select("id, chef_a, chef_b, challenge, chef_a_portrait_url, chef_b_portrait_url, winner_slug, created_at")
         .eq("user_id", session.user.id)
         .order("created_at", { ascending: false });
       if (error) setErr(error.message);
@@ -246,7 +245,7 @@ function DuelsListPage() {
 
 function DuelRowCard({ duel, onClick }: { duel: DuelRow; onClick: () => void }) {
   const winnerSlug = (duel.winner_slug ?? "").toString().toLowerCase();
-  const isAWinner = winnerSlug && (winnerSlug === "a" || winnerSlug === "chef_a" || winnerSlug === (duel.chef_a_slug ?? "").toLowerCase());
+  const isAWinner = !!winnerSlug && (winnerSlug === "a" || winnerSlug === "chef_a");
   const isBWinner = winnerSlug && !isAWinner;
   return (
     <button className="duel-row" onClick={onClick} type="button">
