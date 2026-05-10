@@ -43,17 +43,25 @@ function getFaceCropStyle(faceBox, avatarSize = 96) {
   }
   const cx = (faceBox.x + faceBox.width / 2) * 100;
   const cy = (faceBox.y + faceBox.height / 2) * 100;
+  const faceArea = faceBox.width * faceBox.height;
 
+  // CASE A: Source is already a tight portrait (face >25% of image).
+  // Don't zoom in. Use cover sizing so the natural framing shows through,
+  // centered on the face. This handles Wikipedia head-shots, press portraits, etc.
+  if (faceArea > 0.25) {
+    return {
+      backgroundPosition: `${cx}% ${cy}%`,
+      backgroundSize: 'cover',
+      backgroundRepeat: 'no-repeat',
+    };
+  }
+
+  // CASE B: Source is a wider shot. Calculate zoom so face fills target portion.
   // Target: face fills ~55-65% of avatar circle, leaving room for hair and shoulders.
-  // Small (128px): 55% — wider context for tiny avatars
-  // Medium (200px): 60%
-  // Large (260px+): 65% — face is the focus but not crammed
   const targetFacePortion = avatarSize >= 240 ? 0.65 : avatarSize >= 180 ? 0.6 : 0.55;
   const rawScale = Math.min(1 / faceBox.width, 1 / faceBox.height) * targetFacePortion;
 
-  // Only force a minimum zoom for genuinely tiny faces (<3% of source image area).
-  // Otherwise trust the rawScale calculation so already-tight portraits don't get over-zoomed.
-  const faceArea = faceBox.width * faceBox.height;
+  // For genuinely tiny faces (<3% of source), force a minimum zoom of 2x
   const minScale = faceArea < 0.03 ? 2.0 : 1.0;
 
   const scale = Math.max(minScale, Math.min(8, rawScale));
