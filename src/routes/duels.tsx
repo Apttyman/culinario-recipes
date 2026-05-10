@@ -245,7 +245,7 @@ function DuelsListPage() {
 
 function DuelRowCard({ duel, onClick }: { duel: DuelRow; onClick: () => void }) {
   const winnerSlug = (duel.winner_slug ?? "").toString().toLowerCase();
-  const isAWinner = winnerSlug && (winnerSlug === "a" || winnerSlug === "chef_a" || winnerSlug === (duel.chef_a_slug ?? "").toLowerCase());
+  const isAWinner = !!winnerSlug && (winnerSlug === "a" || winnerSlug === "chef_a");
   const isBWinner = winnerSlug && !isAWinner;
   return (
     <button className="duel-row" onClick={onClick} type="button">
