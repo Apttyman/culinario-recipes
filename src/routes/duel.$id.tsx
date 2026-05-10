@@ -537,7 +537,7 @@ function Act3WalkOn({ name, bio, img, faceBox, side, onAdvance }: { name: string
           animate={{ x: 0, opacity: 1, scale: 1 }}
           transition={{ type: "spring", damping: 14, stiffness: 110 }}
         >
-          <Avatar src={img} alt={name} size={260} ring />
+          <Avatar src={img} alt={name} size={260} ring faceBox={faceBox} />
         </motion.div>
         <div style={{ flex: 1, minWidth: 280, maxWidth: 600, textAlign: side === "left" ? "left" : "right" }}>
           <motion.h2
