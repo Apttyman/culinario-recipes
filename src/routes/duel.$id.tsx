@@ -35,15 +35,41 @@ async function resolveImage(r: any): Promise<string | null> {
   return null;
 }
 
-function Avatar({ src, alt, size = 96, ring = false, zoom = false }: { src?: string | null; alt: string; size?: number; ring?: boolean; zoom?: boolean }) {
+type FaceBox = { x: number; y: number; width: number; height: number } | null | undefined;
+
+function getFaceCropStyle(faceBox: FaceBox): React.CSSProperties {
+  if (!faceBox || typeof faceBox.x !== "number") {
+    return { backgroundPosition: "center", backgroundSize: "cover", backgroundRepeat: "no-repeat" };
+  }
+  const cx = (faceBox.x + faceBox.width / 2) * 100;
+  const cy = (faceBox.y + faceBox.height / 2) * 100;
+  const targetFacePortion = 0.6;
+  const scale = Math.min(1 / faceBox.width, 1 / faceBox.height) * targetFacePortion;
+  return {
+    backgroundPosition: `${cx}% ${cy}%`,
+    backgroundSize: `${scale * 100}%`,
+    backgroundRepeat: "no-repeat",
+  };
+}
+
+function Avatar({ src, alt, size = 96, ring = false, zoom = false, faceBox }: { src?: string | null; alt: string; size?: number; ring?: boolean; zoom?: boolean; faceBox?: FaceBox }) {
+  const hasFaceBox = !!(faceBox && typeof faceBox.x === "number");
+  const cropStyle: React.CSSProperties = src
+    ? hasFaceBox
+      ? { backgroundImage: `url(${src})`, ...getFaceCropStyle(faceBox) }
+      : {
+          backgroundImage: `url(${src})`,
+          backgroundPosition: zoom ? "center 22%" : "center",
+          backgroundSize: zoom ? "170%" : "cover",
+          backgroundRepeat: "no-repeat",
+        }
+    : { background: "#1a1a1a" };
   return (
     <div
       aria-label={alt}
       style={{
         width: size, height: size, borderRadius: "50%",
-        background: src
-          ? `${zoom ? "center 22%" : "center"}/${zoom ? "170%" : "cover"} no-repeat url(${src})`
-          : "#1a1a1a",
+        ...cropStyle,
         border: `2px solid ${PALETTE.gold}`,
         boxShadow: ring
           ? `0 0 0 6px ${PALETTE.gold}33, 0 0 60px ${PALETTE.gold}aa`
