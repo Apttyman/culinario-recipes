@@ -6,10 +6,11 @@ const NAV = [
   { label: "Today", to: "/today" },
   { label: "Cookbook", to: "/cookbook" },
   { label: "Inverse", to: "/inverse" },
+  { label: "Duels", to: "/duels" },
   { label: "Profile", to: "/portrait" },
 ] as const;
 
-export function AppHeader({ current }: { current?: "Today" | "Cookbook" | "Profile" | "Inverse" }) {
+export function AppHeader({ current }: { current?: "Today" | "Cookbook" | "Profile" | "Inverse" | "Duels" }) {
   const { session, signOut } = useAuth();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
