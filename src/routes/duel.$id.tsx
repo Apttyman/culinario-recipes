@@ -711,11 +711,12 @@ function RecipeModal({ recipe, img, onClose }: { recipe: any; img: string | null
 
 // ---------- ACT 6 — TRASH TALK ----------
 function Act6TrashTalk({
-  lines, revealed, imgA, imgB, onAdvance,
+  lines, revealed, imgA, imgB, faceBoxA, faceBoxB, onAdvance,
 }: {
   lines: Array<{ speaker: string; text: string; side: "a" | "b"; round: number }>;
   revealed: number;
   imgA: string | null; imgB: string | null;
+  faceBoxA?: FaceBox; faceBoxB?: FaceBox;
   onAdvance: () => void;
 }) {
   const allDone = revealed >= lines.length;
