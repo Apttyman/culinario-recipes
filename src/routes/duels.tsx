@@ -66,7 +66,7 @@ function DuelsListPage() {
     (async () => {
       const { data, error } = await supabase
         .from("duels" as any)
-        .select("id, chef_a, chef_b, challenge, chef_a_portrait_url, chef_b_portrait_url, winner_slug, chef_a_slug, created_at")
+        .select("id, chef_a, chef_b, challenge, chef_a_portrait_url, chef_b_portrait_url, winner_slug, created_at")
         .eq("user_id", session.user.id)
         .order("created_at", { ascending: false });
       if (error) setErr(error.message);
