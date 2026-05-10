@@ -43,22 +43,20 @@ function getFaceCropStyle(faceBox, avatarSize = 96) {
   }
   const cx = (faceBox.x + faceBox.width / 2) * 100;
   const cy = (faceBox.y + faceBox.height / 2) * 100;
-  
-  // Larger avatars need a tighter crop to keep the face prominent.
-  // Small (128px): face fills ~70% of avatar
-  // Medium (200px): face fills ~80% of avatar
-  // Large (260px+): face fills ~90% of avatar
-  const targetFacePortion = avatarSize >= 240 ? 0.9 : avatarSize >= 180 ? 0.8 : 0.7;
+
+  // Target: face fills ~55-65% of avatar circle, leaving room for hair and shoulders.
+  // Small (128px): 55% — wider context for tiny avatars
+  // Medium (200px): 60%
+  // Large (260px+): 65% — face is the focus but not crammed
+  const targetFacePortion = avatarSize >= 240 ? 0.65 : avatarSize >= 180 ? 0.6 : 0.55;
   const rawScale = Math.min(1 / faceBox.width, 1 / faceBox.height) * targetFacePortion;
 
-  // Only enforce minimum zoom for genuinely small faces in source.
-  // If the face already fills >25% of the source image, trust rawScale and don't force-zoom.
+  // Only force a minimum zoom for genuinely tiny faces (<3% of source image area).
+  // Otherwise trust the rawScale calculation so already-tight portraits don't get over-zoomed.
   const faceArea = faceBox.width * faceBox.height;
-  const minScale = faceArea < 0.06
-    ? (avatarSize >= 240 ? 3.5 : avatarSize >= 180 ? 3.0 : 1.8)
-    : 1.0;
+  const minScale = faceArea < 0.03 ? 2.0 : 1.0;
 
-  const scale = Math.max(minScale, Math.min(10, rawScale));
+  const scale = Math.max(minScale, Math.min(8, rawScale));
   return {
     backgroundPosition: `${cx}% ${cy}%`,
     backgroundSize: `${scale * 100}%`,
