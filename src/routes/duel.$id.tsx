@@ -421,9 +421,10 @@ function Act1Title({ chefA, chefB, onAdvance }: { chefA: string; chefB: string; 
         <h1 style={{
           fontFamily: "Georgia, 'Times New Roman', serif",
           fontStyle: "italic", fontWeight: 900,
-          fontSize: "clamp(48px, 11vw, 140px)",
+          fontSize: "clamp(36px, 8vw, 120px)",
           color: PALETTE.gold, letterSpacing: "0.04em",
           margin: 0, lineHeight: 1,
+          whiteSpace: "nowrap",
           textShadow: `0 6px 0 #000, 0 14px 40px ${PALETTE.gold}66`,
         }}>
           <LetterReveal text="TONIGHT'S DUEL" perLetter={0.08} />
