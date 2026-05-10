@@ -785,6 +785,7 @@ function Act6TrashTalk({
           {visible.map((t, i) => {
             const left = t.side === "a";
             const avatar = left ? imgA : imgB;
+            const avatarFaceBox = left ? faceBoxA : faceBoxB;
             const isLatest = i === latestIdx;
             const fromX = left ? -480 : 480;
             const damping = 12;
