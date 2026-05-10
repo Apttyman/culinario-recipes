@@ -523,7 +523,7 @@ function Act2Challenge({ challenge, host, onAdvance }: { challenge: string; host
 }
 
 // ---------- ACT 3 / 4 (walk-on) ----------
-function Act3WalkOn({ name, bio, img, side, onAdvance }: { name: string; bio?: string | null; img?: string | null; side: "left" | "right"; onAdvance: () => void }) {
+function Act3WalkOn({ name, bio, img, faceBox, side, onAdvance }: { name: string; bio?: string | null; img?: string | null; faceBox?: FaceBox; side: "left" | "right"; onAdvance: () => void }) {
   const fromX = side === "left" ? -260 : 260;
   return (
     <ActShell onAdvance={onAdvance}>
