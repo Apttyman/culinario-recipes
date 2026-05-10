@@ -35,8 +35,6 @@ async function resolveImage(r: any): Promise<string | null> {
   return null;
 }
 
-type FaceBox = { x: number; y: number; width: number; height: number } | null | undefined;
-
 function getFaceCropStyle(faceBox, avatarSize = 96) {
   if (!faceBox || typeof faceBox.x !== 'number') {
     return { backgroundPosition: 'center', backgroundSize: 'cover' };
@@ -52,9 +50,8 @@ function getFaceCropStyle(faceBox, avatarSize = 96) {
   // Force minimum zoom only for genuinely tiny faces (<3% of source)
   const minScale = faceArea < 0.03 ? 2.0 : 1.0;
 
-  // CRITICAL: cap at 1.0 (no zoom) for any source where face >25% of image.
-  // These are already tight portraits; any zoom in makes them claustrophobic.
-  // We want the natural source framing to show through.
+  // Cap at 1.0 (no zoom) for any source where face is already large.
+  // Already-tight portraits should display at natural size, not zoomed.
   const maxScale = faceArea > 0.25 ? 1.0 : 8;
 
   const scale = Math.max(minScale, Math.min(maxScale, rawScale));
@@ -63,31 +60,7 @@ function getFaceCropStyle(faceBox, avatarSize = 96) {
     backgroundSize: `${scale * 100}%`,
     backgroundRepeat: 'no-repeat',
   };
-}
-
-  // CASE B: Source is a wider shot. Calculate zoom so face fills target portion.
-  // Target: face fills ~55-65% of avatar circle, leaving room for hair and shoulders.
-  const targetFacePortion = avatarSize >= 240 ? 0.65 : avatarSize >= 180 ? 0.6 : 0.55;
-  const rawScale = Math.min(1 / faceBox.width, 1 / faceBox.height) * targetFacePortion;
-
-  // For genuinely tiny faces (<3% of source), force a minimum zoom of 2x
-  const minScale = faceArea < 0.03 ? 2.0 : 1.0;
-
-  const scale = Math.max(minScale, Math.min(8, rawScale));
-  return {
-    backgroundPosition: `${cx}% ${cy}%`,
-    backgroundSize: `${scale * 100}%`,
-    backgroundRepeat: 'no-repeat',
-  };
-}
-
-function Avatar({ src, alt, size = 96, ring = false, zoom = false, faceBox }: { src?: string | null; alt: string; size?: number; ring?: boolean; zoom?: boolean; faceBox?: FaceBox }) {
-  const hasFaceBox = !!(faceBox && typeof faceBox.x === "number");
-  const cropStyle: React.CSSProperties = src
-    ? hasFaceBox
-      ? { backgroundImage: `url(${src})`, ...getFaceCropStyle(faceBox, size) }
-      : {
-          backgroundImage: `url(${src})`,
+}          backgroundImage: `url(${src})`,
           backgroundPosition: zoom ? "center 22%" : "center",
           backgroundSize: zoom ? "170%" : "cover",
           backgroundRepeat: "no-repeat",
