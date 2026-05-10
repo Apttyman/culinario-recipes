@@ -49,9 +49,15 @@ function getFaceCropStyle(faceBox, avatarSize = 96) {
   // Medium (200px): face fills ~80% of avatar
   // Large (260px+): face fills ~90% of avatar
   const targetFacePortion = avatarSize >= 240 ? 0.9 : avatarSize >= 180 ? 0.8 : 0.7;
-  
   const rawScale = Math.min(1 / faceBox.width, 1 / faceBox.height) * targetFacePortion;
-  const minScale = avatarSize >= 240 ? 3.5 : avatarSize >= 180 ? 3.0 : 1.8;
+
+  // Only enforce minimum zoom for genuinely small faces in source.
+  // If the face already fills >25% of the source image, trust rawScale and don't force-zoom.
+  const faceArea = faceBox.width * faceBox.height;
+  const minScale = faceArea < 0.06
+    ? (avatarSize >= 240 ? 3.5 : avatarSize >= 180 ? 3.0 : 1.8)
+    : 1.0;
+
   const scale = Math.max(minScale, Math.min(10, rawScale));
   return {
     backgroundPosition: `${cx}% ${cy}%`,
