@@ -32,18 +32,14 @@ const eyebrow: React.CSSProperties = {
 
 function ChefAvatar({ src, name, size = 72 }: { src: string | null; name: string; size?: number }) {
   const initial = (name?.[0] ?? "?").toUpperCase();
-  // Zoom in and bias the focal point toward the upper portion of the image,
-  // where faces almost always sit in generated chef portraits.
   return (
     <div
       aria-label={name}
       style={{
         width: size, height: size, borderRadius: "50%",
-        backgroundImage: src ? `url(${src})` : undefined,
-        backgroundColor: src ? "transparent" : "color-mix(in oklab, var(--saffron) 18%, var(--surface-elev))",
-        backgroundRepeat: "no-repeat",
-        backgroundSize: src ? "180%" : undefined,
-        backgroundPosition: src ? "center 22%" : undefined,
+        background: src
+          ? `center/cover no-repeat url(${src})`
+          : "color-mix(in oklab, var(--saffron) 18%, var(--surface-elev))",
         border: "2px solid color-mix(in oklab, var(--saffron) 65%, transparent)",
         boxShadow: "0 0 0 4px color-mix(in oklab, var(--saffron) 14%, transparent), 0 8px 24px -8px color-mix(in oklab, var(--saffron) 55%, transparent)",
         flexShrink: 0,
@@ -51,7 +47,6 @@ function ChefAvatar({ src, name, size = 72 }: { src: string | null; name: string
         color: "var(--saffron)",
         fontFamily: "var(--font-display)", fontStyle: "italic", fontWeight: 600,
         fontSize: size * 0.4,
-        overflow: "hidden",
       }}
     >
       {!src && initial}
