@@ -51,7 +51,8 @@ function getFaceCropStyle(faceBox, avatarSize = 96) {
   const targetFacePortion = avatarSize >= 240 ? 0.9 : avatarSize >= 180 ? 0.8 : 0.7;
   
   const rawScale = Math.min(1 / faceBox.width, 1 / faceBox.height) * targetFacePortion;
-  const scale = Math.max(2.5, Math.min(10, rawScale));
+  const minScale = avatarSize >= 240 ? 3.5 : avatarSize >= 180 ? 3.0 : 1.8;
+  const scale = Math.max(minScale, Math.min(10, rawScale));
   return {
     backgroundPosition: `${cx}% ${cy}%`,
     backgroundSize: `${scale * 100}%`,
