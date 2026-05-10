@@ -22,7 +22,6 @@ type DuelRow = {
   chef_a_portrait_url: string | null;
   chef_b_portrait_url: string | null;
   winner_slug: string | null;
-  chef_a_slug: string | null;
   created_at: string | null;
 };
 
