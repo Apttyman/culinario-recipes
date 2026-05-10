@@ -803,7 +803,7 @@ function Act6TrashTalk({
                   alignItems: "flex-end", gap: 14,
                 }}
               >
-                <Avatar src={avatar} alt={t.speaker} size={128} zoom ring />
+                <Avatar src={avatar} alt={t.speaker} size={128} zoom ring faceBox={avatarFaceBox} />
                 <div style={{ maxWidth: "76%" }}>
                   <div style={{
                     fontSize: 11, letterSpacing: "0.22em", textTransform: "uppercase",
