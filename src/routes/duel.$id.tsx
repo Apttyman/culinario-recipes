@@ -35,15 +35,41 @@ async function resolveImage(r: any): Promise<string | null> {
   return null;
 }
 
-function Avatar({ src, alt, size = 96, ring = false, zoom = false }: { src?: string | null; alt: string; size?: number; ring?: boolean; zoom?: boolean }) {
+type FaceBox = { x: number; y: number; width: number; height: number } | null | undefined;
+
+function getFaceCropStyle(faceBox: FaceBox): React.CSSProperties {
+  if (!faceBox || typeof faceBox.x !== "number") {
+    return { backgroundPosition: "center", backgroundSize: "cover", backgroundRepeat: "no-repeat" };
+  }
+  const cx = (faceBox.x + faceBox.width / 2) * 100;
+  const cy = (faceBox.y + faceBox.height / 2) * 100;
+  const targetFacePortion = 0.6;
+  const scale = Math.min(1 / faceBox.width, 1 / faceBox.height) * targetFacePortion;
+  return {
+    backgroundPosition: `${cx}% ${cy}%`,
+    backgroundSize: `${scale * 100}%`,
+    backgroundRepeat: "no-repeat",
+  };
+}
+
+function Avatar({ src, alt, size = 96, ring = false, zoom = false, faceBox }: { src?: string | null; alt: string; size?: number; ring?: boolean; zoom?: boolean; faceBox?: FaceBox }) {
+  const hasFaceBox = !!(faceBox && typeof faceBox.x === "number");
+  const cropStyle: React.CSSProperties = src
+    ? hasFaceBox
+      ? { backgroundImage: `url(${src})`, ...getFaceCropStyle(faceBox) }
+      : {
+          backgroundImage: `url(${src})`,
+          backgroundPosition: zoom ? "center 22%" : "center",
+          backgroundSize: zoom ? "170%" : "cover",
+          backgroundRepeat: "no-repeat",
+        }
+    : { background: "#1a1a1a" };
   return (
     <div
       aria-label={alt}
       style={{
         width: size, height: size, borderRadius: "50%",
-        background: src
-          ? `${zoom ? "center 22%" : "center"}/${zoom ? "170%" : "cover"} no-repeat url(${src})`
-          : "#1a1a1a",
+        ...cropStyle,
         border: `2px solid ${PALETTE.gold}`,
         boxShadow: ring
           ? `0 0 0 6px ${PALETTE.gold}33, 0 0 60px ${PALETTE.gold}aa`
@@ -290,6 +316,9 @@ function DuelPage() {
   const isAWinner = winnerSlug === "a" || winnerSlug === "chef_a" || winnerSlug === (duel?.chef_a_slug ?? "").toLowerCase();
   const winnerName = isAWinner ? chefA : chefB;
   const winnerImg = isAWinner ? portraitA : portraitB;
+  const faceBoxA: FaceBox = (duel?.chef_a_face_box ?? null) as FaceBox;
+  const faceBoxB: FaceBox = (duel?.chef_b_face_box ?? null) as FaceBox;
+  const winnerFaceBox: FaceBox = isAWinner ? faceBoxA : faceBoxB;
 
   const trashTalk = useMemo<Array<{ speaker: string; text: string; side: "a" | "b"; round: number }>>(() => {
     const tt = duel?.trash_talk;
@@ -368,8 +397,8 @@ function DuelPage() {
         >
           {currentActNum === 1 && <Act1Title chefA={chefA} chefB={chefB} onAdvance={advance} />}
           {currentActNum === 2 && <Act2Challenge challenge={challenge} host={host} onAdvance={advance} />}
-          {currentActNum === 3 && <Act3WalkOn name={chefA} bio={duel?.trash_talk?.walk_on_a ?? duel.walk_on_a} img={portraitA} side="left" onAdvance={advance} />}
-          {currentActNum === 4 && <Act3WalkOn name={chefB} bio={duel?.trash_talk?.walk_on_b ?? duel.walk_on_b} img={portraitB} side="right" onAdvance={advance} />}
+          {currentActNum === 3 && <Act3WalkOn name={chefA} bio={duel?.trash_talk?.walk_on_a ?? duel.walk_on_a} img={portraitA} faceBox={faceBoxA} side="left" onAdvance={advance} />}
+          {currentActNum === 4 && <Act3WalkOn name={chefB} bio={duel?.trash_talk?.walk_on_b ?? duel.walk_on_b} img={portraitB} faceBox={faceBoxB} side="right" onAdvance={advance} />}
           {currentActNum === 5 && (
             <Act5Dishes
               recipeA={recipeA} recipeB={recipeB} imgA={imgA} imgB={imgB}
@@ -382,6 +411,7 @@ function DuelPage() {
             <Act6TrashTalk
               lines={trashTalk} revealed={trashIdx}
               imgA={portraitA} imgB={portraitB}
+              faceBoxA={faceBoxA} faceBoxB={faceBoxB}
               onAdvance={advance}
             />
           )}
@@ -389,6 +419,7 @@ function DuelPage() {
             <Act7Verdict
               verdict={verdict} hostName={host}
               winnerName={winnerName} winnerImg={winnerImg}
+              winnerFaceBox={winnerFaceBox}
               winSize={winSize} onAdvance={advance}
             />
           )}
@@ -492,7 +523,7 @@ function Act2Challenge({ challenge, host, onAdvance }: { challenge: string; host
 }
 
 // ---------- ACT 3 / 4 (walk-on) ----------
-function Act3WalkOn({ name, bio, img, side, onAdvance }: { name: string; bio?: string | null; img?: string | null; side: "left" | "right"; onAdvance: () => void }) {
+function Act3WalkOn({ name, bio, img, faceBox, side, onAdvance }: { name: string; bio?: string | null; img?: string | null; faceBox?: FaceBox; side: "left" | "right"; onAdvance: () => void }) {
   const fromX = side === "left" ? -260 : 260;
   return (
     <ActShell onAdvance={onAdvance}>
@@ -506,7 +537,7 @@ function Act3WalkOn({ name, bio, img, side, onAdvance }: { name: string; bio?: s
           animate={{ x: 0, opacity: 1, scale: 1 }}
           transition={{ type: "spring", damping: 14, stiffness: 110 }}
         >
-          <Avatar src={img} alt={name} size={260} ring />
+          <Avatar src={img} alt={name} size={260} ring faceBox={faceBox} />
         </motion.div>
         <div style={{ flex: 1, minWidth: 280, maxWidth: 600, textAlign: side === "left" ? "left" : "right" }}>
           <motion.h2
@@ -680,11 +711,12 @@ function RecipeModal({ recipe, img, onClose }: { recipe: any; img: string | null
 
 // ---------- ACT 6 — TRASH TALK ----------
 function Act6TrashTalk({
-  lines, revealed, imgA, imgB, onAdvance,
+  lines, revealed, imgA, imgB, faceBoxA, faceBoxB, onAdvance,
 }: {
   lines: Array<{ speaker: string; text: string; side: "a" | "b"; round: number }>;
   revealed: number;
   imgA: string | null; imgB: string | null;
+  faceBoxA?: FaceBox; faceBoxB?: FaceBox;
   onAdvance: () => void;
 }) {
   const allDone = revealed >= lines.length;
@@ -753,6 +785,7 @@ function Act6TrashTalk({
           {visible.map((t, i) => {
             const left = t.side === "a";
             const avatar = left ? imgA : imgB;
+            const avatarFaceBox = left ? faceBoxA : faceBoxB;
             const isLatest = i === latestIdx;
             const fromX = left ? -480 : 480;
             const damping = 12;
@@ -770,7 +803,7 @@ function Act6TrashTalk({
                   alignItems: "flex-end", gap: 14,
                 }}
               >
-                <Avatar src={avatar} alt={t.speaker} size={128} zoom ring />
+                <Avatar src={avatar} alt={t.speaker} size={128} zoom ring faceBox={avatarFaceBox} />
                 <div style={{ maxWidth: "76%" }}>
                   <div style={{
                     fontSize: 11, letterSpacing: "0.22em", textTransform: "uppercase",
@@ -849,10 +882,11 @@ function Act6TrashTalk({
 
 // ---------- ACT 7 — VERDICT ----------
 function Act7Verdict({
-  verdict, hostName, winnerName, winnerImg, winSize, onAdvance,
+  verdict, hostName, winnerName, winnerImg, winnerFaceBox, winSize, onAdvance,
 }: {
   verdict: string; hostName: string;
   winnerName: string; winnerImg: string | null;
+  winnerFaceBox?: FaceBox;
   winSize: { w: number; h: number }; onAdvance: () => void;
 }) {
   // 0 = "After long deliberation…" (auto → 1 after 2.2s)
@@ -1010,7 +1044,7 @@ function Act7Verdict({
                 animate={{ scale: 1, rotate: 0 }}
                 transition={{ type: "spring", damping: 8, stiffness: 140 }}
               >
-                <Avatar src={winnerImg} alt={winnerName} size={200} ring />
+                <Avatar src={winnerImg} alt={winnerName} size={200} ring faceBox={winnerFaceBox} />
               </motion.div>
               <motion.div
                 initial={{ scale: 0.3, opacity: 0 }}
