@@ -87,10 +87,12 @@ function InverseListPage() {
 
       // Portraits live in celebrity_personas — same source duels uses.
       const keys = list.map((p) => celebrityKey(p.celebrity));
-      const { data: personaRows } = await supabase
+      console.log("[inverse] looking up celebrity_keys", keys, "for celebrities", list.map((p) => p.celebrity));
+      const { data: personaRows, error: pErr } = await supabase
         .from("celebrity_personas" as any)
         .select("celebrity_key, portrait_url")
         .in("celebrity_key", keys);
+      console.log("[inverse] celebrity_personas rows", personaRows, "error", pErr);
       if (cancelled) return;
       const portraitByKey = new Map<string, string | null>();
       for (const row of (personaRows ?? []) as any[]) {
@@ -98,7 +100,10 @@ function InverseListPage() {
       }
       const nextPortraits: Record<string, string | null> = {};
       for (const p of list) {
-        nextPortraits[p.celebrity] = portraitByKey.get(celebrityKey(p.celebrity)) ?? null;
+        const k = celebrityKey(p.celebrity);
+        const url = portraitByKey.get(k) ?? null;
+        console.log(`[inverse] portrait for "${p.celebrity}" key="${k}" -> ${url}`);
+        nextPortraits[p.celebrity] = url;
       }
       setPortraitMap(nextPortraits);
       setBioMap({});
