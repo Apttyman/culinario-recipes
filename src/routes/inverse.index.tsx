@@ -53,7 +53,7 @@ async function fetchPersonaInfo(name: string): Promise<{ portrait: string | null
 function InverseListPage() {
   const { session, loading } = useAuth();
   const navigate = useNavigate();
-  const search = useSearch({ from: "/inverse" });
+  const search = useSearch({ from: "/inverse/" });
   const [personas, setPersonas] = useState<PersonaSummary[] | null>(null);
   const [portraitMap, setPortraitMap] = useState<Record<string, string | null>>({});
   const [bioMap, setBioMap] = useState<Record<string, string | null>>({});
