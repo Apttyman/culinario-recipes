@@ -224,6 +224,8 @@ function DuelPage() {
   const [error, setError] = useState<string | null>(null);
   const [personaPortraitA, setPersonaPortraitA] = useState<string | null>(null);
   const [personaPortraitB, setPersonaPortraitB] = useState<string | null>(null);
+  const [personaFaceBoxA, setPersonaFaceBoxA] = useState<FaceBox>(null);
+  const [personaFaceBoxB, setPersonaFaceBoxB] = useState<FaceBox>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -240,13 +242,15 @@ function DuelPage() {
       if (keys.length) {
         const { data: personas } = await supabase
           .from("celebrity_personas" as any)
-          .select("celebrity_key, portrait_url")
+          .select("celebrity_key, portrait_url, portrait_face_box")
           .in("celebrity_key", keys);
         if (!cancelled) {
-          const map = new Map<string, string | null>();
-          for (const p of (personas as any[]) ?? []) map.set(p.celebrity_key, p.portrait_url ?? null);
-          setPersonaPortraitA(map.get(keyA) ?? null);
-          setPersonaPortraitB(map.get(keyB) ?? null);
+          const map = new Map<string, any>();
+          for (const p of (personas as any[]) ?? []) map.set(p.celebrity_key, p);
+          setPersonaPortraitA(map.get(keyA)?.portrait_url ?? null);
+          setPersonaPortraitB(map.get(keyB)?.portrait_url ?? null);
+          setPersonaFaceBoxA(parseFaceBox(map.get(keyA)?.portrait_face_box));
+          setPersonaFaceBoxB(parseFaceBox(map.get(keyB)?.portrait_face_box));
         }
       }
       const ids = [(d as any).recipe_a_id, (d as any).recipe_b_id].filter(Boolean);
