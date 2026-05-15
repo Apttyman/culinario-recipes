@@ -34,22 +34,33 @@ export function ShareDialog({ open, onClose, kind, targetId, targetLabel }: Prop
     }
   }, [open]);
 
+  const [allProfiles, setAllProfiles] = useState<ProfileRow[]>([]);
+
+  // Load all profiles when dialog opens
   useEffect(() => {
     if (!open) return;
-    if (picked) return;
-    if (debounce.current) window.clearTimeout(debounce.current);
-    const q = query.trim();
-    if (q.length < 2) { setResults([]); return; }
-    debounce.current = window.setTimeout(async () => {
+    (async () => {
       const { data } = await supabase
         .from("profiles")
         .select("id, display_name")
-        .ilike("display_name", `%${q}%`)
-        .limit(8);
+        .order("display_name", { ascending: true })
+        .limit(500);
       const filtered = (data ?? []).filter((r) => r.id !== session?.user?.id);
-      setResults(filtered as ProfileRow[]);
-    }, 200);
-  }, [query, open, picked, session?.user?.id]);
+      setAllProfiles(filtered as ProfileRow[]);
+    })();
+  }, [open, session?.user?.id]);
+
+  // Filter list locally as the user types
+  useEffect(() => {
+    if (!open || picked) return;
+    const q = query.trim().toLowerCase();
+    if (!q) { setResults(allProfiles); return; }
+    setResults(
+      allProfiles.filter((r) =>
+        (r.display_name ?? "").toLowerCase().includes(q)
+      )
+    );
+  }, [query, open, picked, allProfiles]);
 
   if (!open) return null;
 
