@@ -6,6 +6,7 @@ import { supabase } from "@/lib/supabase-client";
 import { useAuth } from "@/lib/auth-context";
 import { useSuppressChatWhileMounted } from "@/lib/chat-suppression";
 import { ShareButton } from "@/components/share/ShareButton";
+import { toCelebrityKey } from "@/lib/celebrity-key";
 
 export const Route = createFileRoute("/duel/$id")({
   head: () => ({ meta: [{ title: "Tonight's Duel — Culinario" }] }),
