@@ -254,6 +254,21 @@ function DuelPage() {
       if (dErr) { setError(`${dErr.code ?? "?"}: ${dErr.message}`); setLoading(false); return; }
       if (!d) { setError(`No duel row matched id ${id}.`); setLoading(false); return; }
       setDuel(d);
+      const keyA = toCelebrityKey((d as any).chef_a);
+      const keyB = toCelebrityKey((d as any).chef_b);
+      const keys = Array.from(new Set([keyA, keyB].filter(Boolean)));
+      if (keys.length) {
+        const { data: personas } = await supabase
+          .from("celebrity_personas" as any)
+          .select("celebrity_key, portrait_url")
+          .in("celebrity_key", keys);
+        if (!cancelled) {
+          const map = new Map<string, string | null>();
+          for (const p of (personas as any[]) ?? []) map.set(p.celebrity_key, p.portrait_url ?? null);
+          setPersonaPortraitA(map.get(keyA) ?? null);
+          setPersonaPortraitB(map.get(keyB) ?? null);
+        }
+      }
       const ids = [(d as any).recipe_a_id, (d as any).recipe_b_id].filter(Boolean);
       if (ids.length) {
         const { data: rs } = await supabase.from("recipes").select("*").in("id", ids);
