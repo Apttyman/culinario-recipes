@@ -38,29 +38,9 @@ async function resolveImage(r: any): Promise<string | null> {
   return null;
 }
 
-type FaceBox = { x: number; y: number; width: number; height: number } | null | undefined;
-
-function getFaceCropStyle(faceBox: FaceBox, avatarSize = 96): React.CSSProperties {
-  if (!faceBox || typeof faceBox.x !== 'number') {
-    return { backgroundPosition: 'center', backgroundSize: 'cover', backgroundRepeat: 'no-repeat' };
-  }
-  const cx = (faceBox.x + faceBox.width / 2) * 100;
-  const cy = (faceBox.y + faceBox.height / 2) * 100;
-  const faceArea = faceBox.width * faceBox.height;
-
-  const targetFacePortion = avatarSize >= 240 ? 0.65 : avatarSize >= 180 ? 0.6 : 0.55;
-  const rawScale = Math.min(1 / faceBox.width, 1 / faceBox.height) * targetFacePortion;
-
-  const minScale = faceArea < 0.03 ? 2.0 : 1.0;
-  const maxScale = faceArea > 0.25 ? 1.0 : 8;
-
-  const scale = Math.max(minScale, Math.min(maxScale, rawScale));
-  return {
-    backgroundPosition: `${cx}% ${cy}%`,
-    backgroundSize: `${scale * 100}%`,
-    backgroundRepeat: 'no-repeat',
-  };
-}
+import { getFaceCropStyle as sharedGetFaceCropStyle, parseFaceBox, type FaceBox as SharedFaceBox } from "@/lib/face-crop";
+type FaceBox = SharedFaceBox;
+const getFaceCropStyle = sharedGetFaceCropStyle;
 
 function Avatar({ src, alt, size = 96, ring = false, zoom = true, faceBox }: { src: string | null | undefined; alt: string; size?: number; ring?: boolean; zoom?: boolean; faceBox?: FaceBox }) {
   const baseCrop: React.CSSProperties = faceBox
@@ -244,6 +224,8 @@ function DuelPage() {
   const [error, setError] = useState<string | null>(null);
   const [personaPortraitA, setPersonaPortraitA] = useState<string | null>(null);
   const [personaPortraitB, setPersonaPortraitB] = useState<string | null>(null);
+  const [personaFaceBoxA, setPersonaFaceBoxA] = useState<FaceBox>(null);
+  const [personaFaceBoxB, setPersonaFaceBoxB] = useState<FaceBox>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -260,13 +242,15 @@ function DuelPage() {
       if (keys.length) {
         const { data: personas } = await supabase
           .from("celebrity_personas" as any)
-          .select("celebrity_key, portrait_url")
+          .select("celebrity_key, portrait_url, portrait_face_box")
           .in("celebrity_key", keys);
         if (!cancelled) {
-          const map = new Map<string, string | null>();
-          for (const p of (personas as any[]) ?? []) map.set(p.celebrity_key, p.portrait_url ?? null);
-          setPersonaPortraitA(map.get(keyA) ?? null);
-          setPersonaPortraitB(map.get(keyB) ?? null);
+          const map = new Map<string, any>();
+          for (const p of (personas as any[]) ?? []) map.set(p.celebrity_key, p);
+          setPersonaPortraitA(map.get(keyA)?.portrait_url ?? null);
+          setPersonaPortraitB(map.get(keyB)?.portrait_url ?? null);
+          setPersonaFaceBoxA(parseFaceBox(map.get(keyA)?.portrait_face_box));
+          setPersonaFaceBoxB(parseFaceBox(map.get(keyB)?.portrait_face_box));
         }
       }
       const ids = [(d as any).recipe_a_id, (d as any).recipe_b_id].filter(Boolean);
@@ -343,8 +327,8 @@ function DuelPage() {
   const isAWinner = winnerSlug === "a" || winnerSlug === "chef_a" || winnerSlug === (duel?.chef_a_slug ?? "").toLowerCase();
   const winnerName = isAWinner ? chefA : chefB;
   const winnerImg = isAWinner ? portraitA : portraitB;
-  const faceBoxA: FaceBox = (duel?.chef_a_face_box ?? null) as FaceBox;
-  const faceBoxB: FaceBox = (duel?.chef_b_face_box ?? null) as FaceBox;
+  const faceBoxA: FaceBox = personaFaceBoxA ?? parseFaceBox(duel?.chef_a_face_box);
+  const faceBoxB: FaceBox = personaFaceBoxB ?? parseFaceBox(duel?.chef_b_face_box);
   const winnerFaceBox: FaceBox = isAWinner ? faceBoxA : faceBoxB;
 
   const trashTalk = useMemo<Array<{ speaker: string; text: string; side: "a" | "b"; round: number }>>(() => {

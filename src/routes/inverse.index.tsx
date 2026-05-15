@@ -4,6 +4,7 @@ import { useAuth } from "@/lib/auth-context";
 import { supabase } from "@/lib/supabase-client";
 import { AppHeader } from "@/components/AppHeader";
 import { ShareButton } from "@/components/share/ShareButton";
+import { getFaceCropStyle, parseFaceBox, type FaceBox } from "@/lib/face-crop";
 
 export const Route = createFileRoute("/inverse/")({
   validateSearch: (s: Record<string, unknown>) => ({
@@ -42,6 +43,7 @@ function InverseListPage() {
   const search = useSearch({ from: "/inverse/" });
   const [personas, setPersonas] = useState<PersonaSummary[] | null>(null);
   const [portraitMap, setPortraitMap] = useState<Record<string, string | null>>({});
+  const [faceBoxMap, setFaceBoxMap] = useState<Record<string, FaceBox>>({});
   const [bioMap, setBioMap] = useState<Record<string, string | null>>({});
   const [active, setActive] = useState<PersonaSummary | null>(null);
   const [err, setErr] = useState<string | null>(null);
@@ -93,22 +95,27 @@ function InverseListPage() {
       console.log("[inverse] looking up celebrity_keys", keys, "for celebrities", list.map((p) => p.celebrity));
       const { data: personaRows, error: pErr } = await supabase
         .from("celebrity_personas" as any)
-        .select("celebrity_key, portrait_url")
+        .select("celebrity_key, portrait_url, portrait_face_box")
         .in("celebrity_key", keys);
       console.log("[inverse] celebrity_personas rows", personaRows, "error", pErr);
       if (cancelled) return;
       const portraitByKey = new Map<string, string | null>();
+      const faceByKey = new Map<string, FaceBox>();
       for (const row of (personaRows ?? []) as any[]) {
         portraitByKey.set(row.celebrity_key, row.portrait_url ?? null);
+        faceByKey.set(row.celebrity_key, parseFaceBox(row.portrait_face_box));
       }
       const nextPortraits: Record<string, string | null> = {};
+      const nextFaces: Record<string, FaceBox> = {};
       for (const p of list) {
         const k = celebrityKey(p.celebrity);
         const url = portraitByKey.get(k) ?? null;
         console.log(`[inverse] portrait for "${p.celebrity}" key="${k}" -> ${url}`);
         nextPortraits[p.celebrity] = url;
+        nextFaces[p.celebrity] = faceByKey.get(k) ?? null;
       }
       setPortraitMap(nextPortraits);
+      setFaceBoxMap(nextFaces);
       setBioMap({});
     })();
     return () => { cancelled = true; };
@@ -132,6 +139,7 @@ function InverseListPage() {
           <PersonaResultsView
             persona={active}
             portrait={portraitMap[active.celebrity] ?? null}
+            faceBox={faceBoxMap[active.celebrity] ?? null}
             bio={bioMap[active.celebrity] ?? null}
             onBack={() => setActive(null)}
           />
@@ -198,6 +206,7 @@ function InverseListPage() {
                 key={p.celebrity}
                 persona={p}
                 portrait={portraitMap[p.celebrity] ?? null}
+                faceBox={faceBoxMap[p.celebrity] ?? null}
                 bio={bioMap[p.celebrity] ?? null}
                 onClick={() => setActive(p)}
               />
@@ -261,8 +270,8 @@ function StatusBadges({ recipe }: { recipe: any }) {
 }
 
 function PersonaResultsView({
-  persona, portrait, bio, onBack,
-}: { persona: PersonaSummary; portrait: string | null; bio: string | null; onBack: () => void }) {
+  persona, portrait, faceBox, bio, onBack,
+}: { persona: PersonaSummary; portrait: string | null; faceBox?: FaceBox; bio: string | null; onBack: () => void }) {
   const initial = (persona.celebrity[0] ?? "?").toUpperCase();
   return (
     <div>
@@ -281,7 +290,10 @@ function PersonaResultsView({
         <div
           aria-hidden="true"
           className="persona-portrait"
-          style={{ width: 120, height: 120, backgroundImage: portrait ? `url(${portrait})` : undefined }}
+          style={{
+            width: 120, height: 120,
+            ...(portrait ? { backgroundImage: `url(${portrait})`, ...getFaceCropStyle(faceBox, 120) } : {}),
+          }}
         >
           {!portrait && <span className="persona-initial" style={{ fontSize: 48 }}>{initial}</span>}
         </div>
@@ -382,8 +394,8 @@ function PersonaResultsView({
 }
 
 function PersonaRow({
-  persona, portrait, bio, onClick,
-}: { persona: PersonaSummary; portrait: string | null; bio: string | null; onClick: () => void }) {
+  persona, portrait, faceBox, bio, onClick,
+}: { persona: PersonaSummary; portrait: string | null; faceBox?: FaceBox; bio: string | null; onClick: () => void }) {
   const initial = (persona.celebrity[0] ?? "?").toUpperCase();
   const blurb = bio ?? persona.blurb ?? "Three dishes, in their voice.";
   const cookedCount = persona.recipes.filter((r) => r.cooked_at).length;
@@ -393,7 +405,7 @@ function PersonaRow({
       <div
         aria-hidden="true"
         className="persona-portrait"
-        style={{ backgroundImage: portrait ? `url(${portrait})` : undefined }}
+        style={portrait ? { backgroundImage: `url(${portrait})`, ...getFaceCropStyle(faceBox, 72) } : undefined}
       >
         {!portrait && <span className="persona-initial">{initial}</span>}
       </div>

@@ -5,6 +5,7 @@ import { supabase } from "@/lib/supabase-client";
 import { AppHeader } from "@/components/AppHeader";
 import { ShareButton } from "@/components/share/ShareButton";
 import { toCelebrityKey } from "@/lib/celebrity-key";
+import { getFaceCropStyle, parseFaceBox, type FaceBox } from "@/lib/face-crop";
 
 export const Route = createFileRoute("/duels")({
   head: () => ({
@@ -32,16 +33,17 @@ const eyebrow: React.CSSProperties = {
   textTransform: "uppercase", color: "var(--fg-muted)",
 };
 
-function ChefAvatar({ src, name, size = 72 }: { src: string | null; name: string; size?: number }) {
+function ChefAvatar({ src, name, size = 72, faceBox }: { src: string | null; name: string; size?: number; faceBox?: FaceBox }) {
   const initial = (name?.[0] ?? "?").toUpperCase();
+  const crop = src
+    ? { backgroundImage: `url(${src})`, ...getFaceCropStyle(faceBox, size) }
+    : { background: "color-mix(in oklab, var(--saffron) 18%, var(--surface-elev))" };
   return (
     <div
       aria-label={name}
       style={{
         width: size, height: size, borderRadius: "50%",
-        background: src
-          ? `center/cover no-repeat url(${src})`
-          : "color-mix(in oklab, var(--saffron) 18%, var(--surface-elev))",
+        ...crop,
         border: "2px solid color-mix(in oklab, var(--saffron) 65%, transparent)",
         boxShadow: "0 0 0 4px color-mix(in oklab, var(--saffron) 14%, transparent), 0 8px 24px -8px color-mix(in oklab, var(--saffron) 55%, transparent)",
         flexShrink: 0,
@@ -49,6 +51,7 @@ function ChefAvatar({ src, name, size = 72 }: { src: string | null; name: string
         color: "var(--saffron)",
         fontFamily: "var(--font-display)", fontStyle: "italic", fontWeight: 600,
         fontSize: size * 0.4,
+        overflow: "hidden",
       }}
     >
       {!src && initial}
@@ -63,6 +66,7 @@ function DuelsListPage() {
   const [err, setErr] = useState<string | null>(null);
 
   const [portraitByKey, setPortraitByKey] = useState<Record<string, string | null>>({});
+  const [faceBoxByKey, setFaceBoxByKey] = useState<Record<string, FaceBox>>({});
 
   useEffect(() => {
     if (loading) return;
@@ -82,11 +86,16 @@ function DuelsListPage() {
       if (keys.length > 0) {
         const { data: personas } = await supabase
           .from("celebrity_personas" as any)
-          .select("celebrity_key, portrait_url")
+          .select("celebrity_key, portrait_url, portrait_face_box")
           .in("celebrity_key", keys);
-        const map: Record<string, string | null> = {};
-        for (const p of (personas as any[]) ?? []) map[p.celebrity_key] = p.portrait_url ?? null;
-        setPortraitByKey(map);
+        const portraitMap: Record<string, string | null> = {};
+        const faceMap: Record<string, FaceBox> = {};
+        for (const p of (personas as any[]) ?? []) {
+          portraitMap[p.celebrity_key] = p.portrait_url ?? null;
+          faceMap[p.celebrity_key] = parseFaceBox(p.portrait_face_box);
+        }
+        setPortraitByKey(portraitMap);
+        setFaceBoxByKey(faceMap);
       }
     })();
   }, [session, loading, navigate]);
@@ -165,6 +174,8 @@ function DuelsListPage() {
                   duel={d}
                   portraitA={portraitByKey[toCelebrityKey(d.chef_a)] ?? d.chef_a_portrait_url}
                   portraitB={portraitByKey[toCelebrityKey(d.chef_b)] ?? d.chef_b_portrait_url}
+                  faceBoxA={faceBoxByKey[toCelebrityKey(d.chef_a)] ?? null}
+                  faceBoxB={faceBoxByKey[toCelebrityKey(d.chef_b)] ?? null}
                   onClick={() => navigate({ to: "/duel/$id", params: { id: d.id } })}
                 />
                 <div
@@ -290,10 +301,12 @@ function DuelsListPage() {
   );
 }
 
-function DuelRowCard({ duel, portraitA, portraitB, onClick }: {
+function DuelRowCard({ duel, portraitA, portraitB, faceBoxA, faceBoxB, onClick }: {
   duel: DuelRow;
   portraitA: string | null;
   portraitB: string | null;
+  faceBoxA?: FaceBox;
+  faceBoxB?: FaceBox;
   onClick: () => void;
 }) {
   const winnerSlug = (duel.winner_slug ?? "").toString().toLowerCase();
@@ -301,7 +314,7 @@ function DuelRowCard({ duel, portraitA, portraitB, onClick }: {
   const isBWinner = winnerSlug && !isAWinner;
   return (
     <button className="duel-row" onClick={onClick} type="button">
-      <ChefAvatar src={portraitA} name={duel.chef_a ?? "Chef A"} />
+      <ChefAvatar src={portraitA} name={duel.chef_a ?? "Chef A"} faceBox={faceBoxA} />
       <div>
         <div className="duel-name">{duel.chef_a ?? "Chef A"}</div>
         {isAWinner && <div className="duel-winner-tag">Winner ★</div>}
@@ -314,7 +327,7 @@ function DuelRowCard({ duel, portraitA, portraitB, onClick }: {
         <div className="duel-name duel-name-b">{duel.chef_b ?? "Chef B"}</div>
         {isBWinner && <div className="duel-winner-tag" style={{ display: "block", textAlign: "right" }}>Winner ★</div>}
       </div>
-      <ChefAvatar src={portraitB} name={duel.chef_b ?? "Chef B"} />
+      <ChefAvatar src={portraitB} name={duel.chef_b ?? "Chef B"} faceBox={faceBoxB} />
     </button>
   );
 }

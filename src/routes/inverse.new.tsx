@@ -3,6 +3,8 @@ import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { supabase } from "@/lib/supabase-client";
 import { AppHeader } from "@/components/AppHeader";
+import { getFaceCropStyle, parseFaceBox, type FaceBox } from "@/lib/face-crop";
+import { toCelebrityKey } from "@/lib/celebrity-key";
 
 type GeneratedRecipe = {
   id: string;
@@ -35,6 +37,7 @@ function InverseNewPage() {
   const [celebrity, setCelebrity] = useState("");
   const [generatedCelebrity, setGeneratedCelebrity] = useState("");
   const [generatedPortrait, setGeneratedPortrait] = useState<string | null>(null);
+  const [generatedFaceBox, setGeneratedFaceBox] = useState<FaceBox>(null);
   const [recipes, setRecipes] = useState<GeneratedRecipe[] | null>(null);
   const [conjuring, setConjuring] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -96,8 +99,21 @@ function InverseNewPage() {
       const byId = new Map(((rows ?? []) as any[]).map((row) => [row.id, row]));
       const orderedRows = ids.map((id) => byId.get(id)).filter(Boolean) as GeneratedRecipe[];
       if (orderedRows.length !== 3) throw new Error(`Loaded ${orderedRows.length} of 3 new recipes.`);
-      setGeneratedCelebrity((data as any)?.celebrity ?? name);
+      const celeb = (data as any)?.celebrity ?? name;
+      setGeneratedCelebrity(celeb);
       setGeneratedPortrait((data as any)?.portrait_url ?? null);
+      // Look up the persona's face crop box for tight head cropping.
+      const ck = toCelebrityKey(celeb);
+      if (ck) {
+        const { data: personaRow } = await supabase
+          .from("celebrity_personas" as any)
+          .select("portrait_face_box")
+          .eq("celebrity_key", ck)
+          .maybeSingle();
+        setGeneratedFaceBox(parseFaceBox((personaRow as any)?.portrait_face_box));
+      } else {
+        setGeneratedFaceBox(null);
+      }
       setRecipes(orderedRows);
       setCelebrity("");
     } catch (e: any) {
@@ -123,7 +139,7 @@ function InverseNewPage() {
         </button>
 
         {recipes ? (
-          <NewRecipeResults celebrity={generatedCelebrity} portrait={generatedPortrait} recipes={recipes} />
+          <NewRecipeResults celebrity={generatedCelebrity} portrait={generatedPortrait} faceBox={generatedFaceBox} recipes={recipes} />
         ) : (
           <>
 
@@ -194,7 +210,7 @@ function InverseNewPage() {
   );
 }
 
-function NewRecipeResults({ celebrity, portrait, recipes }: { celebrity: string; portrait: string | null; recipes: GeneratedRecipe[] }) {
+function NewRecipeResults({ celebrity, portrait, faceBox, recipes }: { celebrity: string; portrait: string | null; faceBox?: FaceBox; recipes: GeneratedRecipe[] }) {
   const initial = (celebrity[0] ?? "?").toUpperCase();
   return (
     <div>
@@ -203,12 +219,12 @@ function NewRecipeResults({ celebrity, portrait, recipes }: { celebrity: string;
           aria-hidden="true"
           style={{
             width: 96, height: 96, borderRadius: "50%", flexShrink: 0,
-            backgroundImage: portrait ? `url(${portrait})` : undefined,
             backgroundColor: "color-mix(in oklab, var(--saffron) 18%, var(--surface-elev))",
-            backgroundPosition: "center 22%", backgroundSize: "cover", backgroundRepeat: "no-repeat",
+            ...(portrait ? { backgroundImage: `url(${portrait})`, ...getFaceCropStyle(faceBox, 96) } : {}),
             border: "2px solid color-mix(in oklab, var(--saffron) 65%, transparent)",
             boxShadow: "0 0 0 4px color-mix(in oklab, var(--saffron) 14%, transparent), 0 8px 24px -8px color-mix(in oklab, var(--saffron) 55%, transparent)",
             display: "flex", alignItems: "center", justifyContent: "center",
+            overflow: "hidden",
           }}
         >
           {!portrait && (
