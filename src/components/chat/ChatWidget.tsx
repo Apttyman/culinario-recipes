@@ -49,7 +49,7 @@ export function ChatWidget() {
       .select("*")
       .or(`user_a.eq.${userId},user_b.eq.${userId}`)
       .order("updated_at", { ascending: false, nullsFirst: false });
-    const list = (rows ?? []) as Conversation[];
+    const list = (rows ?? []) as unknown as Conversation[];
     if (list.length === 0) { setConvos([]); return; }
 
     const otherIds = Array.from(new Set(list.map((c) => (c.user_a === userId ? c.user_b : c.user_a))));
@@ -69,7 +69,7 @@ export function ChatWidget() {
       .in("conversation_id", ids)
       .order("created_at", { ascending: true });
     const byConv: Record<string, Message[]> = {};
-    for (const m of (msgs ?? []) as Message[]) {
+    for (const m of (msgs ?? []) as unknown as Message[]) {
       (byConv[m.conversation_id] ??= []).push(m);
     }
     setMessagesByConv(byConv);
@@ -480,13 +480,14 @@ function ShareNotificationCard({ m, meId, onChange }: { m: Message; meId: string
     if (!m.share_id) return;
     let cancelled = false;
     (async () => {
-      const { data: s } = await supabase
+      const { data: sRaw } = await supabase
         .from("shares" as any).select("*").eq("id", m.share_id).maybeSingle();
+      const s: any = sRaw;
       if (cancelled || !s) return;
       setShare(s);
       const { data: prof } = await supabase
         .from("profiles").select("display_name").eq("id", s.sender_id).maybeSingle();
-      if (!cancelled) setSenderName(prof?.display_name ?? null);
+      if (!cancelled) setSenderName((prof as any)?.display_name ?? null);
       // Lookup preview
       if (s.kind === "recipe") {
         const { data: r } = await supabase
@@ -497,8 +498,8 @@ function ShareNotificationCard({ m, meId, onChange }: { m: Message; meId: string
           .from("duels" as any).select("id, chef_a, chef_b").eq("id", s.target_id).maybeSingle();
         if (!cancelled) setTarget(d);
       } else if (s.kind === "inverse_set") {
-        const { data: rs } = await supabase
-          .from("recipes").select("id, title, inverse_celebrity")
+        const { data: rs } = await (supabase
+          .from("recipes" as any).select("id, title, inverse_celebrity") as any)
           .eq("inverse_session_id", s.target_id).limit(3);
         if (!cancelled) setTarget({ kind: "inverse_set", recipes: rs ?? [] });
       }
