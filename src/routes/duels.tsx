@@ -4,6 +4,7 @@ import { useAuth } from "@/lib/auth-context";
 import { supabase } from "@/lib/supabase-client";
 import { AppHeader } from "@/components/AppHeader";
 import { ShareButton } from "@/components/share/ShareButton";
+import { toCelebrityKey } from "@/lib/celebrity-key";
 
 export const Route = createFileRoute("/duels")({
   head: () => ({
@@ -61,6 +62,8 @@ function DuelsListPage() {
   const [duels, setDuels] = useState<DuelRow[] | null>(null);
   const [err, setErr] = useState<string | null>(null);
 
+  const [portraitByKey, setPortraitByKey] = useState<Record<string, string | null>>({});
+
   useEffect(() => {
     if (loading) return;
     if (!session) { navigate({ to: "/sign-in" }); return; }
@@ -70,8 +73,21 @@ function DuelsListPage() {
         .select("id, chef_a, chef_b, challenge, chef_a_portrait_url, chef_b_portrait_url, winner_slug, created_at")
         .eq("user_id", session.user.id)
         .order("created_at", { ascending: false });
-      if (error) setErr(error.message);
-      else setDuels((data as any) ?? []);
+      if (error) { setErr(error.message); return; }
+      const rows = (data as any[]) ?? [];
+      setDuels(rows as any);
+      const keys = Array.from(new Set(
+        rows.flatMap((d) => [toCelebrityKey(d.chef_a), toCelebrityKey(d.chef_b)]).filter(Boolean)
+      )) as string[];
+      if (keys.length > 0) {
+        const { data: personas } = await supabase
+          .from("celebrity_personas" as any)
+          .select("celebrity_key, portrait_url")
+          .in("celebrity_key", keys);
+        const map: Record<string, string | null> = {};
+        for (const p of (personas as any[]) ?? []) map[p.celebrity_key] = p.portrait_url ?? null;
+        setPortraitByKey(map);
+      }
     })();
   }, [session, loading, navigate]);
 
@@ -147,6 +163,8 @@ function DuelsListPage() {
               <div key={d.id} style={{ position: "relative" }}>
                 <DuelRowCard
                   duel={d}
+                  portraitA={portraitByKey[toCelebrityKey(d.chef_a)] ?? d.chef_a_portrait_url}
+                  portraitB={portraitByKey[toCelebrityKey(d.chef_b)] ?? d.chef_b_portrait_url}
                   onClick={() => navigate({ to: "/duel/$id", params: { id: d.id } })}
                 />
                 <div
@@ -272,13 +290,18 @@ function DuelsListPage() {
   );
 }
 
-function DuelRowCard({ duel, onClick }: { duel: DuelRow; onClick: () => void }) {
+function DuelRowCard({ duel, portraitA, portraitB, onClick }: {
+  duel: DuelRow;
+  portraitA: string | null;
+  portraitB: string | null;
+  onClick: () => void;
+}) {
   const winnerSlug = (duel.winner_slug ?? "").toString().toLowerCase();
   const isAWinner = !!winnerSlug && (winnerSlug === "a" || winnerSlug === "chef_a");
   const isBWinner = winnerSlug && !isAWinner;
   return (
     <button className="duel-row" onClick={onClick} type="button">
-      <ChefAvatar src={duel.chef_a_portrait_url} name={duel.chef_a ?? "Chef A"} />
+      <ChefAvatar src={portraitA} name={duel.chef_a ?? "Chef A"} />
       <div>
         <div className="duel-name">{duel.chef_a ?? "Chef A"}</div>
         {isAWinner && <div className="duel-winner-tag">Winner ★</div>}
@@ -291,7 +314,7 @@ function DuelRowCard({ duel, onClick }: { duel: DuelRow; onClick: () => void }) 
         <div className="duel-name duel-name-b">{duel.chef_b ?? "Chef B"}</div>
         {isBWinner && <div className="duel-winner-tag" style={{ display: "block", textAlign: "right" }}>Winner ★</div>}
       </div>
-      <ChefAvatar src={duel.chef_b_portrait_url} name={duel.chef_b ?? "Chef B"} />
+      <ChefAvatar src={portraitB} name={duel.chef_b ?? "Chef B"} />
     </button>
   );
 }

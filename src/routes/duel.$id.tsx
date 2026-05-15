@@ -6,6 +6,7 @@ import { supabase } from "@/lib/supabase-client";
 import { useAuth } from "@/lib/auth-context";
 import { useSuppressChatWhileMounted } from "@/lib/chat-suppression";
 import { ShareButton } from "@/components/share/ShareButton";
+import { toCelebrityKey } from "@/lib/celebrity-key";
 
 export const Route = createFileRoute("/duel/$id")({
   head: () => ({ meta: [{ title: "Tonight's Duel — Culinario" }] }),
@@ -241,6 +242,8 @@ function DuelPage() {
   const [imgB, setImgB] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [personaPortraitA, setPersonaPortraitA] = useState<string | null>(null);
+  const [personaPortraitB, setPersonaPortraitB] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -251,6 +254,21 @@ function DuelPage() {
       if (dErr) { setError(`${dErr.code ?? "?"}: ${dErr.message}`); setLoading(false); return; }
       if (!d) { setError(`No duel row matched id ${id}.`); setLoading(false); return; }
       setDuel(d);
+      const keyA = toCelebrityKey((d as any).chef_a);
+      const keyB = toCelebrityKey((d as any).chef_b);
+      const keys = Array.from(new Set([keyA, keyB].filter(Boolean)));
+      if (keys.length) {
+        const { data: personas } = await supabase
+          .from("celebrity_personas" as any)
+          .select("celebrity_key, portrait_url")
+          .in("celebrity_key", keys);
+        if (!cancelled) {
+          const map = new Map<string, string | null>();
+          for (const p of (personas as any[]) ?? []) map.set(p.celebrity_key, p.portrait_url ?? null);
+          setPersonaPortraitA(map.get(keyA) ?? null);
+          setPersonaPortraitB(map.get(keyB) ?? null);
+        }
+      }
       const ids = [(d as any).recipe_a_id, (d as any).recipe_b_id].filter(Boolean);
       if (ids.length) {
         const { data: rs } = await supabase.from("recipes").select("*").in("id", ids);
@@ -315,8 +333,8 @@ function DuelPage() {
 
   const chefA = duel?.chef_a ?? "Chef A";
   const chefB = duel?.chef_b ?? "Chef B";
-  const portraitA: string | null = duel?.chef_a_portrait_url ?? null;
-  const portraitB: string | null = duel?.chef_b_portrait_url ?? null;
+  const portraitA: string | null = personaPortraitA ?? duel?.chef_a_portrait_url ?? null;
+  const portraitB: string | null = personaPortraitB ?? duel?.chef_b_portrait_url ?? null;
   const challenge = duel?.challenge ?? "";
   const host = duel?.host_name ?? "Your Host";
   const verdict = duel?.host_verdict ?? duel?.verdict ?? "";
