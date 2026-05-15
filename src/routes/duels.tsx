@@ -174,6 +174,8 @@ function DuelsListPage() {
                   duel={d}
                   portraitA={portraitByKey[toCelebrityKey(d.chef_a)] ?? d.chef_a_portrait_url}
                   portraitB={portraitByKey[toCelebrityKey(d.chef_b)] ?? d.chef_b_portrait_url}
+                  faceBoxA={faceBoxByKey[toCelebrityKey(d.chef_a)] ?? null}
+                  faceBoxB={faceBoxByKey[toCelebrityKey(d.chef_b)] ?? null}
                   onClick={() => navigate({ to: "/duel/$id", params: { id: d.id } })}
                 />
                 <div
