@@ -517,6 +517,20 @@ function PersonaRow({ persona, portrait, bio, loading, onClick }: { persona: Per
           font-family: var(--font-display); font-style: italic; font-weight: 600;
           font-size: 28px; color: var(--saffron);
         }
+        .persona-cta {
+          align-self: center;
+          padding-left: 12px;
+          flex-shrink: 0;
+          opacity: 0.65;
+          transition: opacity 240ms ease, transform 240ms ease;
+        }
+        .persona-row:hover .persona-cta {
+          opacity: 1;
+          transform: translateX(4px);
+        }
+        @media (max-width: 640px) {
+          .persona-cta { display: none; }
+        }
       `}</style>
     </button>
   );
