@@ -350,3 +350,22 @@
 
 /* Prevent horizontal scroll globally */
 html, body { overflow-x: hidden; }
+
+/* ---------- Mobile legibility bumps (preserve aesthetic) ---------- */
+/* Inline-style font-sizes below 16px get a small, surgical bump on phones.
+   We target inline styles directly so we don't touch the carefully-set
+   desktop hierarchy. Letter-spacing is slightly relaxed for mono labels
+   so the larger glyphs still breathe. */
+@media (max-width: 640px) {
+  [style*="font-size: 10px"] { font-size: 12px !important; }
+  [style*="font-size: 11px"] { font-size: 13px !important; }
+  [style*="font-size: 12px"] { font-size: 13px !important; }
+  [style*="font-size: 13px"] { font-size: 14px !important; }
+  [style*="font-size: 14px"] { font-size: 15px !important; }
+  [style*="font-size: 15px"] { font-size: 16px !important; }
+
+  /* Mono labels: ease the tracking now that the type is larger */
+  [style*="--font-mono"][style*="letter-spacing: 0.2em"] {
+    letter-spacing: 0.16em !important;
+  }
+}
