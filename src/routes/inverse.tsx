@@ -204,6 +204,24 @@ function InversePage() {
           We'll imagine the three dishes they would choose, in their voice, with a memoir blurb on each.
         </p>
 
+        {personas && personas.length > 0 && (
+          <>
+            <hr style={hairline} />
+            <div style={eyebrow}>Past personas — tap to revisit</div>
+            <div style={{ marginTop: 20, display: "flex", flexDirection: "column", gap: 16 }}>
+              {personas.map((p) => (
+                <PersonaRow
+                  key={p.celebrity}
+                  persona={p}
+                  portrait={portraitMap[p.celebrity] ?? null}
+                  loading={loadingPersona === p.celebrity}
+                  onClick={() => openPersona(p)}
+                />
+              ))}
+            </div>
+          </>
+        )}
+
         <hr style={hairline} />
 
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
