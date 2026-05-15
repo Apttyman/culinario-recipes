@@ -4,6 +4,7 @@ import { useAuth } from "@/lib/auth-context";
 import { supabase } from "@/lib/supabase-client";
 import { AppHeader } from "@/components/AppHeader";
 import { ShareButton } from "@/components/share/ShareButton";
+import { getFaceCropStyle, parseFaceBox, type FaceBox } from "@/lib/face-crop";
 
 export const Route = createFileRoute("/inverse/")({
   validateSearch: (s: Record<string, unknown>) => ({
