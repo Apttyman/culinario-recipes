@@ -5,6 +5,7 @@ import { supabase } from "@/lib/supabase-client";
 import { AppHeader } from "@/components/AppHeader";
 import { getFaceCropStyle, parseFaceBox, type FaceBox } from "@/lib/face-crop";
 import { toCelebrityKey } from "@/lib/celebrity-key";
+import { ShareButton } from "@/components/share/ShareButton";
 
 type GeneratedRecipe = {
   id: string;
@@ -14,6 +15,7 @@ type GeneratedRecipe = {
   difficulty: string | null;
   body: any;
   inverse_blurb?: string | null;
+  inverse_session_id?: string | null;
 };
 
 export const Route = createFileRoute("/inverse/new")({
@@ -92,7 +94,7 @@ function InverseNewPage() {
       }
       const { data: rows, error: rowsErr } = await supabase
         .from("recipes" as any)
-        .select("id,title,cuisine,time_estimate_minutes,difficulty,position,body,inverse_blurb")
+        .select("id,title,cuisine,time_estimate_minutes,difficulty,position,body,inverse_blurb,inverse_session_id")
         .in("id", ids)
         .order("position", { ascending: true });
       if (rowsErr) throw rowsErr;
@@ -233,7 +235,7 @@ function NewRecipeResults({ celebrity, portrait, faceBox, recipes }: { celebrity
             </span>
           )}
         </div>
-        <div style={{ minWidth: 0 }}>
+        <div style={{ minWidth: 0, flex: 1 }}>
           <div style={eyebrow}>№ 007 — Inverse Mode</div>
           <h1 style={{
             fontFamily: "var(--font-display)", fontWeight: 300, fontStyle: "italic",
@@ -243,6 +245,17 @@ function NewRecipeResults({ celebrity, portrait, faceBox, recipes }: { celebrity
             Three new dishes for {celebrity}.
           </h1>
         </div>
+        {recipes[0]?.inverse_session_id && (
+          <div style={{ flexShrink: 0, alignSelf: "flex-start", marginTop: 4 }}>
+            <ShareButton
+              kind="inverse_set"
+              targetId={recipes[0].inverse_session_id}
+              targetLabel={`Three dishes for ${celebrity}`}
+              label="Share set"
+              variant="pill"
+            />
+          </div>
+        )}
       </div>
       <p style={{
         fontFamily: "var(--font-display)", fontStyle: "italic",
