@@ -16,7 +16,7 @@ type Message = {
   conversation_id: string;
   sender_id: string;
   body: string | null;
-  kind: string | null; // 'text' | 'share_notification'
+  kind: string | null;
   share_id: string | null;
   read_at: string | null;
   created_at: string;
@@ -61,7 +61,6 @@ export function ChatWidget() {
     for (const p of (profs ?? []) as any[]) nameMap[p.id] = p.display_name ?? null;
     setProfileNames(nameMap);
 
-    // Pull last message + unread for each conversation (all kinds, including share_notification)
     const ids = list.map((c) => c.id);
     const { data: msgs, error: msgErr } = await supabase
       .from("messages" as any)
@@ -77,9 +76,9 @@ export function ChatWidget() {
 
     const summaries: ConversationSummary[] = list.map((c) => {
       const otherUserId = c.user_a_id === userId ? c.user_b_id : c.user_a_id;
-      const list = byConv[c.id] ?? [];
-      const lastMessage = list.length ? list[list.length - 1] : null;
-      const unread = list.filter((m) => m.sender_id !== userId && !m.read_at).length;
+      const msgList = byConv[c.id] ?? [];
+      const lastMessage = msgList.length ? msgList[msgList.length - 1] : null;
+      const unread = msgList.filter((m) => m.sender_id !== userId && !m.read_at).length;
       return { ...c, otherUserId, otherDisplayName: nameMap[otherUserId] ?? null, lastMessage, unread };
     });
     setConvos(summaries);
@@ -87,7 +86,6 @@ export function ChatWidget() {
 
   useEffect(() => { if (userId) reload(); }, [userId]);
 
-  // Realtime subscription on messages for this user's conversations
   useEffect(() => {
     if (!userId || convos.length === 0) return;
     const ids = convos.map((c) => c.id);
@@ -107,7 +105,6 @@ export function ChatWidget() {
     return () => { supabase.removeChannel(channel); };
   }, [userId, convos.map((c) => c.id).join(",")]);
 
-  // Also listen for new conversations
   useEffect(() => {
     if (!userId) return;
     const channel = supabase
@@ -121,7 +118,6 @@ export function ChatWidget() {
     return () => { supabase.removeChannel(channel); };
   }, [userId]);
 
-  // Mark messages read when thread opened
   useEffect(() => {
     if (view !== "thread" || !activeConvId || !userId) return;
     (async () => {
@@ -131,7 +127,6 @@ export function ChatWidget() {
         .eq("conversation_id", activeConvId)
         .neq("sender_id", userId)
         .is("read_at", null);
-      // Optimistic local update
       setMessagesByConv((prev) => {
         const next = { ...prev };
         next[activeConvId] = (next[activeConvId] ?? []).map((m) =>
@@ -156,7 +151,7 @@ export function ChatWidget() {
         <button
           type="button"
           aria-label="Open chat"
-          onClick={() => setView("list")}
+          onClick={() => { reload(); setView("list"); }}
           className="cw-fab"
         >
           <span aria-hidden>💬</span>
@@ -489,26 +484,26 @@ function ShareNotificationCard({ m, meId, onChange }: { m: Message; meId: string
       const { data: prof } = await supabase
         .from("profiles").select("display_name").eq("id", s.sender_id).maybeSingle();
       if (!cancelled) setSenderName((prof as any)?.display_name ?? null);
-      // Lookup preview
-      if (s.kind === "recipe") {
+      // Lookup preview using the correct column for each kind
+      if (s.kind === "recipe" && s.recipe_id) {
         const { data: r } = await supabase
-          .from("recipes").select("id, title").eq("id", s.target_id).maybeSingle();
+          .from("recipes").select("id, title").eq("id", s.recipe_id).maybeSingle();
         if (!cancelled) setTarget(r);
-      } else if (s.kind === "duel") {
+      } else if (s.kind === "duel" && s.duel_id) {
         const { data: d } = await supabase
-          .from("duels" as any).select("id, chef_a, chef_b").eq("id", s.target_id).maybeSingle();
+          .from("duels" as any).select("id, chef_a, chef_b").eq("id", s.duel_id).maybeSingle();
         if (!cancelled) setTarget(d);
-      } else if (s.kind === "inverse_set") {
+      } else if (s.kind === "inverse_set" && s.inverse_session_id) {
         const { data: rs } = await (supabase
           .from("recipes" as any).select("id, title, inverse_celebrity") as any)
-          .eq("inverse_session_id", s.target_id).limit(3);
+          .eq("inverse_session_id", s.inverse_session_id).limit(3);
         if (!cancelled) setTarget({ kind: "inverse_set", recipes: rs ?? [] });
       }
     })();
     return () => { cancelled = true; };
   }, [m.share_id]);
 
-  const isRecipient = share?.recipient_user_id === meId;
+  const isRecipient = share?.recipient_id === meId;
   const status: string = share?.status ?? "pending";
 
   const respond = async (action: "accept" | "decline") => {
@@ -519,7 +514,6 @@ function ShareNotificationCard({ m, meId, onChange }: { m: Message; meId: string
       const { data, error } = await supabase.functions.invoke(fn, { body: { share_id: share.id } });
       if (error) throw error;
       if ((data as any)?.error) throw new Error((data as any).error);
-      // Optimistic
       setShare((s: any) => ({ ...s, status: action === "accept" ? "accepted" : "declined" }));
       onChange();
     } catch (e: any) {
@@ -542,8 +536,8 @@ function ShareNotificationCard({ m, meId, onChange }: { m: Message; meId: string
   const senderLabel = senderName ?? "Someone";
 
   const openHref =
-    share?.kind === "recipe" ? `/recipes/${share.target_id}` :
-    share?.kind === "duel" ? `/duel/${share.target_id}` :
+    share?.kind === "recipe" && share?.recipe_id ? `/recipes/${share.recipe_id}` :
+    share?.kind === "duel" && share?.duel_id ? `/duel/${share.duel_id}` :
     share?.kind === "inverse_set" ? `/inverse` : null;
 
   return (
