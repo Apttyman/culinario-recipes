@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { supabase } from "@/lib/supabase-client";
@@ -97,6 +97,22 @@ function DuelsListPage() {
           }}>
             Tap any duel to step back into the studio and watch it unfold again.
           </p>
+
+          <div style={{ marginTop: 28 }}>
+            <Link
+              to="/duel/"
+              style={{
+                display: "inline-block",
+                fontFamily: "var(--font-body)", fontWeight: 600, fontSize: 12,
+                textTransform: "uppercase", letterSpacing: "0.2em",
+                color: "var(--saffron)", textDecoration: "none",
+                border: "1px solid var(--saffron)", padding: "12px 22px",
+                borderRadius: 9999,
+              }}
+            >
+              Launch a new battle ⚔
+            </Link>
+          </div>
 
           <div style={{ marginTop: 40, display: "flex", flexDirection: "column", gap: 20 }}>
             {err && <div style={{ ...eyebrow, color: "var(--saffron)" }}>{err}</div>}
