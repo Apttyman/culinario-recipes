@@ -30,8 +30,12 @@ const eyebrow: React.CSSProperties = {
 };
 const hairline: React.CSSProperties = { border: 0, height: 1, background: "var(--hairline)", margin: "32px 0" };
 
+function celebrityKey(name: string): string {
+  return name.trim().toLowerCase().replace(/[^a-z0-9\s]/g, "").replace(/\s+/g, "_");
+}
+
 const infoCache = new Map<string, { portrait: string | null; bio: string | null }>();
-async function fetchPersonaInfo(name: string): Promise<{ portrait: string | null; bio: string | null }> {
+async function fetchWikipediaInfo(name: string): Promise<{ portrait: string | null; bio: string | null }> {
   if (infoCache.has(name)) return infoCache.get(name)!;
   const empty = { portrait: null, bio: null };
   try {
