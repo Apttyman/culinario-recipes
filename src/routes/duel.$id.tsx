@@ -395,16 +395,18 @@ function DuelPage() {
   // ---------- acts ----------
   return (
     <>
-      <div style={{
-        position: "fixed", top: 16, right: 16, zIndex: 60,
-      }}>
-        <ShareButton
-          kind="duel"
-          targetId={duel.id}
-          targetLabel={`${chefA} vs ${chefB}`}
-          variant="pill"
-        />
-      </div>
+      {currentActNum === 9 && (
+        <div style={{
+          position: "fixed", top: 16, right: 16, zIndex: 60,
+        }}>
+          <ShareButton
+            kind="duel"
+            targetId={duel.id}
+            targetLabel={`${chefA} vs ${chefB}`}
+            variant="pill"
+          />
+        </div>
+      )}
       <AnimatePresence mode="wait">
         <motion.div
           key={currentActNum}
