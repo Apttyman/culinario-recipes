@@ -394,8 +394,8 @@ function PersonaResultsView({
 }
 
 function PersonaRow({
-  persona, portrait, bio, onClick,
-}: { persona: PersonaSummary; portrait: string | null; bio: string | null; onClick: () => void }) {
+  persona, portrait, faceBox, bio, onClick,
+}: { persona: PersonaSummary; portrait: string | null; faceBox?: FaceBox; bio: string | null; onClick: () => void }) {
   const initial = (persona.celebrity[0] ?? "?").toUpperCase();
   const blurb = bio ?? persona.blurb ?? "Three dishes, in their voice.";
   const cookedCount = persona.recipes.filter((r) => r.cooked_at).length;
@@ -405,7 +405,7 @@ function PersonaRow({
       <div
         aria-hidden="true"
         className="persona-portrait"
-        style={{ backgroundImage: portrait ? `url(${portrait})` : undefined }}
+        style={portrait ? { backgroundImage: `url(${portrait})`, ...getFaceCropStyle(faceBox, 72) } : undefined}
       >
         {!portrait && <span className="persona-initial">{initial}</span>}
       </div>
