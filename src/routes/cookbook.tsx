@@ -63,15 +63,15 @@ function Cookbook() {
       for (const r of (rs ?? []) as any[]) recipeMap.set(r.id, r);
       const duelMap = new Map<string, any>();
       for (const d of (ds ?? []) as any[]) duelMap.set(d.id, d);
-      const items = rows.flatMap((l) => {
+      type SharedItem = { kind: "recipe" | "duel"; id: string; row: any; sharedBy: string | null };
+      const items: SharedItem[] = [];
+      for (const l of rows) {
         if (l.source_recipe_id && recipeMap.has(l.source_recipe_id)) {
-          return [{ kind: "recipe" as const, id: l.source_recipe_id, row: recipeMap.get(l.source_recipe_id), sharedBy: l.shared_by_display_name ?? null }];
+          items.push({ kind: "recipe", id: l.source_recipe_id, row: recipeMap.get(l.source_recipe_id), sharedBy: l.shared_by_display_name ?? null });
+        } else if (l.source_duel_id && duelMap.has(l.source_duel_id)) {
+          items.push({ kind: "duel", id: l.source_duel_id, row: duelMap.get(l.source_duel_id), sharedBy: l.shared_by_display_name ?? null });
         }
-        if (l.source_duel_id && duelMap.has(l.source_duel_id)) {
-          return [{ kind: "duel" as const, id: l.source_duel_id, row: duelMap.get(l.source_duel_id), sharedBy: l.shared_by_display_name ?? null }];
-        }
-        return [];
-      });
+      }
       setSharedItems(items);
     })();
   }, [session]);
