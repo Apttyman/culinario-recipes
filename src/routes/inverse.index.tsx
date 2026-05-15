@@ -85,24 +85,28 @@ function InverseListPage() {
       const list = Array.from(buckets.values());
       setPersonas(list);
 
-      // Fetch portraits from celebrity_personas (same source as duels), Wikipedia as fallback for bio.
+      // Portraits + bios live in celebrity_personas — same source duels uses.
       const keys = list.map((p) => celebrityKey(p.celebrity));
       const { data: personaRows } = await supabase
         .from("celebrity_personas" as any)
-        .select("celebrity_key, portrait_url")
+        .select("celebrity_key, portrait_url, bio")
         .in("celebrity_key", keys);
       if (cancelled) return;
       const portraitByKey = new Map<string, string | null>();
+      const bioByKey = new Map<string, string | null>();
       for (const row of (personaRows ?? []) as any[]) {
         portraitByKey.set(row.celebrity_key, row.portrait_url ?? null);
+        bioByKey.set(row.celebrity_key, row.bio ?? null);
       }
-      list.forEach(async (p) => {
-        const stored = portraitByKey.get(celebrityKey(p.celebrity)) ?? null;
-        const wiki = await fetchWikipediaInfo(p.celebrity);
-        if (cancelled) return;
-        setPortraitMap((m) => ({ ...m, [p.celebrity]: stored ?? wiki.portrait }));
-        setBioMap((m) => ({ ...m, [p.celebrity]: wiki.bio }));
-      });
+      const nextPortraits: Record<string, string | null> = {};
+      const nextBios: Record<string, string | null> = {};
+      for (const p of list) {
+        const k = celebrityKey(p.celebrity);
+        nextPortraits[p.celebrity] = portraitByKey.get(k) ?? null;
+        nextBios[p.celebrity] = bioByKey.get(k) ?? null;
+      }
+      setPortraitMap(nextPortraits);
+      setBioMap(nextBios);
     })();
     return () => { cancelled = true; };
   }, [session]);
