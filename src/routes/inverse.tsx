@@ -20,6 +20,34 @@ const eyebrow: React.CSSProperties = {
 };
 const hairline: React.CSSProperties = { border: 0, height: 1, background: "var(--hairline)", margin: "32px 0" };
 
+type PersonaSummary = {
+  celebrity: string;
+  blurb: string | null;
+  recipes: any[];
+  lastAt: string | null;
+};
+
+// Best-effort persona portrait fetch via Wikipedia REST summary endpoint.
+// Mirrors the "celeb image" lookup used by duel mode (Wikipedia thumbnail).
+const portraitCache = new Map<string, string | null>();
+async function fetchPersonaPortrait(name: string): Promise<string | null> {
+  if (portraitCache.has(name)) return portraitCache.get(name) ?? null;
+  try {
+    const slug = encodeURIComponent(name.trim().replace(/\s+/g, "_"));
+    const r = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${slug}`, {
+      headers: { Accept: "application/json" },
+    });
+    if (!r.ok) { portraitCache.set(name, null); return null; }
+    const j = await r.json();
+    const url: string | null = j?.thumbnail?.source ?? j?.originalimage?.source ?? null;
+    portraitCache.set(name, url);
+    return url;
+  } catch {
+    portraitCache.set(name, null);
+    return null;
+  }
+}
+
 function InversePage() {
   const { session, loading } = useAuth();
   const navigate = useNavigate();
