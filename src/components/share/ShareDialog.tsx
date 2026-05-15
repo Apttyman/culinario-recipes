@@ -158,17 +158,25 @@ export function ShareDialog({ open, onClose, kind, targetId, targetLabel }: Prop
                 style={inputStyle}
                 autoFocus
               />
-              {results.length > 0 && (
-                <div style={{
-                  marginTop: 6,
-                  border: "1px solid var(--hairline)", borderRadius: 6,
-                  maxHeight: 180, overflowY: "auto",
-                }}>
-                  {results.map((r) => (
+              <div style={{
+                marginTop: 6,
+                border: "1px solid var(--hairline)", borderRadius: 6,
+                maxHeight: 220, overflowY: "auto",
+              }}>
+                {results.length === 0 ? (
+                  <div style={{
+                    padding: "12px",
+                    fontFamily: "var(--font-mono)", fontSize: 11,
+                    color: "var(--fg-muted)",
+                  }}>
+                    No cooks match "{query}".
+                  </div>
+                ) : (
+                  results.map((r) => (
                     <button
                       key={r.id}
                       type="button"
-                      onClick={() => { setPicked(r); setQuery(""); setResults([]); }}
+                      onClick={() => { setPicked(r); setQuery(""); }}
                       style={{
                         width: "100%", textAlign: "left",
                         padding: "10px 12px", background: "transparent", color: "var(--fg)",
@@ -177,21 +185,19 @@ export function ShareDialog({ open, onClose, kind, targetId, targetLabel }: Prop
                     >
                       {r.display_name ?? "Unnamed cook"}
                     </button>
-                  ))}
-                </div>
-              )}
-              {query.trim().length >= 2 && results.length === 0 && (
-                <div style={{ marginTop: 10 }}>
-                  <label style={fieldLabel}>…or invite by email</label>
-                  <input
-                    type="email"
-                    value={emailFallback}
-                    onChange={(e) => setEmailFallback(e.target.value)}
-                    placeholder="friend@example.com"
-                    style={inputStyle}
-                  />
-                </div>
-              )}
+                  ))
+                )}
+              </div>
+              <div style={{ marginTop: 10 }}>
+                <label style={fieldLabel}>…or invite by email</label>
+                <input
+                  type="email"
+                  value={emailFallback}
+                  onChange={(e) => setEmailFallback(e.target.value)}
+                  placeholder="friend@example.com"
+                  style={inputStyle}
+                />
+              </div>
             </>
           )}
         </div>
