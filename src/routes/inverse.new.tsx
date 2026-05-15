@@ -5,6 +5,7 @@ import { supabase } from "@/lib/supabase-client";
 import { AppHeader } from "@/components/AppHeader";
 import { getFaceCropStyle, parseFaceBox, type FaceBox } from "@/lib/face-crop";
 import { toCelebrityKey } from "@/lib/celebrity-key";
+import { ShareButton } from "@/components/share/ShareButton";
 
 type GeneratedRecipe = {
   id: string;
