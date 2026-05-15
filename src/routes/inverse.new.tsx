@@ -4,6 +4,16 @@ import { useAuth } from "@/lib/auth-context";
 import { supabase } from "@/lib/supabase-client";
 import { AppHeader } from "@/components/AppHeader";
 
+type GeneratedRecipe = {
+  id: string;
+  title: string | null;
+  cuisine: string | null;
+  time_estimate_minutes: number | null;
+  difficulty: string | null;
+  body: any;
+  inverse_blurb?: string | null;
+};
+
 export const Route = createFileRoute("/inverse/new")({
   head: () => ({
     meta: [
@@ -23,6 +33,8 @@ function InverseNewPage() {
   const { session, loading } = useAuth();
   const navigate = useNavigate();
   const [celebrity, setCelebrity] = useState("");
+  const [generatedCelebrity, setGeneratedCelebrity] = useState("");
+  const [recipes, setRecipes] = useState<GeneratedRecipe[] | null>(null);
   const [conjuring, setConjuring] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [phraseIdx, setPhraseIdx] = useState(0);
@@ -67,10 +79,23 @@ function InverseNewPage() {
         throw new Error(msg);
       }
       if ((data as any)?.error) throw new Error((data as any).error);
-      // Success — go back to the list, auto-open this persona.
-      navigate({ to: "/inverse", search: { open: name } as any });
+      const ids: string[] = (data as any)?.recipe_ids ?? [];
+      if (ids.length !== 3) throw new Error(`Expected 3 new recipes, got ${ids.length}.`);
+      const { data: rows, error: rowsErr } = await supabase
+        .from("recipes" as any)
+        .select("id,title,cuisine,time_estimate_minutes,difficulty,position,body,inverse_blurb")
+        .in("id", ids)
+        .order("position", { ascending: true });
+      if (rowsErr) throw rowsErr;
+      const byId = new Map(((rows ?? []) as any[]).map((row) => [row.id, row]));
+      const orderedRows = ids.map((id) => byId.get(id)).filter(Boolean) as GeneratedRecipe[];
+      if (orderedRows.length !== 3) throw new Error(`Loaded ${orderedRows.length} of 3 new recipes.`);
+      setGeneratedCelebrity((data as any)?.celebrity ?? name);
+      setRecipes(orderedRows);
+      setCelebrity("");
     } catch (e: any) {
       setError(e?.message ?? "Something went sideways.");
+    } finally {
       setConjuring(false);
     }
   };
@@ -81,14 +106,19 @@ function InverseNewPage() {
       <main className="culinario-page" style={{ paddingTop: 64, paddingBottom: 240 }}>
         <button
           type="button"
-          onClick={() => navigate({ to: "/inverse" })}
+          onClick={() => recipes ? setRecipes(null) : navigate({ to: "/inverse" })}
           style={{
             background: "transparent", border: 0, padding: 0, cursor: "pointer",
             ...eyebrow, marginBottom: 28,
           }}
         >
-          ← All personas
+          {recipes ? "← Conjure another" : "← All personas"}
         </button>
+
+        {recipes ? (
+          <NewRecipeResults celebrity={generatedCelebrity} recipes={recipes} />
+        ) : (
+          <>
 
         <div style={eyebrow}>№ 007 — Inverse Mode</div>
         <h1 style={{
@@ -148,6 +178,8 @@ function InverseNewPage() {
             <div style={{ ...eyebrow, color: "var(--saffron)" }}>{error}</div>
           )}
         </div>
+          </>
+        )}
       </main>
 
       {conjuring && <ConjuringOverlay name={celebrity.trim()} phrase={phrases[phraseIdx]} />}
