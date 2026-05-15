@@ -270,7 +270,7 @@ function InversePage() {
         </div>
 
         {results && (
-          <>
+          <div id="inverse-results">
             <hr style={hairline} />
             <div style={eyebrow}>Three dishes for {results.celebrity}</div>
             <div style={{ display: "flex", flexDirection: "column", gap: 32, marginTop: 24 }}>
