@@ -242,6 +242,8 @@ function DuelPage() {
   const [imgB, setImgB] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [personaPortraitA, setPersonaPortraitA] = useState<string | null>(null);
+  const [personaPortraitB, setPersonaPortraitB] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
