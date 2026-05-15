@@ -230,25 +230,8 @@ function InversePage() {
           />
         ) : (
           <>
-            <div style={eyebrow}>№ 007 — Inverse Mode</div>
-            <h1 style={{
-              fontFamily: "var(--font-display)", fontWeight: 300, fontStyle: "italic",
-              fontSize: "clamp(48px, 7vw, 80px)", lineHeight: 1.05,
-              letterSpacing: "-0.02em", margin: "16px 0 12px",
-            }}>
-              Cook as someone else.
-            </h1>
-            <p style={{
-              fontFamily: "var(--font-display)", fontStyle: "italic",
-              fontSize: 20, color: "var(--fg-muted)", margin: 0, maxWidth: 560,
-            }}>
-              Name anyone — a chef, an artist, a dead poet, your grandmother, a fictional detective.
-              We'll imagine the three dishes they would choose, in their voice, with a memoir blurb on each.
-            </p>
-
             {personas && personas.length > 0 && (
               <>
-                <hr style={hairline} />
                 <div style={eyebrow}>Past personas — tap to revisit</div>
                 <div style={{ marginTop: 20, display: "flex", flexDirection: "column", gap: 16 }}>
                   {personas.map((p) => (
@@ -265,7 +248,7 @@ function InversePage() {
               </>
             )}
 
-            <hr style={hairline} />
+            {personas && personas.length > 0 && <hr style={hairline} />}
 
             <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
               <label style={eyebrow}>The Person</label>
