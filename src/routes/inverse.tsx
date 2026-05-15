@@ -79,6 +79,56 @@ function InversePage() {
     if (!session) navigate({ to: "/sign-in" });
   }, [session, loading, navigate]);
 
+  // Load past inverse personas (grouped by celebrity from the recipes table).
+  useEffect(() => {
+    if (!session?.user) return;
+    let cancelled = false;
+    (async () => {
+      const { data: rows } = await supabase
+        .from("recipes")
+        .select("id,title,cuisine,time_estimate_minutes,difficulty,body,chef_inspiration,created_at")
+        .eq("user_id", session.user.id)
+        .not("chef_inspiration", "is", null)
+        .order("created_at", { ascending: false });
+      if (cancelled) return;
+      const buckets = new Map<string, PersonaSummary>();
+      for (const r of (rows ?? []) as any[]) {
+        const body = (r.body && typeof r.body === "object" && !Array.isArray(r.body)) ? r.body : {};
+        const celeb: string | null = body.inverse_celebrity ?? r.chef_inspiration ?? null;
+        if (!celeb) continue;
+        // Only consider rows that look like inverse-mode (have a blurb).
+        if (!body.inverse_blurb && !body.rationale) continue;
+        const key = celeb.trim();
+        const existing = buckets.get(key);
+        const enriched = { ...r, body: { ...body, inverse_blurb: body.inverse_blurb ?? body.rationale ?? null } };
+        if (!existing) {
+          buckets.set(key, { celebrity: key, blurb: enriched.body.inverse_blurb, recipes: [enriched], lastAt: r.created_at });
+        } else if (existing.recipes.length < 3) {
+          existing.recipes.push(enriched);
+        }
+      }
+      const list = Array.from(buckets.values());
+      setPersonas(list);
+      // Fan out portrait fetches.
+      list.forEach(async (p) => {
+        const url = await fetchPersonaPortrait(p.celebrity);
+        if (cancelled) return;
+        setPortraitMap((m) => ({ ...m, [p.celebrity]: url }));
+      });
+    })();
+    return () => { cancelled = true; };
+  }, [session]);
+
+  const openPersona = (p: PersonaSummary) => {
+    setLoadingPersona(p.celebrity);
+    setResults({ celebrity: p.celebrity, recipes: p.recipes });
+    setLoadingPersona(null);
+    setTimeout(() => {
+      const el = document.getElementById("inverse-results");
+      el?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 50);
+  };
+
   const conjure = async () => {
     const name = celebrity.trim();
     if (!name || conjuring) return;
