@@ -322,7 +322,95 @@ function InversePage() {
   );
 }
 
-function ConjuringOverlay({ name, phrase }: { name: string; phrase: string }) {
+function PersonaRow({ persona, portrait, loading, onClick }: { persona: PersonaSummary; portrait: string | null; loading: boolean; onClick: () => void }) {
+  const initial = (persona.celebrity[0] ?? "?").toUpperCase();
+  const blurb = persona.blurb ?? "Three dishes, in their voice.";
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={loading}
+      className="persona-row"
+    >
+      <div
+        aria-hidden="true"
+        className="persona-portrait"
+        style={{
+          backgroundImage: portrait ? `url(${portrait})` : undefined,
+        }}
+      >
+        {!portrait && <span className="persona-initial">{initial}</span>}
+      </div>
+      <div style={{ minWidth: 0, flex: 1, textAlign: "left" }}>
+        <div style={{
+          fontFamily: "var(--font-display)", fontStyle: "italic", fontWeight: 500,
+          fontSize: 22, lineHeight: 1.15, color: "var(--fg)",
+          overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+        }}>
+          {persona.celebrity}
+        </div>
+        <div style={{
+          marginTop: 6,
+          fontFamily: "var(--font-body)", fontStyle: "italic",
+          fontSize: 14, lineHeight: 1.45, color: "var(--fg-muted)",
+          display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical",
+          overflow: "hidden",
+        }}>
+          "{blurb}"
+        </div>
+        <div style={{
+          marginTop: 8,
+          fontFamily: "var(--font-mono)", fontSize: 9, letterSpacing: "0.2em",
+          textTransform: "uppercase", color: "var(--saffron)",
+        }}>
+          {persona.recipes.length} {persona.recipes.length === 1 ? "dish" : "dishes"} · revisit ↗
+        </div>
+      </div>
+      <style>{`
+        .persona-row {
+          position: relative;
+          display: flex; align-items: center; gap: 18px;
+          padding: 16px 22px;
+          border-radius: 9999px;
+          border: 1px solid color-mix(in oklab, var(--fg) 12%, transparent);
+          background: color-mix(in oklab, var(--surface-elev) 50%, transparent);
+          backdrop-filter: blur(22px) saturate(160%);
+          -webkit-backdrop-filter: blur(22px) saturate(160%);
+          box-shadow:
+            0 14px 40px -18px color-mix(in oklab, var(--saffron) 40%, transparent),
+            inset 0 1px 0 color-mix(in oklab, white 14%, transparent);
+          cursor: pointer;
+          color: var(--fg);
+          transition: transform 240ms ease, box-shadow 240ms ease, border-color 240ms ease;
+          overflow: hidden;
+          width: 100%;
+        }
+        .persona-row:hover {
+          transform: translateY(-2px);
+          border-color: color-mix(in oklab, var(--saffron) 55%, transparent);
+          box-shadow:
+            0 22px 50px -18px color-mix(in oklab, var(--saffron) 65%, transparent),
+            inset 0 1px 0 color-mix(in oklab, white 22%, transparent);
+        }
+        .persona-row:disabled { opacity: 0.6; cursor: progress; }
+        .persona-portrait {
+          width: 72px; height: 72px; border-radius: 50%; flex-shrink: 0;
+          background-color: color-mix(in oklab, var(--saffron) 18%, var(--surface-elev));
+          background-position: center 22%; background-size: cover; background-repeat: no-repeat;
+          border: 2px solid color-mix(in oklab, var(--saffron) 65%, transparent);
+          box-shadow:
+            0 0 0 4px color-mix(in oklab, var(--saffron) 14%, transparent),
+            0 8px 24px -8px color-mix(in oklab, var(--saffron) 55%, transparent);
+          display: flex; align-items: center; justify-content: center;
+        }
+        .persona-initial {
+          font-family: var(--font-display); font-style: italic; font-weight: 600;
+          font-size: 28px; color: var(--saffron);
+        }
+      `}</style>
+    </button>
+  );
+}
   return (
     <div
       aria-live="polite"
