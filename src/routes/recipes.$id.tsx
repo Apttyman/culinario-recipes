@@ -5,6 +5,7 @@ import { supabase } from "@/lib/supabase-client";
 import { insertSignal, ratingWeight } from "@/lib/preference-signals";
 import { AppHeader } from "@/components/AppHeader";
 import { triggerPortraitSynthesis } from "@/lib/portrait";
+import { ShareButton } from "@/components/share/ShareButton";
 
 export const Route = createFileRoute("/recipes/$id")({
   head: () => ({ meta: [{ title: "Recipe — Culinario" }] }),
@@ -436,6 +437,7 @@ function RecipePage() {
               </button>
             </div>
           )}
+          <ShareButton kind="recipe" targetId={recipe.id} targetLabel={recipe.title ?? undefined} />
         </div>
 
         <div style={{ marginTop: 48 }}>

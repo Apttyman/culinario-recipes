@@ -525,6 +525,9 @@ function Settings() {
         )}
 
         <hr style={hairline} />
+        <SharesISent />
+
+        <hr style={hairline} />
         <div style={{
           position: "sticky", bottom: 0, background: "var(--bg)",
           padding: "24px 0", display: "flex", justifyContent: "space-between", alignItems: "center",
@@ -540,5 +543,86 @@ function Settings() {
         </div>
       </main>
     </div>
+  );
+}
+
+function SharesISent() {
+  const { session } = useAuth();
+  const [rows, setRows] = useState<any[] | null>(null);
+
+  const load = async () => {
+    if (!session?.user) return;
+    const { data } = await supabase
+      .from("shares" as any)
+      .select("*")
+      .eq("sender_id", session.user.id)
+      .order("created_at", { ascending: false });
+    setRows((data ?? []) as any[]);
+  };
+  useEffect(() => { load(); }, [session?.user?.id]);
+
+  const cancel = async (id: string) => {
+    await supabase.from("shares" as any).delete().eq("id", id);
+    load();
+  };
+
+  const labelFor = (k: string) =>
+    k === "recipe" ? "Recipe" : k === "duel" ? "Duel" : k === "inverse_set" ? "Inverse menu" : k;
+
+  return (
+    <section style={{ marginTop: 24 }}>
+      <h2 style={{
+        fontFamily: "var(--font-display)", fontStyle: "italic", fontWeight: 400,
+        fontSize: 28, margin: "0 0 6px", color: "var(--fg)",
+      }}>Shares I've sent</h2>
+      <p style={{ ...helperStyle, marginTop: 0 }}>
+        Recipes, duels, and inverse menus you've sent to others.
+      </p>
+      {!rows && <div style={helperStyle}>Loading…</div>}
+      {rows && rows.length === 0 && (
+        <div style={helperStyle}>You haven't shared anything yet.</div>
+      )}
+      {rows && rows.length > 0 && (
+        <div style={{ marginTop: 16, display: "flex", flexDirection: "column", gap: 10 }}>
+          {rows.map((s) => (
+            <div key={s.id} style={{
+              padding: "12px 14px",
+              border: "1px solid var(--hairline)", borderRadius: 10,
+              display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12,
+              flexWrap: "wrap",
+            }}>
+              <div style={{ minWidth: 0, flex: 1 }}>
+                <div style={{
+                  fontFamily: "var(--font-display)", fontStyle: "italic", fontSize: 16, color: "var(--fg)",
+                }}>
+                  {labelFor(s.kind)} → {s.recipient_email ?? s.recipient_user_id ?? "—"}
+                </div>
+                <div style={{
+                  marginTop: 2,
+                  fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.18em",
+                  textTransform: "uppercase",
+                  color: s.status === "accepted" ? "var(--saffron)" : "var(--fg-muted)",
+                }}>
+                  {s.status} · {new Date(s.created_at).toLocaleDateString()}
+                </div>
+              </div>
+              {s.status === "pending" && (
+                <button
+                  type="button"
+                  onClick={() => cancel(s.id)}
+                  style={{
+                    background: "transparent", color: "var(--fg-muted)",
+                    border: "1px solid var(--hairline)", borderRadius: 9999,
+                    padding: "6px 14px", cursor: "pointer",
+                    fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.18em",
+                    textTransform: "uppercase",
+                  }}
+                >Cancel</button>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </section>
   );
 }

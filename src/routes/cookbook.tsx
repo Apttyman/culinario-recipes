@@ -23,6 +23,7 @@ function Cookbook() {
   const { session, loading } = useAuth();
   const navigate = useNavigate();
   const [recipes, setRecipes] = useState<any[] | null>(null);
+  const [sharedItems, setSharedItems] = useState<Array<{ kind: "recipe" | "duel"; id: string; row: any; sharedBy: string | null }>>([]);
 
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState<Status>("all");
@@ -42,11 +43,37 @@ function Cookbook() {
       .order("created_at", { ascending: false })
       .then(({ data }) => {
         setRecipes(data ?? []);
-        // eslint-disable-next-line no-console
-        console.log("[cookbook] sample recipe fields", (data ?? []).slice(0, 3).map((r: any) => ({
-          title: r.title, cuisine: r.cuisine, difficulty: r.difficulty, time: r.time_estimate_minutes,
-        })));
       });
+    // Load shared-with-me items
+    (async () => {
+      const { data: links } = await supabase
+        .from("shared_recipe_links" as any)
+        .select("*")
+        .eq("recipient_user_id", session.user.id)
+        .order("created_at", { ascending: false });
+      const rows: any[] = (links ?? []) as any[];
+      if (!rows.length) { setSharedItems([]); return; }
+      const recipeIds = rows.filter((l) => l.source_recipe_id).map((l) => l.source_recipe_id);
+      const duelIds = rows.filter((l) => l.source_duel_id).map((l) => l.source_duel_id);
+      const [{ data: rs }, { data: ds }] = await Promise.all([
+        recipeIds.length ? supabase.from("recipes").select("*").in("id", recipeIds) : Promise.resolve({ data: [] as any[] }),
+        duelIds.length ? supabase.from("duels" as any).select("*").in("id", duelIds) : Promise.resolve({ data: [] as any[] }),
+      ]);
+      const recipeMap = new Map<string, any>();
+      for (const r of (rs ?? []) as any[]) recipeMap.set(r.id, r);
+      const duelMap = new Map<string, any>();
+      for (const d of (ds ?? []) as any[]) duelMap.set(d.id, d);
+      type SharedItem = { kind: "recipe" | "duel"; id: string; row: any; sharedBy: string | null };
+      const items: SharedItem[] = [];
+      for (const l of rows) {
+        if (l.source_recipe_id && recipeMap.has(l.source_recipe_id)) {
+          items.push({ kind: "recipe", id: l.source_recipe_id, row: recipeMap.get(l.source_recipe_id), sharedBy: l.shared_by_display_name ?? null });
+        } else if (l.source_duel_id && duelMap.has(l.source_duel_id)) {
+          items.push({ kind: "duel", id: l.source_duel_id, row: duelMap.get(l.source_duel_id), sharedBy: l.shared_by_display_name ?? null });
+        }
+      }
+      setSharedItems(items);
+    })();
   }, [session]);
 
   const stats = useMemo(() => {
@@ -188,6 +215,50 @@ function Cookbook() {
           </p>
         )}
         <hr style={hairline} />
+
+        {sharedItems.length > 0 && (
+          <div style={{ marginBottom: 32 }}>
+            <div style={labelMono}>Shared with you</div>
+            <div style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 8 }}>
+              {sharedItems.map((it) => (
+                <button
+                  key={`${it.kind}-${it.id}`}
+                  type="button"
+                  onClick={() =>
+                    it.kind === "recipe"
+                      ? navigate({ to: "/recipes/$id", params: { id: it.id } })
+                      : navigate({ to: "/duel/$id", params: { id: it.id }, search: { act: 0 } })
+                  }
+                  style={{
+                    textAlign: "left", background: "transparent", color: "var(--fg)",
+                    border: "1px solid color-mix(in oklab, var(--saffron) 50%, transparent)",
+                    borderRadius: 12, padding: "12px 16px", cursor: "pointer",
+                    display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 12,
+                  }}
+                >
+                  <div style={{ minWidth: 0, flex: 1 }}>
+                    <div style={{
+                      fontFamily: "var(--font-display)", fontStyle: "italic", fontWeight: 500,
+                      fontSize: 18, color: "var(--fg)",
+                      overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+                    }}>
+                      {it.kind === "recipe"
+                        ? (it.row?.title ?? "Recipe")
+                        : `${it.row?.chef_a ?? "Chef"} vs ${it.row?.chef_b ?? "Chef"}`}
+                    </div>
+                    <div style={{ ...labelMono, marginTop: 4, color: "var(--saffron)" }}>
+                      Shared by {it.sharedBy ?? "a friend"} · {it.kind === "duel" ? "Duel" : "Recipe"}
+                    </div>
+                  </div>
+                  <span style={{
+                    fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.2em",
+                    textTransform: "uppercase", color: "var(--saffron)",
+                  }}>Open ↗</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Search bar */}
         <div style={{ position: "relative" }}>

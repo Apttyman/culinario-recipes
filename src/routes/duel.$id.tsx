@@ -4,6 +4,8 @@ import { AnimatePresence, motion } from "framer-motion";
 import Confetti from "react-confetti";
 import { supabase } from "@/lib/supabase-client";
 import { useAuth } from "@/lib/auth-context";
+import { useSuppressChatWhileMounted } from "@/lib/chat-suppression";
+import { ShareButton } from "@/components/share/ShareButton";
 
 export const Route = createFileRoute("/duel/$id")({
   head: () => ({ meta: [{ title: "Tonight's Duel — Culinario" }] }),
@@ -226,6 +228,7 @@ function DuelPage() {
   const { id } = Route.useParams();
   const { session, loading: authLoading } = useAuth();
   const navigate = useNavigate();
+  useSuppressChatWhileMounted();
 
   useEffect(() => {
     if (!authLoading && !session) navigate({ to: "/sign-in" });
@@ -392,6 +395,16 @@ function DuelPage() {
   // ---------- acts ----------
   return (
     <>
+      <div style={{
+        position: "fixed", top: 16, right: 16, zIndex: 60,
+      }}>
+        <ShareButton
+          kind="duel"
+          targetId={duel.id}
+          targetLabel={`${chefA} vs ${chefB}`}
+          variant="pill"
+        />
+      </div>
       <AnimatePresence mode="wait">
         <motion.div
           key={currentActNum}

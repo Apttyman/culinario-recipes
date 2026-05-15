@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { supabase } from "@/lib/supabase-client";
 import { AppHeader } from "@/components/AppHeader";
+import { ShareButton } from "@/components/share/ShareButton";
 
 export const Route = createFileRoute("/inverse/")({
   validateSearch: (s: Record<string, unknown>) => ({
@@ -308,7 +309,14 @@ function PersonaResultsView({
       )}
 
       <hr style={hairline} />
-      <div style={eyebrow}>Three dishes for {persona.celebrity}</div>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
+        <div style={eyebrow}>Three dishes for {persona.celebrity}</div>
+        <ShareButton
+          kind="inverse_set"
+          targetId={persona.recipes[0]?.inverse_session_id ?? null}
+          targetLabel={`${persona.celebrity}'s menu`}
+        />
+      </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 32, marginTop: 24 }}>
         {persona.recipes.map((r: any) => (
           <Link
