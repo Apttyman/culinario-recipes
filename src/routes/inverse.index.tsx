@@ -315,6 +315,7 @@ function PersonaResultsView({
           kind="inverse_set"
           targetId={persona.recipes[0]?.inverse_session_id ?? null}
           targetLabel={`${persona.celebrity}'s menu`}
+          variant="ghost"
         />
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 32, marginTop: 24 }}>
