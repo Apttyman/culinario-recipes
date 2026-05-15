@@ -312,7 +312,7 @@ function InversePage() {
                 </Link>
               ))}
             </div>
-          </>
+          </div>
         )}
       </main>
 
