@@ -10,6 +10,8 @@ import {
 
 import appCss from "../styles.css?url";
 import { AuthProvider } from "@/lib/auth-context";
+import { ChatSuppressionProvider } from "@/lib/chat-suppression";
+import { ChatWidget } from "@/components/chat/ChatWidget";
 
 function NotFoundComponent() {
   return (
@@ -125,7 +127,10 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <Outlet />
+        <ChatSuppressionProvider>
+          <Outlet />
+          <ChatWidget />
+        </ChatSuppressionProvider>
       </AuthProvider>
     </QueryClientProvider>
   );
