@@ -437,7 +437,7 @@ function RecipePage() {
               </button>
             </div>
           )}
-          <ShareButton kind="recipe" targetId={recipe.id} targetLabel={recipe.title ?? undefined} />
+          <ShareButton kind="recipe" targetId={recipe.id} targetLabel={recipe.title ?? undefined} variant="ghost" />
         </div>
 
         <div style={{ marginTop: 48 }}>
