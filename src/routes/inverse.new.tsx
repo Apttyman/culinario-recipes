@@ -14,6 +14,7 @@ type GeneratedRecipe = {
   difficulty: string | null;
   body: any;
   inverse_blurb?: string | null;
+  inverse_session_id?: string | null;
 };
 
 export const Route = createFileRoute("/inverse/new")({
