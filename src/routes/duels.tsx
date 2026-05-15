@@ -61,6 +61,8 @@ function DuelsListPage() {
   const [duels, setDuels] = useState<DuelRow[] | null>(null);
   const [err, setErr] = useState<string | null>(null);
 
+  const [portraitByKey, setPortraitByKey] = useState<Record<string, string | null>>({});
+
   useEffect(() => {
     if (loading) return;
     if (!session) { navigate({ to: "/sign-in" }); return; }
@@ -70,8 +72,21 @@ function DuelsListPage() {
         .select("id, chef_a, chef_b, challenge, chef_a_portrait_url, chef_b_portrait_url, winner_slug, created_at")
         .eq("user_id", session.user.id)
         .order("created_at", { ascending: false });
-      if (error) setErr(error.message);
-      else setDuels((data as any) ?? []);
+      if (error) { setErr(error.message); return; }
+      const rows = (data as any[]) ?? [];
+      setDuels(rows as any);
+      const keys = Array.from(new Set(
+        rows.flatMap((d) => [toCelebrityKey(d.chef_a), toCelebrityKey(d.chef_b)]).filter(Boolean)
+      )) as string[];
+      if (keys.length > 0) {
+        const { data: personas } = await supabase
+          .from("celebrity_personas" as any)
+          .select("celebrity_key, portrait_url")
+          .in("celebrity_key", keys);
+        const map: Record<string, string | null> = {};
+        for (const p of (personas as any[]) ?? []) map[p.celebrity_key] = p.portrait_url ?? null;
+        setPortraitByKey(map);
+      }
     })();
   }, [session, loading, navigate]);
 
