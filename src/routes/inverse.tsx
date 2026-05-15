@@ -27,24 +27,28 @@ type PersonaSummary = {
   lastAt: string | null;
 };
 
-// Best-effort persona portrait fetch via Wikipedia REST summary endpoint.
-// Mirrors the "celeb image" lookup used by duel mode (Wikipedia thumbnail).
-const portraitCache = new Map<string, string | null>();
-async function fetchPersonaPortrait(name: string): Promise<string | null> {
-  if (portraitCache.has(name)) return portraitCache.get(name) ?? null;
+// Best-effort persona portrait + biographical extract fetch via Wikipedia REST.
+// Mirrors the "celeb image" lookup used by duel mode (Wikipedia thumbnail),
+// and also pulls the article's `extract` field for a biographical blurb.
+const infoCache = new Map<string, { portrait: string | null; bio: string | null }>();
+async function fetchPersonaInfo(name: string): Promise<{ portrait: string | null; bio: string | null }> {
+  if (infoCache.has(name)) return infoCache.get(name)!;
+  const empty = { portrait: null, bio: null };
   try {
     const slug = encodeURIComponent(name.trim().replace(/\s+/g, "_"));
     const r = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${slug}`, {
       headers: { Accept: "application/json" },
     });
-    if (!r.ok) { portraitCache.set(name, null); return null; }
+    if (!r.ok) { infoCache.set(name, empty); return empty; }
     const j = await r.json();
-    const url: string | null = j?.thumbnail?.source ?? j?.originalimage?.source ?? null;
-    portraitCache.set(name, url);
-    return url;
+    const portrait: string | null = j?.thumbnail?.source ?? j?.originalimage?.source ?? null;
+    const bio: string | null = (typeof j?.extract === "string" && j.extract.trim().length > 0) ? j.extract.trim() : null;
+    const info = { portrait, bio };
+    infoCache.set(name, info);
+    return info;
   } catch {
-    portraitCache.set(name, null);
-    return null;
+    infoCache.set(name, empty);
+    return empty;
   }
 }
 
