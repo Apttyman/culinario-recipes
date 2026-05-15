@@ -144,11 +144,23 @@ function DuelsListPage() {
             )}
 
             {duels?.map((d) => (
-              <DuelRowCard
-                key={d.id}
-                duel={d}
-                onClick={() => navigate({ to: "/duel/$id", params: { id: d.id } })}
-              />
+              <div key={d.id} style={{ position: "relative" }}>
+                <DuelRowCard
+                  duel={d}
+                  onClick={() => navigate({ to: "/duel/$id", params: { id: d.id } })}
+                />
+                <div
+                  style={{ position: "absolute", top: 10, right: 18, zIndex: 2 }}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <ShareButton
+                    kind="duel"
+                    targetId={d.id}
+                    targetLabel={`${d.chef_a ?? "Chef A"} vs ${d.chef_b ?? "Chef B"}`}
+                    label="Share ↗"
+                  />
+                </div>
+              </div>
             ))}
           </div>
         </div>
