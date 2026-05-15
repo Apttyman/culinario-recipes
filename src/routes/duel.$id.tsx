@@ -327,8 +327,8 @@ function DuelPage() {
   const isAWinner = winnerSlug === "a" || winnerSlug === "chef_a" || winnerSlug === (duel?.chef_a_slug ?? "").toLowerCase();
   const winnerName = isAWinner ? chefA : chefB;
   const winnerImg = isAWinner ? portraitA : portraitB;
-  const faceBoxA: FaceBox = (duel?.chef_a_face_box ?? null) as FaceBox;
-  const faceBoxB: FaceBox = (duel?.chef_b_face_box ?? null) as FaceBox;
+  const faceBoxA: FaceBox = personaFaceBoxA ?? parseFaceBox(duel?.chef_a_face_box);
+  const faceBoxB: FaceBox = personaFaceBoxB ?? parseFaceBox(duel?.chef_b_face_box);
   const winnerFaceBox: FaceBox = isAWinner ? faceBoxA : faceBoxB;
 
   const trashTalk = useMemo<Array<{ speaker: string; text: string; side: "a" | "b"; round: number }>>(() => {
