@@ -34,33 +34,28 @@ export function ShareDialog({ open, onClose, kind, targetId, targetLabel }: Prop
     }
   }, [open]);
 
-  const [allProfiles, setAllProfiles] = useState<ProfileRow[]>([]);
-
-  // Load all profiles when dialog opens
+  // Search profiles via ilike as the user types
   useEffect(() => {
-    if (!open) return;
+    if (!open || picked) return;
+    const q = query.trim();
+    const uid = session?.user?.id;
+    let cancelled = false;
     (async () => {
-      const { data } = await supabase
+      let req = supabase
         .from("profiles")
         .select("id, display_name")
         .order("display_name", { ascending: true })
-        .limit(500);
-      const filtered = (data ?? []).filter((r) => r.id !== session?.user?.id);
-      setAllProfiles(filtered as ProfileRow[]);
+        .limit(10);
+      if (q) req = req.ilike("display_name", `%${q}%`);
+      if (uid) req = req.neq("id", uid);
+      console.log("[ShareDialog] querying public.profiles", { query: q, excludeUid: uid });
+      const { data, error } = await req;
+      console.log("[ShareDialog] profiles response", { data, error });
+      if (cancelled) return;
+      setResults((data ?? []) as ProfileRow[]);
     })();
-  }, [open, session?.user?.id]);
-
-  // Filter list locally as the user types
-  useEffect(() => {
-    if (!open || picked) return;
-    const q = query.trim().toLowerCase();
-    if (!q) { setResults(allProfiles); return; }
-    setResults(
-      allProfiles.filter((r) =>
-        (r.display_name ?? "").toLowerCase().includes(q)
-      )
-    );
-  }, [query, open, picked, allProfiles]);
+    return () => { cancelled = true; };
+  }, [query, open, picked, session?.user?.id]);
 
   if (!open) return null;
 
