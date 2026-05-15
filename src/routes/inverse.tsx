@@ -101,15 +101,27 @@ function InversePage() {
         const body = (r.body && typeof r.body === "object" && !Array.isArray(r.body)) ? r.body : {};
         const celeb: string | null = r.inverse_celebrity ?? body.inverse_celebrity ?? r.chef_inspiration ?? null;
         if (!celeb) continue;
+        // Inverse-mode rows are the ones written by generate-inverse-recipes:
+        // they always have session_id === null AND chef_inspiration set, plus
+        // typically body.inverse_celebrity / body.inverse_blurb / body.cameo.
+        // Cookbook recipes have a session_id, so excluding those keeps the
+        // bucket pure without requiring every row to carry the newer fields.
+        const isInverseRow =
+          !!r.inverse_celebrity ||
+          !!body.inverse_celebrity ||
+          !!body.inverse_blurb ||
+          !!body.cameo ||
+          (r.session_id == null && !!r.chef_inspiration);
+        if (!isInverseRow) continue;
         const blurb = r.inverse_blurb ?? body.inverse_blurb ?? body.rationale ?? null;
-        if (!r.inverse_celebrity && !body.inverse_celebrity && !r.inverse_blurb && !body.inverse_blurb) continue;
         const key = celeb.trim();
         const existing = buckets.get(key);
         const enriched = { ...r, body: { ...body, inverse_blurb: blurb } };
         if (!existing) {
-          buckets.set(key, { celebrity: key, blurb: enriched.body.inverse_blurb, recipes: [enriched], lastAt: r.created_at });
+          buckets.set(key, { celebrity: key, blurb, recipes: [enriched], lastAt: r.created_at });
         } else if (existing.recipes.length < 3) {
           existing.recipes.push(enriched);
+          if (!existing.blurb && blurb) existing.blurb = blurb;
         }
       }
       const list = Array.from(buckets.values());
@@ -433,27 +445,36 @@ function PersonaRow({ persona, portrait, bio, loading, onClick }: { persona: Per
         {!portrait && <span className="persona-initial">{initial}</span>}
       </div>
       <div style={{ minWidth: 0, flex: 1, textAlign: "left" }}>
-        <div style={{
-          fontFamily: "var(--font-display)", fontStyle: "italic", fontWeight: 500,
-          fontSize: 22, lineHeight: 1.15, color: "var(--fg)",
-        }}>
-          {persona.celebrity}
+        <div style={{ display: "flex", alignItems: "baseline", gap: 12, flexWrap: "wrap" }}>
+          <div style={{
+            fontFamily: "var(--font-display)", fontStyle: "italic", fontWeight: 500,
+            fontSize: 26, lineHeight: 1.1, color: "var(--fg)",
+          }}>
+            {persona.celebrity}
+          </div>
+          <div style={{
+            fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.2em",
+            textTransform: "uppercase", color: "var(--fg-muted)",
+          }}>
+            {persona.recipes.length} {persona.recipes.length === 1 ? "dish" : "dishes"}
+          </div>
         </div>
         <div style={{
-          marginTop: 6,
+          marginTop: 10,
           fontFamily: "var(--font-body)", fontStyle: "italic",
-          fontSize: 14, lineHeight: 1.5, color: "var(--fg-muted)",
+          fontSize: 15, lineHeight: 1.55, color: "var(--fg-muted)",
           whiteSpace: "pre-wrap",
         }}>
           {blurb}
         </div>
-        <div style={{
-          marginTop: 8,
-          fontFamily: "var(--font-mono)", fontSize: 9, letterSpacing: "0.2em",
-          textTransform: "uppercase", color: "var(--saffron)",
+      </div>
+      <div className="persona-cta" aria-hidden="true">
+        <span style={{
+          fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.2em",
+          textTransform: "uppercase", color: "var(--saffron)", whiteSpace: "nowrap",
         }}>
-          {persona.recipes.length} {persona.recipes.length === 1 ? "dish" : "dishes"} · revisit ↗
-        </div>
+          Revisit menu&nbsp;↗
+        </span>
       </div>
       <style>{`
         .persona-row {
@@ -495,6 +516,20 @@ function PersonaRow({ persona, portrait, bio, loading, onClick }: { persona: Per
         .persona-initial {
           font-family: var(--font-display); font-style: italic; font-weight: 600;
           font-size: 28px; color: var(--saffron);
+        }
+        .persona-cta {
+          align-self: center;
+          padding-left: 12px;
+          flex-shrink: 0;
+          opacity: 0.65;
+          transition: opacity 240ms ease, transform 240ms ease;
+        }
+        .persona-row:hover .persona-cta {
+          opacity: 1;
+          transform: translateX(4px);
+        }
+        @media (max-width: 640px) {
+          .persona-cta { display: none; }
         }
       `}</style>
     </button>
