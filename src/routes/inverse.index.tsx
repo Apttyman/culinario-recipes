@@ -206,6 +206,7 @@ function InverseListPage() {
                 key={p.celebrity}
                 persona={p}
                 portrait={portraitMap[p.celebrity] ?? null}
+                faceBox={faceBoxMap[p.celebrity] ?? null}
                 bio={bioMap[p.celebrity] ?? null}
                 onClick={() => setActive(p)}
               />
