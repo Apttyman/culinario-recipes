@@ -235,7 +235,7 @@ function NewRecipeResults({ celebrity, portrait, faceBox, recipes }: { celebrity
             </span>
           )}
         </div>
-        <div style={{ minWidth: 0 }}>
+        <div style={{ minWidth: 0, flex: 1 }}>
           <div style={eyebrow}>№ 007 — Inverse Mode</div>
           <h1 style={{
             fontFamily: "var(--font-display)", fontWeight: 300, fontStyle: "italic",
@@ -245,6 +245,17 @@ function NewRecipeResults({ celebrity, portrait, faceBox, recipes }: { celebrity
             Three new dishes for {celebrity}.
           </h1>
         </div>
+        {recipes[0]?.inverse_session_id && (
+          <div style={{ flexShrink: 0, alignSelf: "flex-start", marginTop: 4 }}>
+            <ShareButton
+              kind="inverse_set"
+              targetId={recipes[0].inverse_session_id}
+              targetLabel={`Three dishes for ${celebrity}`}
+              label="Share set"
+              variant="pill"
+            />
+          </div>
+        )}
       </div>
       <p style={{
         fontFamily: "var(--font-display)", fontStyle: "italic",
