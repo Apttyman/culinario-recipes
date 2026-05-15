@@ -234,6 +234,7 @@ function DuelsListPage() {
             color: var(--fg);
             transition: transform 240ms ease, box-shadow 240ms ease, border-color 240ms ease;
             overflow: hidden;
+            width: 100%;
           }
           .duel-row::before {
             content: "";
