@@ -400,7 +400,9 @@ function PersonaRow({
   const blurb = bio ?? persona.blurb ?? "Three dishes, in their voice.";
   const cookedCount = persona.recipes.filter((r) => r.cooked_at).length;
   const ratedCount = persona.recipes.filter((r) => r.rating != null).length;
+  const sessionId = persona.recipes[0]?.inverse_session_id ?? null;
   return (
+    <div style={{ position: "relative" }}>
     <button type="button" onClick={onClick} className="persona-row">
       <div
         aria-hidden="true"
