@@ -27,24 +27,28 @@ type PersonaSummary = {
   lastAt: string | null;
 };
 
-// Best-effort persona portrait fetch via Wikipedia REST summary endpoint.
-// Mirrors the "celeb image" lookup used by duel mode (Wikipedia thumbnail).
-const portraitCache = new Map<string, string | null>();
-async function fetchPersonaPortrait(name: string): Promise<string | null> {
-  if (portraitCache.has(name)) return portraitCache.get(name) ?? null;
+// Best-effort persona portrait + biographical extract fetch via Wikipedia REST.
+// Mirrors the "celeb image" lookup used by duel mode (Wikipedia thumbnail),
+// and also pulls the article's `extract` field for a biographical blurb.
+const infoCache = new Map<string, { portrait: string | null; bio: string | null }>();
+async function fetchPersonaInfo(name: string): Promise<{ portrait: string | null; bio: string | null }> {
+  if (infoCache.has(name)) return infoCache.get(name)!;
+  const empty = { portrait: null, bio: null };
   try {
     const slug = encodeURIComponent(name.trim().replace(/\s+/g, "_"));
     const r = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${slug}`, {
       headers: { Accept: "application/json" },
     });
-    if (!r.ok) { portraitCache.set(name, null); return null; }
+    if (!r.ok) { infoCache.set(name, empty); return empty; }
     const j = await r.json();
-    const url: string | null = j?.thumbnail?.source ?? j?.originalimage?.source ?? null;
-    portraitCache.set(name, url);
-    return url;
+    const portrait: string | null = j?.thumbnail?.source ?? j?.originalimage?.source ?? null;
+    const bio: string | null = (typeof j?.extract === "string" && j.extract.trim().length > 0) ? j.extract.trim() : null;
+    const info = { portrait, bio };
+    infoCache.set(name, info);
+    return info;
   } catch {
-    portraitCache.set(name, null);
-    return null;
+    infoCache.set(name, empty);
+    return empty;
   }
 }
 
@@ -57,6 +61,7 @@ function InversePage() {
   const [results, setResults] = useState<{ celebrity: string; recipes: any[] } | null>(null);
   const [personas, setPersonas] = useState<PersonaSummary[] | null>(null);
   const [portraitMap, setPortraitMap] = useState<Record<string, string | null>>({});
+  const [bioMap, setBioMap] = useState<Record<string, string | null>>({});
   const [loadingPersona, setLoadingPersona] = useState<string | null>(null);
   const [phraseIdx, setPhraseIdx] = useState(0);
   const phrases = useMemo(() => [
@@ -109,11 +114,12 @@ function InversePage() {
       }
       const list = Array.from(buckets.values());
       setPersonas(list);
-      // Fan out portrait fetches.
+      // Fan out portrait + bio fetches.
       list.forEach(async (p) => {
-        const url = await fetchPersonaPortrait(p.celebrity);
+        const info = await fetchPersonaInfo(p.celebrity);
         if (cancelled) return;
-        setPortraitMap((m) => ({ ...m, [p.celebrity]: url }));
+        setPortraitMap((m) => ({ ...m, [p.celebrity]: info.portrait }));
+        setBioMap((m) => ({ ...m, [p.celebrity]: info.bio }));
       });
     })();
     return () => { cancelled = true; };
@@ -184,147 +190,232 @@ function InversePage() {
     }
   };
 
+  const activeCeleb = results?.celebrity ?? null;
+  useEffect(() => {
+    if (!activeCeleb) return;
+    if (portraitMap[activeCeleb] !== undefined && bioMap[activeCeleb] !== undefined) return;
+    let cancelled = false;
+    (async () => {
+      const info = await fetchPersonaInfo(activeCeleb);
+      if (cancelled) return;
+      setPortraitMap((m) => ({ ...m, [activeCeleb]: info.portrait }));
+      setBioMap((m) => ({ ...m, [activeCeleb]: info.bio }));
+    })();
+    return () => { cancelled = true; };
+  }, [activeCeleb, portraitMap, bioMap]);
+
   return (
     <div style={{ minHeight: "100vh", background: "var(--bg)", color: "var(--fg)" }}>
       <AppHeader />
       <main className="culinario-page" style={{ paddingTop: 64, paddingBottom: 240 }}>
-        <div style={eyebrow}>№ 007 — Inverse Mode</div>
-        <h1 style={{
-          fontFamily: "var(--font-display)", fontWeight: 300, fontStyle: "italic",
-          fontSize: "clamp(48px, 7vw, 80px)", lineHeight: 1.05,
-          letterSpacing: "-0.02em", margin: "16px 0 12px",
-        }}>
-          Cook as someone else.
-        </h1>
-        <p style={{
-          fontFamily: "var(--font-display)", fontStyle: "italic",
-          fontSize: 20, color: "var(--fg-muted)", margin: 0, maxWidth: 560,
-        }}>
-          Name anyone — a chef, an artist, a dead poet, your grandmother, a fictional detective.
-          We'll imagine the three dishes they would choose, in their voice, with a memoir blurb on each.
-        </p>
-
-        {personas && personas.length > 0 && (
+        {results ? (
+          <PersonaResultsView
+            celebrity={results.celebrity}
+            recipes={results.recipes}
+            portrait={portraitMap[results.celebrity] ?? null}
+            bio={bioMap[results.celebrity] ?? null}
+            onBack={() => setResults(null)}
+          />
+        ) : (
           <>
+            <div style={eyebrow}>№ 007 — Inverse Mode</div>
+            <h1 style={{
+              fontFamily: "var(--font-display)", fontWeight: 300, fontStyle: "italic",
+              fontSize: "clamp(48px, 7vw, 80px)", lineHeight: 1.05,
+              letterSpacing: "-0.02em", margin: "16px 0 12px",
+            }}>
+              Cook as someone else.
+            </h1>
+            <p style={{
+              fontFamily: "var(--font-display)", fontStyle: "italic",
+              fontSize: 20, color: "var(--fg-muted)", margin: 0, maxWidth: 560,
+            }}>
+              Name anyone — a chef, an artist, a dead poet, your grandmother, a fictional detective.
+              We'll imagine the three dishes they would choose, in their voice, with a memoir blurb on each.
+            </p>
+
+            {personas && personas.length > 0 && (
+              <>
+                <hr style={hairline} />
+                <div style={eyebrow}>Past personas — tap to revisit</div>
+                <div style={{ marginTop: 20, display: "flex", flexDirection: "column", gap: 16 }}>
+                  {personas.map((p) => (
+                    <PersonaRow
+                      key={p.celebrity}
+                      persona={p}
+                      portrait={portraitMap[p.celebrity] ?? null}
+                      bio={bioMap[p.celebrity] ?? null}
+                      loading={loadingPersona === p.celebrity}
+                      onClick={() => openPersona(p)}
+                    />
+                  ))}
+                </div>
+              </>
+            )}
+
             <hr style={hairline} />
-            <div style={eyebrow}>Past personas — tap to revisit</div>
-            <div style={{ marginTop: 20, display: "flex", flexDirection: "column", gap: 16 }}>
-              {personas.map((p) => (
-                <PersonaRow
-                  key={p.celebrity}
-                  persona={p}
-                  portrait={portraitMap[p.celebrity] ?? null}
-                  loading={loadingPersona === p.celebrity}
-                  onClick={() => openPersona(p)}
-                />
-              ))}
+
+            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+              <label style={eyebrow}>The Person</label>
+              <input
+                type="text"
+                value={celebrity}
+                onChange={(e) => setCelebrity(e.target.value)}
+                onKeyDown={(e) => { if (e.key === "Enter") conjure(); }}
+                placeholder="e.g. Anthony Bourdain, Hannibal Lecter, my dad"
+                disabled={conjuring}
+                style={{
+                  width: "100%", background: "transparent", color: "var(--fg)",
+                  border: 0, borderBottom: "1px solid var(--hairline)",
+                  fontFamily: "var(--font-display)", fontStyle: "italic",
+                  fontSize: "clamp(18px, 5vw, 28px)", padding: "8px 0", outline: "none",
+                  minWidth: 0, maxWidth: "100%", boxSizing: "border-box",
+                }}
+              />
+              <div>
+                <button
+                  type="button"
+                  onClick={conjure}
+                  disabled={!celebrity.trim() || conjuring}
+                  style={{
+                    fontFamily: "var(--font-body)", fontWeight: 600, fontSize: 12,
+                    textTransform: "uppercase", letterSpacing: "0.2em",
+                    color: !celebrity.trim() || conjuring ? "var(--fg-low)" : "var(--saffron)",
+                    background: "transparent",
+                    border: "1px solid",
+                    borderColor: !celebrity.trim() || conjuring ? "var(--hairline)" : "var(--saffron)",
+                    cursor: !celebrity.trim() || conjuring ? "not-allowed" : "pointer",
+                    padding: "14px 22px",
+                    minHeight: 48,
+                    borderRadius: 0,
+                    position: "relative",
+                    zIndex: 1,
+                  }}
+                >
+                  {conjuring ? "Conjuring three dishes…" : "Conjure their menu ↗"}
+                </button>
+              </div>
+              {error && (
+                <div style={{ ...eyebrow, color: "var(--saffron)" }}>{error}</div>
+              )}
             </div>
           </>
-        )}
-
-        <hr style={hairline} />
-
-        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-          <label style={eyebrow}>The Person</label>
-          <input
-            type="text"
-            value={celebrity}
-            onChange={(e) => setCelebrity(e.target.value)}
-            onKeyDown={(e) => { if (e.key === "Enter") conjure(); }}
-            placeholder="e.g. Anthony Bourdain, Hannibal Lecter, my dad"
-            disabled={conjuring}
-            style={{
-              width: "100%", background: "transparent", color: "var(--fg)",
-              border: 0, borderBottom: "1px solid var(--hairline)",
-              fontFamily: "var(--font-display)", fontStyle: "italic",
-              fontSize: "clamp(18px, 5vw, 28px)", padding: "8px 0", outline: "none",
-              minWidth: 0, maxWidth: "100%", boxSizing: "border-box",
-            }}
-          />
-          <div>
-            <button
-              type="button"
-              onClick={conjure}
-              disabled={!celebrity.trim() || conjuring}
-              style={{
-                fontFamily: "var(--font-body)", fontWeight: 600, fontSize: 12,
-                textTransform: "uppercase", letterSpacing: "0.2em",
-                color: !celebrity.trim() || conjuring ? "var(--fg-low)" : "var(--saffron)",
-                background: "transparent",
-                border: "1px solid",
-                borderColor: !celebrity.trim() || conjuring ? "var(--hairline)" : "var(--saffron)",
-                cursor: !celebrity.trim() || conjuring ? "not-allowed" : "pointer",
-                padding: "14px 22px",
-                minHeight: 48,
-                borderRadius: 0,
-                position: "relative",
-                zIndex: 1,
-              }}
-            >
-              {conjuring ? "Conjuring three dishes…" : results ? "Reconjure their menu ↗" : "Conjure their menu ↗"}
-            </button>
-          </div>
-          {error && (
-            <div style={{ ...eyebrow, color: "var(--saffron)" }}>{error}</div>
-          )}
-        </div>
-
-        {results && (
-          <div id="inverse-results">
-            <hr style={hairline} />
-            <div style={eyebrow}>Three dishes for {results.celebrity}</div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 32, marginTop: 24 }}>
-              {results.recipes.map((r: any) => (
-                <Link
-                  key={r.id}
-                  to="/recipes/$id"
-                  params={{ id: r.id }}
-                  style={{ textDecoration: "none", color: "inherit", display: "block" }}
-                >
-                  <div style={{ borderTop: "1px solid var(--hairline)", paddingTop: 24 }}>
-                    <div style={eyebrow}>
-                      {(r.cuisine ?? "").toUpperCase()} · {r.time_estimate_minutes ?? "—"} MIN · {(r.difficulty ?? "").toUpperCase()}
-                    </div>
-                    <h2 style={{
-                      fontFamily: "var(--font-display)", fontWeight: 300, fontStyle: "italic",
-                      fontSize: "clamp(28px, 4vw, 40px)", lineHeight: 1.1,
-                      margin: "12px 0 12px", color: "var(--fg)",
-                    }}>
-                      {r.title}
-                    </h2>
-                    {r.body?.inverse_blurb && (
-                      <p style={{
-                        fontFamily: "var(--font-body)", fontStyle: "italic",
-                        fontSize: 17, lineHeight: 1.55, color: "var(--fg-muted)",
-                        margin: 0, maxWidth: 640,
-                      }}>
-                        "{r.body.inverse_blurb}"
-                      </p>
-                    )}
-                    <div style={{
-                      marginTop: 12,
-                      fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.2em",
-                      textTransform: "uppercase", color: "var(--saffron)",
-                    }}>
-                      Open recipe ↗
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </div>
         )}
       </main>
 
       {conjuring && <ConjuringOverlay name={celebrity.trim()} phrase={phrases[phraseIdx]} />}
-      
+
     </div>
   );
 }
 
-function PersonaRow({ persona, portrait, loading, onClick }: { persona: PersonaSummary; portrait: string | null; loading: boolean; onClick: () => void }) {
+function PersonaResultsView({
+  celebrity, recipes, portrait, bio, onBack,
+}: {
+  celebrity: string;
+  recipes: any[];
+  portrait: string | null;
+  bio: string | null;
+  onBack: () => void;
+}) {
+  const initial = (celebrity[0] ?? "?").toUpperCase();
+  return (
+    <div>
+      <button
+        type="button"
+        onClick={onBack}
+        style={{
+          background: "transparent", border: 0, padding: 0, cursor: "pointer",
+          fontFamily: "var(--font-mono)", fontSize: 11, letterSpacing: "0.2em",
+          textTransform: "uppercase", color: "var(--fg-muted)",
+          marginBottom: 28,
+        }}
+      >
+        ← All personas
+      </button>
+
+      <div style={{ display: "flex", alignItems: "center", gap: 24, flexWrap: "wrap" }}>
+        <div
+          aria-hidden="true"
+          className="persona-portrait"
+          style={{
+            width: 120, height: 120,
+            backgroundImage: portrait ? `url(${portrait})` : undefined,
+          }}
+        >
+          {!portrait && <span className="persona-initial" style={{ fontSize: 48 }}>{initial}</span>}
+        </div>
+        <div style={{ minWidth: 0, flex: 1 }}>
+          <div style={eyebrow}>№ 007 — Inverse Mode</div>
+          <h1 style={{
+            fontFamily: "var(--font-display)", fontWeight: 300, fontStyle: "italic",
+            fontSize: "clamp(40px, 6vw, 64px)", lineHeight: 1.05,
+            letterSpacing: "-0.02em", margin: "10px 0 0",
+          }}>
+            {celebrity}
+          </h1>
+        </div>
+      </div>
+
+      {bio && (
+        <p style={{
+          marginTop: 24,
+          fontFamily: "var(--font-body)", fontStyle: "italic",
+          fontSize: 17, lineHeight: 1.55, color: "var(--fg-muted)",
+          maxWidth: 720, whiteSpace: "pre-wrap",
+        }}>
+          {bio}
+        </p>
+      )}
+
+      <hr style={hairline} />
+      <div style={eyebrow}>Three dishes for {celebrity}</div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 32, marginTop: 24 }}>
+        {recipes.map((r: any) => (
+          <Link
+            key={r.id}
+            to="/recipes/$id"
+            params={{ id: r.id }}
+            style={{ textDecoration: "none", color: "inherit", display: "block" }}
+          >
+            <div style={{ borderTop: "1px solid var(--hairline)", paddingTop: 24 }}>
+              <div style={eyebrow}>
+                {(r.cuisine ?? "").toUpperCase()} · {r.time_estimate_minutes ?? "—"} MIN · {(r.difficulty ?? "").toUpperCase()}
+              </div>
+              <h2 style={{
+                fontFamily: "var(--font-display)", fontWeight: 300, fontStyle: "italic",
+                fontSize: "clamp(28px, 4vw, 40px)", lineHeight: 1.1,
+                margin: "12px 0 12px", color: "var(--fg)",
+              }}>
+                {r.title}
+              </h2>
+              {r.body?.inverse_blurb && (
+                <p style={{
+                  fontFamily: "var(--font-body)", fontStyle: "italic",
+                  fontSize: 17, lineHeight: 1.55, color: "var(--fg-muted)",
+                  margin: 0, maxWidth: 640,
+                }}>
+                  "{r.body.inverse_blurb}"
+                </p>
+              )}
+              <div style={{
+                marginTop: 12,
+                fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.2em",
+                textTransform: "uppercase", color: "var(--saffron)",
+              }}>
+                Open recipe ↗
+              </div>
+            </div>
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function PersonaRow({ persona, portrait, bio, loading, onClick }: { persona: PersonaSummary; portrait: string | null; bio: string | null; loading: boolean; onClick: () => void }) {
   const initial = (persona.celebrity[0] ?? "?").toUpperCase();
-  const blurb = persona.blurb ?? "Three dishes, in their voice.";
+  const blurb = bio ?? persona.blurb ?? "Three dishes, in their voice.";
   return (
     <button
       type="button"
@@ -345,18 +436,16 @@ function PersonaRow({ persona, portrait, loading, onClick }: { persona: PersonaS
         <div style={{
           fontFamily: "var(--font-display)", fontStyle: "italic", fontWeight: 500,
           fontSize: 22, lineHeight: 1.15, color: "var(--fg)",
-          overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
         }}>
           {persona.celebrity}
         </div>
         <div style={{
           marginTop: 6,
           fontFamily: "var(--font-body)", fontStyle: "italic",
-          fontSize: 14, lineHeight: 1.45, color: "var(--fg-muted)",
-          display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical",
-          overflow: "hidden",
+          fontSize: 14, lineHeight: 1.5, color: "var(--fg-muted)",
+          whiteSpace: "pre-wrap",
         }}>
-          "{blurb}"
+          {blurb}
         </div>
         <div style={{
           marginTop: 8,
@@ -369,9 +458,9 @@ function PersonaRow({ persona, portrait, loading, onClick }: { persona: PersonaS
       <style>{`
         .persona-row {
           position: relative;
-          display: flex; align-items: center; gap: 18px;
-          padding: 16px 22px;
-          border-radius: 9999px;
+          display: flex; align-items: flex-start; gap: 18px;
+          padding: 18px 22px;
+          border-radius: 24px;
           border: 1px solid color-mix(in oklab, var(--fg) 12%, transparent);
           background: color-mix(in oklab, var(--surface-elev) 50%, transparent);
           backdrop-filter: blur(22px) saturate(160%);
