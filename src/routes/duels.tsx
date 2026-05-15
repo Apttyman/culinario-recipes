@@ -4,6 +4,7 @@ import { useAuth } from "@/lib/auth-context";
 import { supabase } from "@/lib/supabase-client";
 import { AppHeader } from "@/components/AppHeader";
 import { ShareButton } from "@/components/share/ShareButton";
+import { toCelebrityKey } from "@/lib/celebrity-key";
 
 export const Route = createFileRoute("/duels")({
   head: () => ({
