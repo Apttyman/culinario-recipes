@@ -194,17 +194,40 @@ function InverseNewPage() {
   );
 }
 
-function NewRecipeResults({ celebrity, recipes }: { celebrity: string; recipes: GeneratedRecipe[] }) {
+function NewRecipeResults({ celebrity, portrait, recipes }: { celebrity: string; portrait: string | null; recipes: GeneratedRecipe[] }) {
+  const initial = (celebrity[0] ?? "?").toUpperCase();
   return (
     <div>
-      <div style={eyebrow}>№ 007 — Inverse Mode</div>
-      <h1 style={{
-        fontFamily: "var(--font-display)", fontWeight: 300, fontStyle: "italic",
-        fontSize: "clamp(40px, 6vw, 64px)", lineHeight: 1.05,
-        letterSpacing: "-0.02em", margin: "12px 0 12px",
-      }}>
-        Three new dishes for {celebrity}.
-      </h1>
+      <div style={{ display: "flex", alignItems: "center", gap: 20, marginBottom: 20 }}>
+        <div
+          aria-hidden="true"
+          style={{
+            width: 96, height: 96, borderRadius: "50%", flexShrink: 0,
+            backgroundImage: portrait ? `url(${portrait})` : undefined,
+            backgroundColor: "color-mix(in oklab, var(--saffron) 18%, var(--surface-elev))",
+            backgroundPosition: "center 22%", backgroundSize: "cover", backgroundRepeat: "no-repeat",
+            border: "2px solid color-mix(in oklab, var(--saffron) 65%, transparent)",
+            boxShadow: "0 0 0 4px color-mix(in oklab, var(--saffron) 14%, transparent), 0 8px 24px -8px color-mix(in oklab, var(--saffron) 55%, transparent)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+          }}
+        >
+          {!portrait && (
+            <span style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontWeight: 600, fontSize: 40, color: "var(--saffron)" }}>
+              {initial}
+            </span>
+          )}
+        </div>
+        <div style={{ minWidth: 0 }}>
+          <div style={eyebrow}>№ 007 — Inverse Mode</div>
+          <h1 style={{
+            fontFamily: "var(--font-display)", fontWeight: 300, fontStyle: "italic",
+            fontSize: "clamp(40px, 6vw, 64px)", lineHeight: 1.05,
+            letterSpacing: "-0.02em", margin: "8px 0 0",
+          }}>
+            Three new dishes for {celebrity}.
+          </h1>
+        </div>
+      </div>
       <p style={{
         fontFamily: "var(--font-display)", fontStyle: "italic",
         fontSize: 18, color: "var(--fg-muted)", margin: "0 0 32px", maxWidth: 560,
