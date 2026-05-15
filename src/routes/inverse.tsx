@@ -61,6 +61,7 @@ function InversePage() {
   const [results, setResults] = useState<{ celebrity: string; recipes: any[] } | null>(null);
   const [personas, setPersonas] = useState<PersonaSummary[] | null>(null);
   const [portraitMap, setPortraitMap] = useState<Record<string, string | null>>({});
+  const [bioMap, setBioMap] = useState<Record<string, string | null>>({});
   const [loadingPersona, setLoadingPersona] = useState<string | null>(null);
   const [phraseIdx, setPhraseIdx] = useState(0);
   const phrases = useMemo(() => [
