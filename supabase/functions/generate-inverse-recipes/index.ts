@@ -102,9 +102,10 @@ The "blurb" is the soul of inverse mode — make it sing. Concrete, specific, in
     }
     if (!Array.isArray(parsed)) throw new Error("expected array");
     const recipes = parsed.filter((r: any) => r && typeof r === "object").slice(0, 3);
-    if (recipes.length === 0) throw new Error("AI returned zero recipes");
+    if (recipes.length !== 3) throw new Error(`AI returned ${recipes.length} recipes instead of 3`);
 
     const inserted: string[] = [];
+    const inverseGenerationId = crypto.randomUUID();
     for (let i = 0; i < recipes.length; i++) {
       const r = recipes[i];
       const { data: row, error: insErr } = await userClient.from("recipes").insert({
@@ -118,6 +119,7 @@ The "blurb" is the soul of inverse mode — make it sing. Concrete, specific, in
           inverse_blurb: r.blurb ?? null,
           cameo: r.voice_cameo ?? null,
           inverse_celebrity: celeb,
+          inverse_generation_id: inverseGenerationId,
         },
         position: i + 1,
         chef_inspiration: celeb,
@@ -138,7 +140,7 @@ The "blurb" is the soul of inverse mode — make it sing. Concrete, specific, in
       }
     }
 
-    return new Response(JSON.stringify({ recipe_ids: inserted, celebrity: celeb }), {
+    return new Response(JSON.stringify({ recipe_ids: inserted, celebrity: celeb, inverse_generation_id: inverseGenerationId }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e: any) {
