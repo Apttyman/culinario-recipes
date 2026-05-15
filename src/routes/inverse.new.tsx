@@ -147,7 +147,7 @@ function InverseNewPage() {
         </button>
 
         {recipes ? (
-          <NewRecipeResults celebrity={generatedCelebrity} portrait={generatedPortrait} faceBox={generatedFaceBox} recipes={recipes} />
+          <NewRecipeResults celebrity={generatedCelebrity} portrait={generatedPortrait} faceBox={generatedFaceBox} blurb={generatedBlurb} recipes={recipes} />
         ) : (
           <>
 
