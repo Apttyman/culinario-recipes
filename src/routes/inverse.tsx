@@ -413,9 +413,9 @@ function PersonaResultsView({
   );
 }
 
-function PersonaRow({ persona, portrait, loading, onClick }: { persona: PersonaSummary; portrait: string | null; loading: boolean; onClick: () => void }) {
+function PersonaRow({ persona, portrait, bio, loading, onClick }: { persona: PersonaSummary; portrait: string | null; bio: string | null; loading: boolean; onClick: () => void }) {
   const initial = (persona.celebrity[0] ?? "?").toUpperCase();
-  const blurb = persona.blurb ?? "Three dishes, in their voice.";
+  const blurb = bio ?? persona.blurb ?? "Three dishes, in their voice.";
   return (
     <button
       type="button"
@@ -436,18 +436,16 @@ function PersonaRow({ persona, portrait, loading, onClick }: { persona: PersonaS
         <div style={{
           fontFamily: "var(--font-display)", fontStyle: "italic", fontWeight: 500,
           fontSize: 22, lineHeight: 1.15, color: "var(--fg)",
-          overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
         }}>
           {persona.celebrity}
         </div>
         <div style={{
           marginTop: 6,
           fontFamily: "var(--font-body)", fontStyle: "italic",
-          fontSize: 14, lineHeight: 1.45, color: "var(--fg-muted)",
-          display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical",
-          overflow: "hidden",
+          fontSize: 14, lineHeight: 1.5, color: "var(--fg-muted)",
+          whiteSpace: "pre-wrap",
         }}>
-          "{blurb}"
+          {blurb}
         </div>
         <div style={{
           marginTop: 8,
