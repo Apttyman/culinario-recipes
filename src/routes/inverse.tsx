@@ -101,15 +101,27 @@ function InversePage() {
         const body = (r.body && typeof r.body === "object" && !Array.isArray(r.body)) ? r.body : {};
         const celeb: string | null = r.inverse_celebrity ?? body.inverse_celebrity ?? r.chef_inspiration ?? null;
         if (!celeb) continue;
+        // Inverse-mode rows are the ones written by generate-inverse-recipes:
+        // they always have session_id === null AND chef_inspiration set, plus
+        // typically body.inverse_celebrity / body.inverse_blurb / body.cameo.
+        // Cookbook recipes have a session_id, so excluding those keeps the
+        // bucket pure without requiring every row to carry the newer fields.
+        const isInverseRow =
+          !!r.inverse_celebrity ||
+          !!body.inverse_celebrity ||
+          !!body.inverse_blurb ||
+          !!body.cameo ||
+          (r.session_id == null && !!r.chef_inspiration);
+        if (!isInverseRow) continue;
         const blurb = r.inverse_blurb ?? body.inverse_blurb ?? body.rationale ?? null;
-        if (!r.inverse_celebrity && !body.inverse_celebrity && !r.inverse_blurb && !body.inverse_blurb) continue;
         const key = celeb.trim();
         const existing = buckets.get(key);
         const enriched = { ...r, body: { ...body, inverse_blurb: blurb } };
         if (!existing) {
-          buckets.set(key, { celebrity: key, blurb: enriched.body.inverse_blurb, recipes: [enriched], lastAt: r.created_at });
+          buckets.set(key, { celebrity: key, blurb, recipes: [enriched], lastAt: r.created_at });
         } else if (existing.recipes.length < 3) {
           existing.recipes.push(enriched);
+          if (!existing.blurb && blurb) existing.blurb = blurb;
         }
       }
       const list = Array.from(buckets.values());
