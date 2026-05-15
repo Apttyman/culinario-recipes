@@ -40,6 +40,7 @@ function InverseNewPage() {
   const [generatedCelebrity, setGeneratedCelebrity] = useState("");
   const [generatedPortrait, setGeneratedPortrait] = useState<string | null>(null);
   const [generatedFaceBox, setGeneratedFaceBox] = useState<FaceBox>(null);
+  const [generatedBlurb, setGeneratedBlurb] = useState<string | null>(null);
   const [recipes, setRecipes] = useState<GeneratedRecipe[] | null>(null);
   const [conjuring, setConjuring] = useState(false);
   const [error, setError] = useState<string | null>(null);
