@@ -102,10 +102,18 @@ function InverseListPage() {
       const portraitByKey = new Map<string, string | null>();
       const faceByKey = new Map<string, FaceBox>();
       const bioByKey = new Map<string, string | null>();
+      const clean = (v: any): string | null => {
+        if (typeof v !== "string") return null;
+        const s = v.trim();
+        return s.length ? s : null;
+      };
       for (const row of (personaRows ?? []) as any[]) {
         portraitByKey.set(row.celebrity_key, row.portrait_url ?? null);
         faceByKey.set(row.celebrity_key, parseFaceBox(row.portrait_face_box));
-        bioByKey.set(row.celebrity_key, row.persona_blurb ?? row.disambiguator ?? null);
+        const pb = clean(row.persona_blurb);
+        const dis = clean(row.disambiguator);
+        console.log(`[inverse] bio for ${row.celebrity_key}: persona_blurb=${pb ? "✓" : "∅"} disambiguator=${dis ? "✓" : "∅"}`);
+        bioByKey.set(row.celebrity_key, pb ?? dis ?? null);
       }
       const nextPortraits: Record<string, string | null> = {};
       const nextFaces: Record<string, FaceBox> = {};
