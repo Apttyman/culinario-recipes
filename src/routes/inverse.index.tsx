@@ -494,5 +494,19 @@ function PersonaRow({
         @media (max-width: 640px) { .persona-cta { display: none; } }
       `}</style>
     </button>
+    {sessionId && (
+      <div
+        style={{ position: "absolute", top: 12, right: 12, zIndex: 2 }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <ShareButton
+          kind="inverse_set"
+          targetId={sessionId}
+          targetLabel={`${persona.celebrity}'s menu`}
+          variant="icon"
+        />
+      </div>
+    )}
+    </div>
   );
 }
