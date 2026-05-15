@@ -411,6 +411,8 @@ function PersonaRow({ persona, portrait, loading, onClick }: { persona: PersonaS
     </button>
   );
 }
+
+function ConjuringOverlay({ name, phrase }: { name: string; phrase: string }) {
   return (
     <div
       aria-live="polite"
