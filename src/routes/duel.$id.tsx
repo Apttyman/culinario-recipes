@@ -59,7 +59,7 @@ function getFaceCropStyle(faceBox: FaceBox, avatarSize = 96): React.CSSPropertie
   };
 }
 
-function Avatar({ src, alt, size = 96, ring = false, zoom = true, faceBox }: { src: string | null; alt: string; size?: number; ring?: boolean; zoom?: boolean; faceBox?: FaceBox }) {
+function Avatar({ src, alt, size = 96, ring = false, zoom = true, faceBox }: { src: string | null | undefined; alt: string; size?: number; ring?: boolean; zoom?: boolean; faceBox?: FaceBox }) {
   const baseCrop: React.CSSProperties = faceBox
     ? getFaceCropStyle(faceBox, size)
     : {
