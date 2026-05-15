@@ -1,24 +1,21 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { createFileRoute, Link, useNavigate, useSearch } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { supabase } from "@/lib/supabase-client";
 import { AppHeader } from "@/components/AppHeader";
 
 export const Route = createFileRoute("/inverse")({
+  validateSearch: (s: Record<string, unknown>) => ({
+    open: typeof s.open === "string" ? s.open : undefined,
+  }),
   head: () => ({
     meta: [
       { title: "Inverse Mode — Culinario" },
-      { name: "description", content: "Pick anyone — real, fictional, dead, alive — and see the three recipes they would choose." },
+      { name: "description", content: "Every persona you've cooked as — replayable." },
     ],
   }),
-  component: InversePage,
+  component: InverseListPage,
 });
-
-const eyebrow: React.CSSProperties = {
-  fontFamily: "var(--font-mono)", fontSize: 11, letterSpacing: "0.2em",
-  textTransform: "uppercase", color: "var(--fg-muted)",
-};
-const hairline: React.CSSProperties = { border: 0, height: 1, background: "var(--hairline)", margin: "32px 0" };
 
 type PersonaSummary = {
   celebrity: string;
@@ -27,18 +24,19 @@ type PersonaSummary = {
   lastAt: string | null;
 };
 
-// Best-effort persona portrait + biographical extract fetch via Wikipedia REST.
-// Mirrors the "celeb image" lookup used by duel mode (Wikipedia thumbnail),
-// and also pulls the article's `extract` field for a biographical blurb.
+const eyebrow: React.CSSProperties = {
+  fontFamily: "var(--font-mono)", fontSize: 11, letterSpacing: "0.2em",
+  textTransform: "uppercase", color: "var(--fg-muted)",
+};
+const hairline: React.CSSProperties = { border: 0, height: 1, background: "var(--hairline)", margin: "32px 0" };
+
 const infoCache = new Map<string, { portrait: string | null; bio: string | null }>();
 async function fetchPersonaInfo(name: string): Promise<{ portrait: string | null; bio: string | null }> {
   if (infoCache.has(name)) return infoCache.get(name)!;
   const empty = { portrait: null, bio: null };
   try {
     const slug = encodeURIComponent(name.trim().replace(/\s+/g, "_"));
-    const r = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${slug}`, {
-      headers: { Accept: "application/json" },
-    });
+    const r = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${slug}`, { headers: { Accept: "application/json" } });
     if (!r.ok) { infoCache.set(name, empty); return empty; }
     const j = await r.json();
     const portrait: string | null = j?.thumbnail?.source ?? j?.originalimage?.source ?? null;
@@ -52,66 +50,41 @@ async function fetchPersonaInfo(name: string): Promise<{ portrait: string | null
   }
 }
 
-function InversePage() {
+function InverseListPage() {
   const { session, loading } = useAuth();
   const navigate = useNavigate();
-  const [celebrity, setCelebrity] = useState("");
-  const [conjuring, setConjuring] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [results, setResults] = useState<{ celebrity: string; recipes: any[] } | null>(null);
+  const search = useSearch({ from: "/inverse" });
   const [personas, setPersonas] = useState<PersonaSummary[] | null>(null);
   const [portraitMap, setPortraitMap] = useState<Record<string, string | null>>({});
   const [bioMap, setBioMap] = useState<Record<string, string | null>>({});
-  const [loadingPersona, setLoadingPersona] = useState<string | null>(null);
-  const [phraseIdx, setPhraseIdx] = useState(0);
-  const phrases = useMemo(() => [
-    "Lighting the candles…",
-    "Borrowing their palate…",
-    "Whispering to the pantry…",
-    "Plating in their voice…",
-    "Reducing the memory…",
-    "Setting three places…",
-  ], []);
-
-  useEffect(() => {
-    if (!conjuring) { setPhraseIdx(0); return; }
-    const id = setInterval(() => setPhraseIdx((i) => (i + 1) % phrases.length), 1400);
-    return () => clearInterval(id);
-  }, [conjuring, phrases.length]);
+  const [active, setActive] = useState<PersonaSummary | null>(null);
+  const [err, setErr] = useState<string | null>(null);
 
   useEffect(() => {
     if (loading) return;
     if (!session) navigate({ to: "/sign-in" });
   }, [session, loading, navigate]);
 
-  // Load past inverse personas (grouped by celebrity from the recipes table).
   useEffect(() => {
     if (!session?.user) return;
     let cancelled = false;
     (async () => {
-      const { data: rows } = await supabase
+      const { data: rows, error } = await supabase
         .from("recipes")
         .select("*")
         .eq("user_id", session.user.id)
         .order("created_at", { ascending: false })
         .limit(250);
       if (cancelled) return;
+      if (error) { setErr(error.message); return; }
       const buckets = new Map<string, PersonaSummary>();
       for (const r of (rows ?? []) as any[]) {
         const body = (r.body && typeof r.body === "object" && !Array.isArray(r.body)) ? r.body : {};
         const celeb: string | null = r.inverse_celebrity ?? body.inverse_celebrity ?? r.chef_inspiration ?? null;
         if (!celeb) continue;
-        // Inverse-mode rows are the ones written by generate-inverse-recipes:
-        // they always have session_id === null AND chef_inspiration set, plus
-        // typically body.inverse_celebrity / body.inverse_blurb / body.cameo.
-        // Cookbook recipes have a session_id, so excluding those keeps the
-        // bucket pure without requiring every row to carry the newer fields.
         const isInverseRow =
-          !!r.inverse_celebrity ||
-          !!body.inverse_celebrity ||
-          !!body.inverse_blurb ||
-          !!body.cameo ||
-          (r.session_id == null && !!r.chef_inspiration);
+          !!r.inverse_celebrity || !!body.inverse_celebrity || !!body.inverse_blurb ||
+          !!body.cameo || (r.session_id == null && !!r.chef_inspiration);
         if (!isInverseRow) continue;
         const blurb = r.inverse_blurb ?? body.inverse_blurb ?? body.rationale ?? null;
         const key = celeb.trim();
@@ -126,7 +99,6 @@ function InversePage() {
       }
       const list = Array.from(buckets.values());
       setPersonas(list);
-      // Fan out portrait + bio fetches.
       list.forEach(async (p) => {
         const info = await fetchPersonaInfo(p.celebrity);
         if (cancelled) return;
@@ -137,183 +109,156 @@ function InversePage() {
     return () => { cancelled = true; };
   }, [session]);
 
-  const openPersona = (p: PersonaSummary) => {
-    setLoadingPersona(p.celebrity);
-    setResults({ celebrity: p.celebrity, recipes: p.recipes });
-    setLoadingPersona(null);
-    setTimeout(() => {
-      const el = document.getElementById("inverse-results");
-      el?.scrollIntoView({ behavior: "smooth", block: "start" });
-    }, 50);
-  };
-
-  const conjure = async () => {
-    const name = celebrity.trim();
-    if (!name || conjuring) return;
-    setConjuring(true);
-    setError(null);
-    setResults(null);
-    try {
-      const { data, error: fnErr } = await supabase.functions.invoke("generate-inverse-recipes", {
-        body: { celebrity: name },
-      });
-      if (fnErr) {
-        let msg = fnErr.message ?? String(fnErr);
-        try {
-          const ctx: any = (fnErr as any).context;
-          if (ctx && typeof ctx.json === "function") {
-            const body = await ctx.json();
-            if (body?.error) msg = body.error;
-          }
-        } catch { /* ignore */ }
-        throw new Error(msg);
-      }
-      if ((data as any)?.error) throw new Error((data as any).error);
-      const recipesFromFn: any[] = (data as any)?.recipes ?? ((data as any)?.recipe_ids ?? []).map((id: string) => ({ id }));
-      const ids: string[] = recipesFromFn
-        .map((r: any) => r?.id)
-        .filter((id: any): id is string => typeof id === "string" && id.length > 0);
-      if (!ids.length) throw new Error("No recipes returned.");
-      const { data: rows } = await supabase
-        .from("recipes")
-        .select("id,title,cuisine,time_estimate_minutes,difficulty,body,chef_inspiration")
-        .in("id", ids);
-      const ordered = ids
-        .map((id) => {
-          const row: any = (rows ?? []).find((r: any) => r.id === id);
-          const fn: any = recipesFromFn.find((r: any) => r.id === id);
-          if (!row) return null;
-          const baseBody = (row.body && typeof row.body === "object" && !Array.isArray(row.body)) ? row.body : {};
-          return {
-            ...row,
-            body: {
-              ...baseBody,
-              inverse_blurb: baseBody.inverse_blurb ?? fn?.blurb ?? null,
-              inverse_cameo: baseBody.inverse_cameo ?? fn?.cameo ?? null,
-            },
-          };
-        })
-        .filter(Boolean);
-      setResults({ celebrity: name, recipes: ordered });
-    } catch (e: any) {
-      setError(e?.message ?? "Something went sideways.");
-    } finally {
-      setConjuring(false);
-    }
-  };
-
-  const activeCeleb = results?.celebrity ?? null;
+  // Auto-open persona via ?open=name (after conjuring on /inverse/new).
   useEffect(() => {
-    if (!activeCeleb) return;
-    if (portraitMap[activeCeleb] !== undefined && bioMap[activeCeleb] !== undefined) return;
-    let cancelled = false;
-    (async () => {
-      const info = await fetchPersonaInfo(activeCeleb);
-      if (cancelled) return;
-      setPortraitMap((m) => ({ ...m, [activeCeleb]: info.portrait }));
-      setBioMap((m) => ({ ...m, [activeCeleb]: info.bio }));
-    })();
-    return () => { cancelled = true; };
-  }, [activeCeleb, portraitMap, bioMap]);
+    if (!search.open || !personas) return;
+    const match = personas.find((p) => p.celebrity.toLowerCase() === search.open!.toLowerCase());
+    if (match) {
+      setActive(match);
+      navigate({ to: "/inverse", search: {} as any, replace: true });
+    }
+  }, [search.open, personas, navigate]);
+
+  if (active) {
+    return (
+      <div style={{ minHeight: "100vh", background: "var(--bg)", color: "var(--fg)" }}>
+        <AppHeader />
+        <main className="culinario-page" style={{ paddingTop: 64, paddingBottom: 240 }}>
+          <PersonaResultsView
+            persona={active}
+            portrait={portraitMap[active.celebrity] ?? null}
+            bio={bioMap[active.celebrity] ?? null}
+            onBack={() => setActive(null)}
+          />
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div style={{ minHeight: "100vh", background: "var(--bg)", color: "var(--fg)" }}>
       <AppHeader />
-      <main className="culinario-page" style={{ paddingTop: 64, paddingBottom: 240 }}>
-        {results ? (
-          <PersonaResultsView
-            celebrity={results.celebrity}
-            recipes={results.recipes}
-            portrait={portraitMap[results.celebrity] ?? null}
-            bio={bioMap[results.celebrity] ?? null}
-            onBack={() => setResults(null)}
-          />
-        ) : (
-          <>
-            {personas && personas.length > 0 && (
-              <>
-                <div style={eyebrow}>Past personas — tap to revisit</div>
-                <div style={{ marginTop: 20, display: "flex", flexDirection: "column", gap: 16 }}>
-                  {personas.map((p) => (
-                    <PersonaRow
-                      key={p.celebrity}
-                      persona={p}
-                      portrait={portraitMap[p.celebrity] ?? null}
-                      bio={bioMap[p.celebrity] ?? null}
-                      loading={loadingPersona === p.celebrity}
-                      onClick={() => openPersona(p)}
-                    />
-                  ))}
-                </div>
-              </>
-            )}
+      <main className="culinario-page" style={{ paddingTop: 64, paddingBottom: 120, position: "relative" }}>
+        <div className="inv-list-orb inv-list-orb-a" />
+        <div className="inv-list-orb inv-list-orb-b" />
 
-            {personas && personas.length > 0 && <hr style={hairline} />}
+        <div style={{ position: "relative", zIndex: 1 }}>
+          <div style={eyebrow}>№ 007 — Inverse Mode Archive</div>
+          <h1 style={{
+            fontFamily: "var(--font-display)", fontWeight: 300, fontStyle: "italic",
+            fontSize: "clamp(48px, 7vw, 80px)", lineHeight: 1.05,
+            letterSpacing: "-0.02em", margin: "16px 0 12px",
+          }}>
+            Every persona, replayable.
+          </h1>
+          <p style={{
+            fontFamily: "var(--font-display)", fontStyle: "italic",
+            fontSize: 18, color: "var(--fg-muted)", margin: 0, maxWidth: 560,
+          }}>
+            Tap any chef to revisit the three dishes they chose for you.
+          </p>
 
-            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-              <label style={eyebrow}>The Person</label>
-              <input
-                type="text"
-                value={celebrity}
-                onChange={(e) => setCelebrity(e.target.value)}
-                onKeyDown={(e) => { if (e.key === "Enter") conjure(); }}
-                placeholder="e.g. Anthony Bourdain, Hannibal Lecter, my dad"
-                disabled={conjuring}
-                style={{
-                  width: "100%", background: "transparent", color: "var(--fg)",
-                  border: 0, borderBottom: "1px solid var(--hairline)",
-                  fontFamily: "var(--font-display)", fontStyle: "italic",
-                  fontSize: "clamp(18px, 5vw, 28px)", padding: "8px 0", outline: "none",
-                  minWidth: 0, maxWidth: "100%", boxSizing: "border-box",
-                }}
-              />
-              <div>
-                <button
-                  type="button"
-                  onClick={conjure}
-                  disabled={!celebrity.trim() || conjuring}
-                  style={{
-                    fontFamily: "var(--font-body)", fontWeight: 600, fontSize: 12,
-                    textTransform: "uppercase", letterSpacing: "0.2em",
-                    color: !celebrity.trim() || conjuring ? "var(--fg-low)" : "var(--saffron)",
-                    background: "transparent",
-                    border: "1px solid",
-                    borderColor: !celebrity.trim() || conjuring ? "var(--hairline)" : "var(--saffron)",
-                    cursor: !celebrity.trim() || conjuring ? "not-allowed" : "pointer",
-                    padding: "14px 22px",
-                    minHeight: 48,
-                    borderRadius: 0,
-                    position: "relative",
-                    zIndex: 1,
-                  }}
-                >
-                  {conjuring ? "Conjuring three dishes…" : "Conjure their menu ↗"}
-                </button>
+          <div style={{ marginTop: 28 }}>
+            <Link
+              to="/inverse/new"
+              style={{
+                display: "inline-block",
+                fontFamily: "var(--font-body)", fontWeight: 600, fontSize: 12,
+                textTransform: "uppercase", letterSpacing: "0.2em",
+                color: "var(--saffron)", textDecoration: "none",
+                border: "1px solid var(--saffron)", padding: "12px 22px",
+                borderRadius: 9999,
+              }}
+            >
+              Conjure a new persona ↗
+            </Link>
+          </div>
+
+          <div style={{ marginTop: 40, display: "flex", flexDirection: "column", gap: 16 }}>
+            {err && <div style={{ ...eyebrow, color: "var(--saffron)" }}>{err}</div>}
+            {!err && personas === null && <div style={eyebrow}>Loading the archive…</div>}
+            {!err && personas && personas.length === 0 && (
+              <div style={{
+                padding: "44px 28px", textAlign: "center",
+                border: "1px dashed var(--hairline)", borderRadius: 24,
+              }}>
+                <div style={{
+                  fontFamily: "var(--font-display)", fontStyle: "italic", fontSize: 24,
+                  color: "var(--fg-muted)",
+                }}>No personas yet.</div>
               </div>
-              {error && (
-                <div style={{ ...eyebrow, color: "var(--saffron)" }}>{error}</div>
-              )}
-            </div>
-          </>
-        )}
+            )}
+            {personas?.map((p) => (
+              <PersonaRow
+                key={p.celebrity}
+                persona={p}
+                portrait={portraitMap[p.celebrity] ?? null}
+                bio={bioMap[p.celebrity] ?? null}
+                onClick={() => setActive(p)}
+              />
+            ))}
+          </div>
+        </div>
+
+        <style>{`
+          .inv-list-orb { position: absolute; border-radius: 9999px; filter: blur(80px); opacity: 0.3; pointer-events: none; z-index: 0; }
+          .inv-list-orb-a { width: 460px; height: 460px; top: -120px; left: -100px; background: radial-gradient(circle, color-mix(in oklab, var(--saffron) 70%, transparent), transparent 65%); }
+          .inv-list-orb-b { width: 520px; height: 520px; top: 30%; right: -160px; background: radial-gradient(circle, color-mix(in oklab, var(--saffron) 50%, magenta), transparent 65%); }
+        `}</style>
       </main>
+    </div>
+  );
+}
 
-      {conjuring && <ConjuringOverlay name={celebrity.trim()} phrase={phrases[phraseIdx]} />}
-
+function StatusBadges({ recipe }: { recipe: any }) {
+  const cooked = !!recipe.cooked_at;
+  const rating: number | null = typeof recipe.rating === "number" ? recipe.rating : null;
+  const saved = !cooked && rating == null;
+  return (
+    <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+      {cooked && (
+        <span className="inv-badge" title="Cooked">
+          <span aria-hidden>✓</span> Cooked
+        </span>
+      )}
+      {rating != null && (
+        <span className="inv-badge inv-badge-rated" title={`Rated ${rating}/5`}>
+          {[1, 2, 3, 4, 5].map((n) => (
+            <span
+              key={n}
+              style={{
+                width: 8, height: 8,
+                background: n <= rating ? "var(--saffron)" : "transparent",
+                border: "1px solid var(--saffron)", display: "inline-block",
+              }}
+            />
+          ))}
+        </span>
+      )}
+      {saved && (
+        <span className="inv-badge inv-badge-saved" title="Saved, not yet cooked">
+          ★ Saved
+        </span>
+      )}
+      <style>{`
+        .inv-badge {
+          display: inline-flex; align-items: center; gap: 6px;
+          font-family: var(--font-mono); font-size: 9.5px; letter-spacing: 0.2em;
+          text-transform: uppercase; color: var(--saffron);
+          border: 1px solid color-mix(in oklab, var(--saffron) 60%, transparent);
+          padding: 4px 10px; border-radius: 9999px;
+          background: color-mix(in oklab, var(--saffron) 8%, transparent);
+        }
+        .inv-badge-saved { color: var(--fg-muted); border-color: var(--hairline); background: transparent; }
+      `}</style>
     </div>
   );
 }
 
 function PersonaResultsView({
-  celebrity, recipes, portrait, bio, onBack,
-}: {
-  celebrity: string;
-  recipes: any[];
-  portrait: string | null;
-  bio: string | null;
-  onBack: () => void;
-}) {
-  const initial = (celebrity[0] ?? "?").toUpperCase();
+  persona, portrait, bio, onBack,
+}: { persona: PersonaSummary; portrait: string | null; bio: string | null; onBack: () => void }) {
+  const initial = (persona.celebrity[0] ?? "?").toUpperCase();
   return (
     <div>
       <button
@@ -321,9 +266,7 @@ function PersonaResultsView({
         onClick={onBack}
         style={{
           background: "transparent", border: 0, padding: 0, cursor: "pointer",
-          fontFamily: "var(--font-mono)", fontSize: 11, letterSpacing: "0.2em",
-          textTransform: "uppercase", color: "var(--fg-muted)",
-          marginBottom: 28,
+          ...eyebrow, marginBottom: 28,
         }}
       >
         ← All personas
@@ -333,10 +276,7 @@ function PersonaResultsView({
         <div
           aria-hidden="true"
           className="persona-portrait"
-          style={{
-            width: 120, height: 120,
-            backgroundImage: portrait ? `url(${portrait})` : undefined,
-          }}
+          style={{ width: 120, height: 120, backgroundImage: portrait ? `url(${portrait})` : undefined }}
         >
           {!portrait && <span className="persona-initial" style={{ fontSize: 48 }}>{initial}</span>}
         </div>
@@ -347,7 +287,7 @@ function PersonaResultsView({
             fontSize: "clamp(40px, 6vw, 64px)", lineHeight: 1.05,
             letterSpacing: "-0.02em", margin: "10px 0 0",
           }}>
-            {celebrity}
+            {persona.celebrity}
           </h1>
         </div>
       </div>
@@ -364,9 +304,9 @@ function PersonaResultsView({
       )}
 
       <hr style={hairline} />
-      <div style={eyebrow}>Three dishes for {celebrity}</div>
+      <div style={eyebrow}>Three dishes for {persona.celebrity}</div>
       <div style={{ display: "flex", flexDirection: "column", gap: 32, marginTop: 24 }}>
-        {recipes.map((r: any) => (
+        {persona.recipes.map((r: any) => (
           <Link
             key={r.id}
             to="/recipes/$id"
@@ -384,6 +324,9 @@ function PersonaResultsView({
               }}>
                 {r.title}
               </h2>
+              <div style={{ marginBottom: 12 }}>
+                <StatusBadges recipe={r} />
+              </div>
               {r.body?.inverse_blurb && (
                 <p style={{
                   fontFamily: "var(--font-body)", fontStyle: "italic",
@@ -404,26 +347,40 @@ function PersonaResultsView({
           </Link>
         ))}
       </div>
+
+      <style>{`
+        .persona-portrait {
+          border-radius: 50%;
+          background-color: color-mix(in oklab, var(--saffron) 18%, var(--surface-elev));
+          background-position: center 22%; background-size: cover; background-repeat: no-repeat;
+          border: 2px solid color-mix(in oklab, var(--saffron) 65%, transparent);
+          box-shadow:
+            0 0 0 4px color-mix(in oklab, var(--saffron) 14%, transparent),
+            0 8px 24px -8px color-mix(in oklab, var(--saffron) 55%, transparent);
+          display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+        }
+        .persona-initial {
+          font-family: var(--font-display); font-style: italic; font-weight: 600;
+          color: var(--saffron);
+        }
+      `}</style>
     </div>
   );
 }
 
-function PersonaRow({ persona, portrait, bio, loading, onClick }: { persona: PersonaSummary; portrait: string | null; bio: string | null; loading: boolean; onClick: () => void }) {
+function PersonaRow({
+  persona, portrait, bio, onClick,
+}: { persona: PersonaSummary; portrait: string | null; bio: string | null; onClick: () => void }) {
   const initial = (persona.celebrity[0] ?? "?").toUpperCase();
   const blurb = bio ?? persona.blurb ?? "Three dishes, in their voice.";
+  const cookedCount = persona.recipes.filter((r) => r.cooked_at).length;
+  const ratedCount = persona.recipes.filter((r) => r.rating != null).length;
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      disabled={loading}
-      className="persona-row"
-    >
+    <button type="button" onClick={onClick} className="persona-row">
       <div
         aria-hidden="true"
         className="persona-portrait"
-        style={{
-          backgroundImage: portrait ? `url(${portrait})` : undefined,
-        }}
+        style={{ backgroundImage: portrait ? `url(${portrait})` : undefined }}
       >
         {!portrait && <span className="persona-initial">{initial}</span>}
       </div>
@@ -440,6 +397,8 @@ function PersonaRow({ persona, portrait, bio, loading, onClick }: { persona: Per
             textTransform: "uppercase", color: "var(--fg-muted)",
           }}>
             {persona.recipes.length} {persona.recipes.length === 1 ? "dish" : "dishes"}
+            {cookedCount > 0 && <> · {cookedCount} cooked</>}
+            {ratedCount > 0 && <> · {ratedCount} rated</>}
           </div>
         </div>
         <div style={{
@@ -485,7 +444,6 @@ function PersonaRow({ persona, portrait, bio, loading, onClick }: { persona: Per
             0 22px 50px -18px color-mix(in oklab, var(--saffron) 65%, transparent),
             inset 0 1px 0 color-mix(in oklab, white 22%, transparent);
         }
-        .persona-row:disabled { opacity: 0.6; cursor: progress; }
         .persona-portrait {
           width: 72px; height: 72px; border-radius: 50%; flex-shrink: 0;
           background-color: color-mix(in oklab, var(--saffron) 18%, var(--surface-elev));
@@ -501,151 +459,13 @@ function PersonaRow({ persona, portrait, bio, loading, onClick }: { persona: Per
           font-size: 28px; color: var(--saffron);
         }
         .persona-cta {
-          align-self: center;
-          padding-left: 12px;
-          flex-shrink: 0;
+          align-self: center; padding-left: 12px; flex-shrink: 0;
           opacity: 0.65;
           transition: opacity 240ms ease, transform 240ms ease;
         }
-        .persona-row:hover .persona-cta {
-          opacity: 1;
-          transform: translateX(4px);
-        }
-        @media (max-width: 640px) {
-          .persona-cta { display: none; }
-        }
+        .persona-row:hover .persona-cta { opacity: 1; transform: translateX(4px); }
+        @media (max-width: 640px) { .persona-cta { display: none; } }
       `}</style>
     </button>
-  );
-}
-
-function ConjuringOverlay({ name, phrase }: { name: string; phrase: string }) {
-  return (
-    <div
-      aria-live="polite"
-      style={{
-        position: "fixed", inset: 0, zIndex: 50,
-        display: "flex", alignItems: "center", justifyContent: "center",
-        background: "color-mix(in oklab, var(--bg) 55%, transparent)",
-        backdropFilter: "blur(18px) saturate(140%)",
-        WebkitBackdropFilter: "blur(18px) saturate(140%)",
-        animation: "inv-fade-in 360ms ease-out both",
-        overflow: "hidden",
-      }}
-    >
-      {/* floating glass orbs */}
-      <div className="inv-orb inv-orb-1" />
-      <div className="inv-orb inv-orb-2" />
-      <div className="inv-orb inv-orb-3" />
-
-      <div
-        style={{
-          position: "relative",
-          padding: "44px 56px",
-          borderRadius: 28,
-          border: "1px solid color-mix(in oklab, var(--fg) 14%, transparent)",
-          background: "color-mix(in oklab, var(--bg) 35%, transparent)",
-          backdropFilter: "blur(24px) saturate(180%)",
-          WebkitBackdropFilter: "blur(24px) saturate(180%)",
-          boxShadow: "0 30px 80px -20px rgba(0,0,0,0.35), inset 0 1px 0 color-mix(in oklab, white 18%, transparent)",
-          textAlign: "center",
-          maxWidth: 520,
-          animation: "inv-pop 520ms cubic-bezier(.2,.9,.3,1.2) both",
-        }}
-      >
-        <div style={eyebrow}>№ 007 — Inverse Mode</div>
-        <div
-          style={{
-            fontFamily: "var(--font-display)", fontStyle: "italic", fontWeight: 300,
-            fontSize: "clamp(28px, 4vw, 40px)", lineHeight: 1.1,
-            margin: "12px 0 18px",
-            background: "linear-gradient(110deg, var(--fg) 30%, var(--saffron) 50%, var(--fg) 70%)",
-            backgroundSize: "200% 100%",
-            WebkitBackgroundClip: "text", backgroundClip: "text",
-            color: "transparent",
-            animation: "inv-shimmer 2.4s linear infinite",
-          }}
-        >
-          Conjuring {name || "their menu"}…
-        </div>
-
-        <div style={{ display: "flex", gap: 10, justifyContent: "center", marginBottom: 18 }}>
-          {[0, 1, 2].map((i) => (
-            <span
-              key={i}
-              className="inv-plate"
-              style={{ animationDelay: `${i * 160}ms` }}
-            />
-          ))}
-        </div>
-
-        <div
-          key={phrase}
-          style={{
-            ...eyebrow, color: "var(--fg-muted)",
-            animation: "inv-fade-in 380ms ease-out both",
-          }}
-        >
-          {phrase}
-        </div>
-      </div>
-
-      <style>{`
-        @keyframes inv-fade-in {
-          from { opacity: 0; transform: translateY(6px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes inv-pop {
-          0%   { opacity: 0; transform: scale(0.92); }
-          100% { opacity: 1; transform: scale(1); }
-        }
-        @keyframes inv-shimmer {
-          0%   { background-position: 200% 0; }
-          100% { background-position: -200% 0; }
-        }
-        @keyframes inv-float-a {
-          0%,100% { transform: translate(0,0) scale(1); }
-          50%     { transform: translate(40px,-30px) scale(1.08); }
-        }
-        @keyframes inv-float-b {
-          0%,100% { transform: translate(0,0) scale(1); }
-          50%     { transform: translate(-50px,40px) scale(1.12); }
-        }
-        @keyframes inv-float-c {
-          0%,100% { transform: translate(0,0) scale(1); }
-          50%     { transform: translate(30px,50px) scale(0.95); }
-        }
-        .inv-orb {
-          position: absolute; border-radius: 9999px; filter: blur(40px);
-          opacity: 0.55; pointer-events: none;
-        }
-        .inv-orb-1 {
-          width: 360px; height: 360px; top: -80px; left: -60px;
-          background: radial-gradient(circle at 30% 30%, var(--saffron), transparent 60%);
-          animation: inv-float-a 9s ease-in-out infinite;
-        }
-        .inv-orb-2 {
-          width: 420px; height: 420px; bottom: -120px; right: -80px;
-          background: radial-gradient(circle at 50% 50%, color-mix(in oklab, var(--saffron) 60%, magenta), transparent 60%);
-          animation: inv-float-b 11s ease-in-out infinite;
-        }
-        .inv-orb-3 {
-          width: 300px; height: 300px; top: 40%; left: 55%;
-          background: radial-gradient(circle at 50% 50%, color-mix(in oklab, var(--saffron) 40%, cyan), transparent 60%);
-          animation: inv-float-c 13s ease-in-out infinite;
-        }
-        @keyframes inv-bounce {
-          0%,80%,100% { transform: translateY(0); opacity: 0.4; }
-          40%         { transform: translateY(-10px); opacity: 1; }
-        }
-        .inv-plate {
-          width: 12px; height: 12px; border-radius: 9999px;
-          background: var(--saffron);
-          box-shadow: 0 0 14px color-mix(in oklab, var(--saffron) 70%, transparent);
-          animation: inv-bounce 1.2s ease-in-out infinite;
-          display: inline-block;
-        }
-      `}</style>
-    </div>
   );
 }
