@@ -34,6 +34,7 @@ function InverseNewPage() {
   const navigate = useNavigate();
   const [celebrity, setCelebrity] = useState("");
   const [generatedCelebrity, setGeneratedCelebrity] = useState("");
+  const [generatedPortrait, setGeneratedPortrait] = useState<string | null>(null);
   const [recipes, setRecipes] = useState<GeneratedRecipe[] | null>(null);
   const [conjuring, setConjuring] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -78,9 +79,14 @@ function InverseNewPage() {
         } catch { /* ignore */ }
         throw new Error(msg);
       }
+      console.log("[inverse.new] generate-inverse-recipes raw response", data);
       if ((data as any)?.error) throw new Error((data as any).error);
-      const ids: string[] = (data as any)?.recipe_ids ?? [];
-      if (ids.length !== 3) throw new Error(`Expected 3 new recipes, got ${ids.length}.`);
+      const respRecipes: any[] = (data as any)?.recipes ?? [];
+      const ids: string[] = respRecipes.map((r) => r?.id).filter(Boolean);
+      if (ids.length !== 3) {
+        console.error("[inverse.new] expected 3 recipes, got", ids.length, data);
+        throw new Error(`Expected 3 new recipes, got ${ids.length}.`);
+      }
       const { data: rows, error: rowsErr } = await supabase
         .from("recipes" as any)
         .select("id,title,cuisine,time_estimate_minutes,difficulty,position,body,inverse_blurb")
@@ -91,6 +97,7 @@ function InverseNewPage() {
       const orderedRows = ids.map((id) => byId.get(id)).filter(Boolean) as GeneratedRecipe[];
       if (orderedRows.length !== 3) throw new Error(`Loaded ${orderedRows.length} of 3 new recipes.`);
       setGeneratedCelebrity((data as any)?.celebrity ?? name);
+      setGeneratedPortrait((data as any)?.portrait_url ?? null);
       setRecipes(orderedRows);
       setCelebrity("");
     } catch (e: any) {
@@ -116,7 +123,7 @@ function InverseNewPage() {
         </button>
 
         {recipes ? (
-          <NewRecipeResults celebrity={generatedCelebrity} recipes={recipes} />
+          <NewRecipeResults celebrity={generatedCelebrity} portrait={generatedPortrait} recipes={recipes} />
         ) : (
           <>
 
@@ -187,17 +194,40 @@ function InverseNewPage() {
   );
 }
 
-function NewRecipeResults({ celebrity, recipes }: { celebrity: string; recipes: GeneratedRecipe[] }) {
+function NewRecipeResults({ celebrity, portrait, recipes }: { celebrity: string; portrait: string | null; recipes: GeneratedRecipe[] }) {
+  const initial = (celebrity[0] ?? "?").toUpperCase();
   return (
     <div>
-      <div style={eyebrow}>№ 007 — Inverse Mode</div>
-      <h1 style={{
-        fontFamily: "var(--font-display)", fontWeight: 300, fontStyle: "italic",
-        fontSize: "clamp(40px, 6vw, 64px)", lineHeight: 1.05,
-        letterSpacing: "-0.02em", margin: "12px 0 12px",
-      }}>
-        Three new dishes for {celebrity}.
-      </h1>
+      <div style={{ display: "flex", alignItems: "center", gap: 20, marginBottom: 20 }}>
+        <div
+          aria-hidden="true"
+          style={{
+            width: 96, height: 96, borderRadius: "50%", flexShrink: 0,
+            backgroundImage: portrait ? `url(${portrait})` : undefined,
+            backgroundColor: "color-mix(in oklab, var(--saffron) 18%, var(--surface-elev))",
+            backgroundPosition: "center 22%", backgroundSize: "cover", backgroundRepeat: "no-repeat",
+            border: "2px solid color-mix(in oklab, var(--saffron) 65%, transparent)",
+            boxShadow: "0 0 0 4px color-mix(in oklab, var(--saffron) 14%, transparent), 0 8px 24px -8px color-mix(in oklab, var(--saffron) 55%, transparent)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+          }}
+        >
+          {!portrait && (
+            <span style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontWeight: 600, fontSize: 40, color: "var(--saffron)" }}>
+              {initial}
+            </span>
+          )}
+        </div>
+        <div style={{ minWidth: 0 }}>
+          <div style={eyebrow}>№ 007 — Inverse Mode</div>
+          <h1 style={{
+            fontFamily: "var(--font-display)", fontWeight: 300, fontStyle: "italic",
+            fontSize: "clamp(40px, 6vw, 64px)", lineHeight: 1.05,
+            letterSpacing: "-0.02em", margin: "8px 0 0",
+          }}>
+            Three new dishes for {celebrity}.
+          </h1>
+        </div>
+      </div>
       <p style={{
         fontFamily: "var(--font-display)", fontStyle: "italic",
         fontSize: 18, color: "var(--fg-muted)", margin: "0 0 32px", maxWidth: 560,
