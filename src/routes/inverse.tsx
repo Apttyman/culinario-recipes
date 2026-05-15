@@ -86,21 +86,19 @@ function InversePage() {
     (async () => {
       const { data: rows } = await supabase
         .from("recipes")
-        .select("id,title,cuisine,time_estimate_minutes,difficulty,body,chef_inspiration,created_at")
+        .select("id,title,cuisine,time_estimate_minutes,difficulty,body,chef_inspiration,inverse_celebrity,inverse_blurb,created_at")
         .eq("user_id", session.user.id)
-        .not("chef_inspiration", "is", null)
+        .or("chef_inspiration.not.is.null,inverse_celebrity.not.is.null,inverse_blurb.not.is.null")
         .order("created_at", { ascending: false });
       if (cancelled) return;
       const buckets = new Map<string, PersonaSummary>();
       for (const r of (rows ?? []) as any[]) {
         const body = (r.body && typeof r.body === "object" && !Array.isArray(r.body)) ? r.body : {};
-        const celeb: string | null = body.inverse_celebrity ?? r.chef_inspiration ?? null;
+        const celeb: string | null = r.inverse_celebrity ?? body.inverse_celebrity ?? r.chef_inspiration ?? null;
         if (!celeb) continue;
-        // Only consider rows that look like inverse-mode (have a blurb).
-        if (!body.inverse_blurb && !body.rationale) continue;
         const key = celeb.trim();
         const existing = buckets.get(key);
-        const enriched = { ...r, body: { ...body, inverse_blurb: body.inverse_blurb ?? body.rationale ?? null } };
+        const enriched = { ...r, body: { ...body, inverse_blurb: r.inverse_blurb ?? body.inverse_blurb ?? body.rationale ?? null } };
         if (!existing) {
           buckets.set(key, { celebrity: key, blurb: enriched.body.inverse_blurb, recipes: [enriched], lastAt: r.created_at });
         } else if (existing.recipes.length < 3) {
