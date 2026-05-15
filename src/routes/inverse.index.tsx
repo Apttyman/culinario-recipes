@@ -139,6 +139,7 @@ function InverseListPage() {
           <PersonaResultsView
             persona={active}
             portrait={portraitMap[active.celebrity] ?? null}
+            faceBox={faceBoxMap[active.celebrity] ?? null}
             bio={bioMap[active.celebrity] ?? null}
             onBack={() => setActive(null)}
           />
