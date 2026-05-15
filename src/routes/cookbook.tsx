@@ -216,6 +216,50 @@ function Cookbook() {
         )}
         <hr style={hairline} />
 
+        {sharedItems.length > 0 && (
+          <div style={{ marginBottom: 32 }}>
+            <div style={labelMono}>Shared with you</div>
+            <div style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 8 }}>
+              {sharedItems.map((it) => (
+                <button
+                  key={`${it.kind}-${it.id}`}
+                  type="button"
+                  onClick={() =>
+                    it.kind === "recipe"
+                      ? navigate({ to: "/recipes/$id", params: { id: it.id } })
+                      : navigate({ to: "/duel/$id", params: { id: it.id }, search: { act: 0 } })
+                  }
+                  style={{
+                    textAlign: "left", background: "transparent", color: "var(--fg)",
+                    border: "1px solid color-mix(in oklab, var(--saffron) 50%, transparent)",
+                    borderRadius: 12, padding: "12px 16px", cursor: "pointer",
+                    display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 12,
+                  }}
+                >
+                  <div style={{ minWidth: 0, flex: 1 }}>
+                    <div style={{
+                      fontFamily: "var(--font-display)", fontStyle: "italic", fontWeight: 500,
+                      fontSize: 18, color: "var(--fg)",
+                      overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+                    }}>
+                      {it.kind === "recipe"
+                        ? (it.row?.title ?? "Recipe")
+                        : `${it.row?.chef_a ?? "Chef"} vs ${it.row?.chef_b ?? "Chef"}`}
+                    </div>
+                    <div style={{ ...labelMono, marginTop: 4, color: "var(--saffron)" }}>
+                      Shared by {it.sharedBy ?? "a friend"} · {it.kind === "duel" ? "Duel" : "Recipe"}
+                    </div>
+                  </div>
+                  <span style={{
+                    fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.2em",
+                    textTransform: "uppercase", color: "var(--saffron)",
+                  }}>Open ↗</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Search bar */}
         <div style={{ position: "relative" }}>
           <input
