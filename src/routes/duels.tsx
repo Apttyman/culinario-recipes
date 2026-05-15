@@ -179,7 +179,7 @@ function DuelsListPage() {
                   onClick={() => navigate({ to: "/duel/$id", params: { id: d.id } })}
                 />
                 <div
-                  style={{ position: "absolute", bottom: 8, right: 14, zIndex: 2 }}
+                  style={{ position: "absolute", top: 12, right: 12, zIndex: 2 }}
                   onClick={(e) => e.stopPropagation()}
                 >
                   <ShareButton
