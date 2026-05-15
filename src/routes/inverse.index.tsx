@@ -42,6 +42,7 @@ function InverseListPage() {
   const search = useSearch({ from: "/inverse/" });
   const [personas, setPersonas] = useState<PersonaSummary[] | null>(null);
   const [portraitMap, setPortraitMap] = useState<Record<string, string | null>>({});
+  const [faceBoxMap, setFaceBoxMap] = useState<Record<string, FaceBox>>({});
   const [bioMap, setBioMap] = useState<Record<string, string | null>>({});
   const [active, setActive] = useState<PersonaSummary | null>(null);
   const [err, setErr] = useState<string | null>(null);
