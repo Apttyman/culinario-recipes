@@ -458,9 +458,9 @@ function PersonaRow({ persona, portrait, bio, loading, onClick }: { persona: Per
       <style>{`
         .persona-row {
           position: relative;
-          display: flex; align-items: center; gap: 18px;
-          padding: 16px 22px;
-          border-radius: 9999px;
+          display: flex; align-items: flex-start; gap: 18px;
+          padding: 18px 22px;
+          border-radius: 24px;
           border: 1px solid color-mix(in oklab, var(--fg) 12%, transparent);
           background: color-mix(in oklab, var(--surface-elev) 50%, transparent);
           backdrop-filter: blur(22px) saturate(160%);
