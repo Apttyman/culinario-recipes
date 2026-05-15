@@ -105,17 +105,22 @@ function InverseNewPage() {
       const celeb = (data as any)?.celebrity ?? name;
       setGeneratedCelebrity(celeb);
       setGeneratedPortrait((data as any)?.portrait_url ?? null);
-      // Look up the persona's face crop box for tight head cropping.
+      // Look up the persona's face crop box + bio for tight head cropping.
       const ck = toCelebrityKey(celeb);
+      const fnBlurb = (data as any)?.persona_blurb ?? null;
       if (ck) {
         const { data: personaRow } = await supabase
           .from("celebrity_personas" as any)
-          .select("portrait_face_box")
+          .select("portrait_face_box, persona_blurb, disambiguator")
           .eq("celebrity_key", ck)
           .maybeSingle();
         setGeneratedFaceBox(parseFaceBox((personaRow as any)?.portrait_face_box));
+        setGeneratedBlurb(
+          fnBlurb ?? (personaRow as any)?.persona_blurb ?? (personaRow as any)?.disambiguator ?? null
+        );
       } else {
         setGeneratedFaceBox(null);
+        setGeneratedBlurb(fnBlurb);
       }
       setRecipes(orderedRows);
       setCelebrity("");
