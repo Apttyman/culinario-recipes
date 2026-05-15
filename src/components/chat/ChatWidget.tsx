@@ -181,12 +181,19 @@ export function ChatWidget() {
           </header>
 
           <div className="cw-body">
-            {view === "list" && (
+          {view === "list" && (
+            <>
+              <div style={{padding: 8, fontSize: 11, fontFamily: 'monospace', color: '#888', background: '#222', borderBottom: '1px solid #444'}}>
+                userId: {userId ?? 'NONE'}<br/>
+                convos.length: {convos.length}<br/>
+                expected user_a_id: 60ea6cd1-d683-4286-8e50-0e915c500efb
+              </div>
               <ConversationList
                 convos={convos}
                 onOpen={(id) => { setActiveConvId(id); setView("thread"); }}
               />
-            )}
+            </>
+          )}
             {view === "thread" && activeConvId && (
               <ThreadView
                 conversationId={activeConvId}
