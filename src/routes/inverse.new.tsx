@@ -93,7 +93,7 @@ function InverseNewPage() {
       }
       const { data: rows, error: rowsErr } = await supabase
         .from("recipes" as any)
-        .select("id,title,cuisine,time_estimate_minutes,difficulty,position,body,inverse_blurb")
+        .select("id,title,cuisine,time_estimate_minutes,difficulty,position,body,inverse_blurb,inverse_session_id")
         .in("id", ids)
         .order("position", { ascending: true });
       if (rowsErr) throw rowsErr;
