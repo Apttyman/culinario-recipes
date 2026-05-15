@@ -78,7 +78,9 @@ function InverseListPage() {
         if (!existing) {
           buckets.set(key, { celebrity: key, blurb, recipes: [enriched], lastAt: r.created_at });
         } else {
-          existing.recipes.push(enriched);
+          // Rows are sorted newest-first; cap each persona at the 3 most recent dishes
+          // so re-runs or stragglers from older generations don't show 4+.
+          if (existing.recipes.length < 3) existing.recipes.push(enriched);
           if (!existing.blurb && blurb) existing.blurb = blurb;
         }
       }
