@@ -445,27 +445,36 @@ function PersonaRow({ persona, portrait, bio, loading, onClick }: { persona: Per
         {!portrait && <span className="persona-initial">{initial}</span>}
       </div>
       <div style={{ minWidth: 0, flex: 1, textAlign: "left" }}>
-        <div style={{
-          fontFamily: "var(--font-display)", fontStyle: "italic", fontWeight: 500,
-          fontSize: 22, lineHeight: 1.15, color: "var(--fg)",
-        }}>
-          {persona.celebrity}
+        <div style={{ display: "flex", alignItems: "baseline", gap: 12, flexWrap: "wrap" }}>
+          <div style={{
+            fontFamily: "var(--font-display)", fontStyle: "italic", fontWeight: 500,
+            fontSize: 26, lineHeight: 1.1, color: "var(--fg)",
+          }}>
+            {persona.celebrity}
+          </div>
+          <div style={{
+            fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.2em",
+            textTransform: "uppercase", color: "var(--fg-muted)",
+          }}>
+            {persona.recipes.length} {persona.recipes.length === 1 ? "dish" : "dishes"}
+          </div>
         </div>
         <div style={{
-          marginTop: 6,
+          marginTop: 10,
           fontFamily: "var(--font-body)", fontStyle: "italic",
-          fontSize: 14, lineHeight: 1.5, color: "var(--fg-muted)",
+          fontSize: 15, lineHeight: 1.55, color: "var(--fg-muted)",
           whiteSpace: "pre-wrap",
         }}>
           {blurb}
         </div>
-        <div style={{
-          marginTop: 8,
-          fontFamily: "var(--font-mono)", fontSize: 9, letterSpacing: "0.2em",
-          textTransform: "uppercase", color: "var(--saffron)",
+      </div>
+      <div className="persona-cta" aria-hidden="true">
+        <span style={{
+          fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.2em",
+          textTransform: "uppercase", color: "var(--saffron)", whiteSpace: "nowrap",
         }}>
-          {persona.recipes.length} {persona.recipes.length === 1 ? "dish" : "dishes"} · revisit ↗
-        </div>
+          Revisit menu&nbsp;↗
+        </span>
       </div>
       <style>{`
         .persona-row {
