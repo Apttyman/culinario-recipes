@@ -333,8 +333,8 @@ function DuelPage() {
 
   const chefA = duel?.chef_a ?? "Chef A";
   const chefB = duel?.chef_b ?? "Chef B";
-  const portraitA: string | null = duel?.chef_a_portrait_url ?? null;
-  const portraitB: string | null = duel?.chef_b_portrait_url ?? null;
+  const portraitA: string | null = personaPortraitA ?? duel?.chef_a_portrait_url ?? null;
+  const portraitB: string | null = personaPortraitB ?? duel?.chef_b_portrait_url ?? null;
   const challenge = duel?.challenge ?? "";
   const host = duel?.host_name ?? "Your Host";
   const verdict = duel?.host_verdict ?? duel?.verdict ?? "";
