@@ -15,11 +15,11 @@ import { Route as SignInRouteImport } from './routes/sign-in'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as PortraitRouteImport } from './routes/portrait'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
-import { Route as InverseRouteImport } from './routes/inverse'
 import { Route as DuelsRouteImport } from './routes/duels'
 import { Route as CookbookRouteImport } from './routes/cookbook'
 import { Route as CaptureRouteImport } from './routes/capture'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as InverseIndexRouteImport } from './routes/inverse.index'
 import { Route as DuelIndexRouteImport } from './routes/duel.index'
 import { Route as SessionNewRouteImport } from './routes/session.new'
 import { Route as RecipesIdRouteImport } from './routes/recipes.$id'
@@ -56,11 +56,6 @@ const OnboardingRoute = OnboardingRouteImport.update({
   path: '/onboarding',
   getParentRoute: () => rootRouteImport,
 } as any)
-const InverseRoute = InverseRouteImport.update({
-  id: '/inverse',
-  path: '/inverse',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const DuelsRoute = DuelsRouteImport.update({
   id: '/duels',
   path: '/duels',
@@ -79,6 +74,11 @@ const CaptureRoute = CaptureRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InverseIndexRoute = InverseIndexRouteImport.update({
+  id: '/inverse/',
+  path: '/inverse/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DuelIndexRoute = DuelIndexRouteImport.update({
@@ -112,7 +112,6 @@ export interface FileRoutesByFullPath {
   '/capture': typeof CaptureRoute
   '/cookbook': typeof CookbookRoute
   '/duels': typeof DuelsRoute
-  '/inverse': typeof InverseRouteWithChildren
   '/onboarding': typeof OnboardingRoute
   '/portrait': typeof PortraitRoute
   '/settings': typeof SettingsRoute
@@ -124,13 +123,13 @@ export interface FileRoutesByFullPath {
   '/recipes/$id': typeof RecipesIdRoute
   '/session/new': typeof SessionNewRoute
   '/duel/': typeof DuelIndexRoute
+  '/inverse/': typeof InverseIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/capture': typeof CaptureRoute
   '/cookbook': typeof CookbookRoute
   '/duels': typeof DuelsRoute
-  '/inverse': typeof InverseRouteWithChildren
   '/onboarding': typeof OnboardingRoute
   '/portrait': typeof PortraitRoute
   '/settings': typeof SettingsRoute
@@ -142,6 +141,7 @@ export interface FileRoutesByTo {
   '/recipes/$id': typeof RecipesIdRoute
   '/session/new': typeof SessionNewRoute
   '/duel': typeof DuelIndexRoute
+  '/inverse': typeof InverseIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -149,7 +149,6 @@ export interface FileRoutesById {
   '/capture': typeof CaptureRoute
   '/cookbook': typeof CookbookRoute
   '/duels': typeof DuelsRoute
-  '/inverse': typeof InverseRouteWithChildren
   '/onboarding': typeof OnboardingRoute
   '/portrait': typeof PortraitRoute
   '/settings': typeof SettingsRoute
@@ -161,6 +160,7 @@ export interface FileRoutesById {
   '/recipes/$id': typeof RecipesIdRoute
   '/session/new': typeof SessionNewRoute
   '/duel/': typeof DuelIndexRoute
+  '/inverse/': typeof InverseIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -169,7 +169,6 @@ export interface FileRouteTypes {
     | '/capture'
     | '/cookbook'
     | '/duels'
-    | '/inverse'
     | '/onboarding'
     | '/portrait'
     | '/settings'
@@ -181,13 +180,13 @@ export interface FileRouteTypes {
     | '/recipes/$id'
     | '/session/new'
     | '/duel/'
+    | '/inverse/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/capture'
     | '/cookbook'
     | '/duels'
-    | '/inverse'
     | '/onboarding'
     | '/portrait'
     | '/settings'
@@ -199,13 +198,13 @@ export interface FileRouteTypes {
     | '/recipes/$id'
     | '/session/new'
     | '/duel'
+    | '/inverse'
   id:
     | '__root__'
     | '/'
     | '/capture'
     | '/cookbook'
     | '/duels'
-    | '/inverse'
     | '/onboarding'
     | '/portrait'
     | '/settings'
@@ -217,6 +216,7 @@ export interface FileRouteTypes {
     | '/recipes/$id'
     | '/session/new'
     | '/duel/'
+    | '/inverse/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -224,7 +224,6 @@ export interface RootRouteChildren {
   CaptureRoute: typeof CaptureRoute
   CookbookRoute: typeof CookbookRoute
   DuelsRoute: typeof DuelsRoute
-  InverseRoute: typeof InverseRouteWithChildren
   OnboardingRoute: typeof OnboardingRoute
   PortraitRoute: typeof PortraitRoute
   SettingsRoute: typeof SettingsRoute
@@ -235,6 +234,7 @@ export interface RootRouteChildren {
   RecipesIdRoute: typeof RecipesIdRoute
   SessionNewRoute: typeof SessionNewRoute
   DuelIndexRoute: typeof DuelIndexRoute
+  InverseIndexRoute: typeof InverseIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -281,13 +281,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OnboardingRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/inverse': {
-      id: '/inverse'
-      path: '/inverse'
-      fullPath: '/inverse'
-      preLoaderRoute: typeof InverseRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/duels': {
       id: '/duels'
       path: '/duels'
@@ -314,6 +307,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inverse/': {
+      id: '/inverse/'
+      path: '/inverse'
+      fullPath: '/inverse/'
+      preLoaderRoute: typeof InverseIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/duel/': {
@@ -354,23 +354,11 @@ declare module '@tanstack/react-router' {
   }
 }
 
-interface InverseRouteChildren {
-  InverseNewRoute: typeof InverseNewRoute
-}
-
-const InverseRouteChildren: InverseRouteChildren = {
-  InverseNewRoute: InverseNewRoute,
-}
-
-const InverseRouteWithChildren =
-  InverseRoute._addFileChildren(InverseRouteChildren)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CaptureRoute: CaptureRoute,
   CookbookRoute: CookbookRoute,
   DuelsRoute: DuelsRoute,
-  InverseRoute: InverseRouteWithChildren,
   OnboardingRoute: OnboardingRoute,
   PortraitRoute: PortraitRoute,
   SettingsRoute: SettingsRoute,
@@ -381,7 +369,18 @@ const rootRouteChildren: RootRouteChildren = {
   RecipesIdRoute: RecipesIdRoute,
   SessionNewRoute: SessionNewRoute,
   DuelIndexRoute: DuelIndexRoute,
+  InverseIndexRoute: InverseIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
