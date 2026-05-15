@@ -264,10 +264,11 @@ function NewRecipeResults({ celebrity, portrait, faceBox, blurb, recipes }: { ce
         )}
       </div>
       <p style={{
-        fontFamily: "var(--font-display)", fontStyle: "italic",
-        fontSize: 18, color: "var(--fg-muted)", margin: "0 0 32px", maxWidth: 560,
+        fontFamily: "var(--font-body)", fontStyle: "italic",
+        fontSize: 20, lineHeight: 1.5, color: "var(--fg)",
+        margin: "0 0 32px", maxWidth: 720, whiteSpace: "pre-wrap",
       }}>
-        Freshly conjured — only this new batch.
+        {blurb ?? "Three dishes from a kitchen icon."}
       </p>
 
       <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
