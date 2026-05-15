@@ -270,8 +270,8 @@ function StatusBadges({ recipe }: { recipe: any }) {
 }
 
 function PersonaResultsView({
-  persona, portrait, bio, onBack,
-}: { persona: PersonaSummary; portrait: string | null; bio: string | null; onBack: () => void }) {
+  persona, portrait, faceBox, bio, onBack,
+}: { persona: PersonaSummary; portrait: string | null; faceBox?: FaceBox; bio: string | null; onBack: () => void }) {
   const initial = (persona.celebrity[0] ?? "?").toUpperCase();
   return (
     <div>
@@ -290,7 +290,10 @@ function PersonaResultsView({
         <div
           aria-hidden="true"
           className="persona-portrait"
-          style={{ width: 120, height: 120, backgroundImage: portrait ? `url(${portrait})` : undefined }}
+          style={{
+            width: 120, height: 120,
+            ...(portrait ? { backgroundImage: `url(${portrait})`, ...getFaceCropStyle(faceBox, 120) } : {}),
+          }}
         >
           {!portrait && <span className="persona-initial" style={{ fontSize: 48 }}>{initial}</span>}
         </div>
