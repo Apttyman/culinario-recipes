@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { supabase } from "@/lib/supabase-client";
 import { AppHeader } from "@/components/AppHeader";
+import { ShareButton } from "@/components/share/ShareButton";
 
 export const Route = createFileRoute("/duels")({
   head: () => ({
