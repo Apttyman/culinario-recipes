@@ -44,15 +44,16 @@ export function ChatWidget() {
 
   const reload = async () => {
     if (!userId) return;
-    const { data: rows } = await supabase
+    const { data: rows, error: convErr } = await supabase
       .from("conversations" as any)
       .select("*")
-      .or(`user_a.eq.${userId},user_b.eq.${userId}`)
+      .or(`user_a_id.eq.${userId},user_b_id.eq.${userId}`)
       .order("updated_at", { ascending: false, nullsFirst: false });
+    console.log("[ChatWidget] conversations query", { userId, rows, error: convErr });
     const list = (rows ?? []) as unknown as Conversation[];
     if (list.length === 0) { setConvos([]); return; }
 
-    const otherIds = Array.from(new Set(list.map((c) => (c.user_a === userId ? c.user_b : c.user_a))));
+    const otherIds = Array.from(new Set(list.map((c) => (c.user_a_id === userId ? c.user_b_id : c.user_a_id))));
     const { data: profs } = await supabase
       .from("profiles")
       .select("id, display_name")
@@ -61,13 +62,14 @@ export function ChatWidget() {
     for (const p of (profs ?? []) as any[]) nameMap[p.id] = p.display_name ?? null;
     setProfileNames(nameMap);
 
-    // Pull last message + unread for each conversation
+    // Pull last message + unread for each conversation (all kinds, including share_notification)
     const ids = list.map((c) => c.id);
-    const { data: msgs } = await supabase
+    const { data: msgs, error: msgErr } = await supabase
       .from("messages" as any)
       .select("*")
       .in("conversation_id", ids)
       .order("created_at", { ascending: true });
+    console.log("[ChatWidget] messages query", { ids, msgs, error: msgErr });
     const byConv: Record<string, Message[]> = {};
     for (const m of (msgs ?? []) as unknown as Message[]) {
       (byConv[m.conversation_id] ??= []).push(m);
@@ -75,7 +77,7 @@ export function ChatWidget() {
     setMessagesByConv(byConv);
 
     const summaries: ConversationSummary[] = list.map((c) => {
-      const otherUserId = c.user_a === userId ? c.user_b : c.user_a;
+      const otherUserId = c.user_a_id === userId ? c.user_b_id : c.user_a_id;
       const list = byConv[c.id] ?? [];
       const lastMessage = list.length ? list[list.length - 1] : null;
       const unread = list.filter((m) => m.sender_id !== userId && !m.read_at).length;
