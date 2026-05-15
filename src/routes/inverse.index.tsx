@@ -34,25 +34,6 @@ function celebrityKey(name: string): string {
   return name.trim().toLowerCase().replace(/[^a-z0-9\s]/g, "").replace(/\s+/g, "_");
 }
 
-const infoCache = new Map<string, { portrait: string | null; bio: string | null }>();
-async function fetchWikipediaInfo(name: string): Promise<{ portrait: string | null; bio: string | null }> {
-  if (infoCache.has(name)) return infoCache.get(name)!;
-  const empty = { portrait: null, bio: null };
-  try {
-    const slug = encodeURIComponent(name.trim().replace(/\s+/g, "_"));
-    const r = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${slug}`, { headers: { Accept: "application/json" } });
-    if (!r.ok) { infoCache.set(name, empty); return empty; }
-    const j = await r.json();
-    const portrait: string | null = j?.thumbnail?.source ?? j?.originalimage?.source ?? null;
-    const bio: string | null = (typeof j?.extract === "string" && j.extract.trim().length > 0) ? j.extract.trim() : null;
-    const info = { portrait, bio };
-    infoCache.set(name, info);
-    return info;
-  } catch {
-    infoCache.set(name, empty);
-    return empty;
-  }
-}
 
 function InverseListPage() {
   const { session, loading } = useAuth();
