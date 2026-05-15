@@ -313,16 +313,14 @@ function PersonaResultsView({
         </div>
       </div>
 
-      {bio && (
-        <p style={{
-          marginTop: 24,
-          fontFamily: "var(--font-body)", fontStyle: "italic",
-          fontSize: 17, lineHeight: 1.55, color: "var(--fg-muted)",
-          maxWidth: 720, whiteSpace: "pre-wrap",
-        }}>
-          {bio}
-        </p>
-      )}
+      <p style={{
+        marginTop: 24,
+        fontFamily: "var(--font-body)", fontStyle: "italic",
+        fontSize: 20, lineHeight: 1.5, color: "var(--fg)",
+        maxWidth: 720, whiteSpace: "pre-wrap",
+      }}>
+        {bio ?? "Three dishes from a kitchen icon."}
+      </p>
 
       <hr style={hairline} />
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
