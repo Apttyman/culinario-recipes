@@ -38,29 +38,9 @@ async function resolveImage(r: any): Promise<string | null> {
   return null;
 }
 
-type FaceBox = { x: number; y: number; width: number; height: number } | null | undefined;
-
-function getFaceCropStyle(faceBox: FaceBox, avatarSize = 96): React.CSSProperties {
-  if (!faceBox || typeof faceBox.x !== 'number') {
-    return { backgroundPosition: 'center', backgroundSize: 'cover', backgroundRepeat: 'no-repeat' };
-  }
-  const cx = (faceBox.x + faceBox.width / 2) * 100;
-  const cy = (faceBox.y + faceBox.height / 2) * 100;
-  const faceArea = faceBox.width * faceBox.height;
-
-  const targetFacePortion = avatarSize >= 240 ? 0.65 : avatarSize >= 180 ? 0.6 : 0.55;
-  const rawScale = Math.min(1 / faceBox.width, 1 / faceBox.height) * targetFacePortion;
-
-  const minScale = faceArea < 0.03 ? 2.0 : 1.0;
-  const maxScale = faceArea > 0.25 ? 1.0 : 8;
-
-  const scale = Math.max(minScale, Math.min(maxScale, rawScale));
-  return {
-    backgroundPosition: `${cx}% ${cy}%`,
-    backgroundSize: `${scale * 100}%`,
-    backgroundRepeat: 'no-repeat',
-  };
-}
+import { getFaceCropStyle as sharedGetFaceCropStyle, type FaceBox as SharedFaceBox } from "@/lib/face-crop";
+type FaceBox = SharedFaceBox;
+const getFaceCropStyle = sharedGetFaceCropStyle;
 
 function Avatar({ src, alt, size = 96, ring = false, zoom = true, faceBox }: { src: string | null | undefined; alt: string; size?: number; ring?: boolean; zoom?: boolean; faceBox?: FaceBox }) {
   const baseCrop: React.CSSProperties = faceBox
