@@ -20,6 +20,34 @@ const eyebrow: React.CSSProperties = {
 };
 const hairline: React.CSSProperties = { border: 0, height: 1, background: "var(--hairline)", margin: "32px 0" };
 
+type PersonaSummary = {
+  celebrity: string;
+  blurb: string | null;
+  recipes: any[];
+  lastAt: string | null;
+};
+
+// Best-effort persona portrait fetch via Wikipedia REST summary endpoint.
+// Mirrors the "celeb image" lookup used by duel mode (Wikipedia thumbnail).
+const portraitCache = new Map<string, string | null>();
+async function fetchPersonaPortrait(name: string): Promise<string | null> {
+  if (portraitCache.has(name)) return portraitCache.get(name) ?? null;
+  try {
+    const slug = encodeURIComponent(name.trim().replace(/\s+/g, "_"));
+    const r = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${slug}`, {
+      headers: { Accept: "application/json" },
+    });
+    if (!r.ok) { portraitCache.set(name, null); return null; }
+    const j = await r.json();
+    const url: string | null = j?.thumbnail?.source ?? j?.originalimage?.source ?? null;
+    portraitCache.set(name, url);
+    return url;
+  } catch {
+    portraitCache.set(name, null);
+    return null;
+  }
+}
+
 function InversePage() {
   const { session, loading } = useAuth();
   const navigate = useNavigate();
@@ -27,6 +55,9 @@ function InversePage() {
   const [conjuring, setConjuring] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [results, setResults] = useState<{ celebrity: string; recipes: any[] } | null>(null);
+  const [personas, setPersonas] = useState<PersonaSummary[] | null>(null);
+  const [portraitMap, setPortraitMap] = useState<Record<string, string | null>>({});
+  const [loadingPersona, setLoadingPersona] = useState<string | null>(null);
   const [phraseIdx, setPhraseIdx] = useState(0);
   const phrases = useMemo(() => [
     "Lighting the candles…",
@@ -47,6 +78,56 @@ function InversePage() {
     if (loading) return;
     if (!session) navigate({ to: "/sign-in" });
   }, [session, loading, navigate]);
+
+  // Load past inverse personas (grouped by celebrity from the recipes table).
+  useEffect(() => {
+    if (!session?.user) return;
+    let cancelled = false;
+    (async () => {
+      const { data: rows } = await supabase
+        .from("recipes")
+        .select("id,title,cuisine,time_estimate_minutes,difficulty,body,chef_inspiration,created_at")
+        .eq("user_id", session.user.id)
+        .not("chef_inspiration", "is", null)
+        .order("created_at", { ascending: false });
+      if (cancelled) return;
+      const buckets = new Map<string, PersonaSummary>();
+      for (const r of (rows ?? []) as any[]) {
+        const body = (r.body && typeof r.body === "object" && !Array.isArray(r.body)) ? r.body : {};
+        const celeb: string | null = body.inverse_celebrity ?? r.chef_inspiration ?? null;
+        if (!celeb) continue;
+        // Only consider rows that look like inverse-mode (have a blurb).
+        if (!body.inverse_blurb && !body.rationale) continue;
+        const key = celeb.trim();
+        const existing = buckets.get(key);
+        const enriched = { ...r, body: { ...body, inverse_blurb: body.inverse_blurb ?? body.rationale ?? null } };
+        if (!existing) {
+          buckets.set(key, { celebrity: key, blurb: enriched.body.inverse_blurb, recipes: [enriched], lastAt: r.created_at });
+        } else if (existing.recipes.length < 3) {
+          existing.recipes.push(enriched);
+        }
+      }
+      const list = Array.from(buckets.values());
+      setPersonas(list);
+      // Fan out portrait fetches.
+      list.forEach(async (p) => {
+        const url = await fetchPersonaPortrait(p.celebrity);
+        if (cancelled) return;
+        setPortraitMap((m) => ({ ...m, [p.celebrity]: url }));
+      });
+    })();
+    return () => { cancelled = true; };
+  }, [session]);
+
+  const openPersona = (p: PersonaSummary) => {
+    setLoadingPersona(p.celebrity);
+    setResults({ celebrity: p.celebrity, recipes: p.recipes });
+    setLoadingPersona(null);
+    setTimeout(() => {
+      const el = document.getElementById("inverse-results");
+      el?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 50);
+  };
 
   const conjure = async () => {
     const name = celebrity.trim();
@@ -123,6 +204,24 @@ function InversePage() {
           We'll imagine the three dishes they would choose, in their voice, with a memoir blurb on each.
         </p>
 
+        {personas && personas.length > 0 && (
+          <>
+            <hr style={hairline} />
+            <div style={eyebrow}>Past personas — tap to revisit</div>
+            <div style={{ marginTop: 20, display: "flex", flexDirection: "column", gap: 16 }}>
+              {personas.map((p) => (
+                <PersonaRow
+                  key={p.celebrity}
+                  persona={p}
+                  portrait={portraitMap[p.celebrity] ?? null}
+                  loading={loadingPersona === p.celebrity}
+                  onClick={() => openPersona(p)}
+                />
+              ))}
+            </div>
+          </>
+        )}
+
         <hr style={hairline} />
 
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
@@ -171,7 +270,7 @@ function InversePage() {
         </div>
 
         {results && (
-          <>
+          <div id="inverse-results">
             <hr style={hairline} />
             <div style={eyebrow}>Three dishes for {results.celebrity}</div>
             <div style={{ display: "flex", flexDirection: "column", gap: 32, marginTop: 24 }}>
@@ -213,13 +312,103 @@ function InversePage() {
                 </Link>
               ))}
             </div>
-          </>
+          </div>
         )}
       </main>
 
       {conjuring && <ConjuringOverlay name={celebrity.trim()} phrase={phrases[phraseIdx]} />}
       
     </div>
+  );
+}
+
+function PersonaRow({ persona, portrait, loading, onClick }: { persona: PersonaSummary; portrait: string | null; loading: boolean; onClick: () => void }) {
+  const initial = (persona.celebrity[0] ?? "?").toUpperCase();
+  const blurb = persona.blurb ?? "Three dishes, in their voice.";
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={loading}
+      className="persona-row"
+    >
+      <div
+        aria-hidden="true"
+        className="persona-portrait"
+        style={{
+          backgroundImage: portrait ? `url(${portrait})` : undefined,
+        }}
+      >
+        {!portrait && <span className="persona-initial">{initial}</span>}
+      </div>
+      <div style={{ minWidth: 0, flex: 1, textAlign: "left" }}>
+        <div style={{
+          fontFamily: "var(--font-display)", fontStyle: "italic", fontWeight: 500,
+          fontSize: 22, lineHeight: 1.15, color: "var(--fg)",
+          overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+        }}>
+          {persona.celebrity}
+        </div>
+        <div style={{
+          marginTop: 6,
+          fontFamily: "var(--font-body)", fontStyle: "italic",
+          fontSize: 14, lineHeight: 1.45, color: "var(--fg-muted)",
+          display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical",
+          overflow: "hidden",
+        }}>
+          "{blurb}"
+        </div>
+        <div style={{
+          marginTop: 8,
+          fontFamily: "var(--font-mono)", fontSize: 9, letterSpacing: "0.2em",
+          textTransform: "uppercase", color: "var(--saffron)",
+        }}>
+          {persona.recipes.length} {persona.recipes.length === 1 ? "dish" : "dishes"} · revisit ↗
+        </div>
+      </div>
+      <style>{`
+        .persona-row {
+          position: relative;
+          display: flex; align-items: center; gap: 18px;
+          padding: 16px 22px;
+          border-radius: 9999px;
+          border: 1px solid color-mix(in oklab, var(--fg) 12%, transparent);
+          background: color-mix(in oklab, var(--surface-elev) 50%, transparent);
+          backdrop-filter: blur(22px) saturate(160%);
+          -webkit-backdrop-filter: blur(22px) saturate(160%);
+          box-shadow:
+            0 14px 40px -18px color-mix(in oklab, var(--saffron) 40%, transparent),
+            inset 0 1px 0 color-mix(in oklab, white 14%, transparent);
+          cursor: pointer;
+          color: var(--fg);
+          transition: transform 240ms ease, box-shadow 240ms ease, border-color 240ms ease;
+          overflow: hidden;
+          width: 100%;
+        }
+        .persona-row:hover {
+          transform: translateY(-2px);
+          border-color: color-mix(in oklab, var(--saffron) 55%, transparent);
+          box-shadow:
+            0 22px 50px -18px color-mix(in oklab, var(--saffron) 65%, transparent),
+            inset 0 1px 0 color-mix(in oklab, white 22%, transparent);
+        }
+        .persona-row:disabled { opacity: 0.6; cursor: progress; }
+        .persona-portrait {
+          width: 72px; height: 72px; border-radius: 50%; flex-shrink: 0;
+          background-color: color-mix(in oklab, var(--saffron) 18%, var(--surface-elev));
+          background-position: center 22%; background-size: cover; background-repeat: no-repeat;
+          border: 2px solid color-mix(in oklab, var(--saffron) 65%, transparent);
+          box-shadow:
+            0 0 0 4px color-mix(in oklab, var(--saffron) 14%, transparent),
+            0 8px 24px -8px color-mix(in oklab, var(--saffron) 55%, transparent);
+          display: flex; align-items: center; justify-content: center;
+        }
+        .persona-initial {
+          font-family: var(--font-display); font-style: italic; font-weight: 600;
+          font-size: 28px; color: var(--saffron);
+        }
+      `}</style>
+    </button>
   );
 }
 

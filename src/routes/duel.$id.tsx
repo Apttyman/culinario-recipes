@@ -35,23 +35,20 @@ async function resolveImage(r: any): Promise<string | null> {
   return null;
 }
 
-function getFaceCropStyle(faceBox, avatarSize = 96) {
+type FaceBox = { x: number; y: number; width: number; height: number } | null | undefined;
+
+function getFaceCropStyle(faceBox: FaceBox, avatarSize = 96): React.CSSProperties {
   if (!faceBox || typeof faceBox.x !== 'number') {
-    return { backgroundPosition: 'center', backgroundSize: 'cover' };
+    return { backgroundPosition: 'center', backgroundSize: 'cover', backgroundRepeat: 'no-repeat' };
   }
   const cx = (faceBox.x + faceBox.width / 2) * 100;
   const cy = (faceBox.y + faceBox.height / 2) * 100;
   const faceArea = faceBox.width * faceBox.height;
 
-  // Target: face fills ~55-65% of avatar circle
   const targetFacePortion = avatarSize >= 240 ? 0.65 : avatarSize >= 180 ? 0.6 : 0.55;
   const rawScale = Math.min(1 / faceBox.width, 1 / faceBox.height) * targetFacePortion;
 
-  // Force minimum zoom only for genuinely tiny faces (<3% of source)
   const minScale = faceArea < 0.03 ? 2.0 : 1.0;
-
-  // Cap at 1.0 (no zoom) for any source where face is already large.
-  // Already-tight portraits should display at natural size, not zoomed.
   const maxScale = faceArea > 0.25 ? 1.0 : 8;
 
   const scale = Math.max(minScale, Math.min(maxScale, rawScale));
@@ -60,11 +57,18 @@ function getFaceCropStyle(faceBox, avatarSize = 96) {
     backgroundSize: `${scale * 100}%`,
     backgroundRepeat: 'no-repeat',
   };
-}          backgroundImage: `url(${src})`,
-          backgroundPosition: zoom ? "center 22%" : "center",
-          backgroundSize: zoom ? "170%" : "cover",
-          backgroundRepeat: "no-repeat",
-        }
+}
+
+function Avatar({ src, alt, size = 96, ring = false, zoom = true, faceBox }: { src: string | null | undefined; alt: string; size?: number; ring?: boolean; zoom?: boolean; faceBox?: FaceBox }) {
+  const baseCrop: React.CSSProperties = faceBox
+    ? getFaceCropStyle(faceBox, size)
+    : {
+        backgroundPosition: zoom ? "center 22%" : "center",
+        backgroundSize: zoom ? "170%" : "cover",
+        backgroundRepeat: "no-repeat",
+      };
+  const cropStyle: React.CSSProperties = src
+    ? { backgroundImage: `url(${src})`, ...baseCrop }
     : { background: "#1a1a1a" };
   return (
     <div
