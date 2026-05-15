@@ -79,9 +79,14 @@ function InverseNewPage() {
         } catch { /* ignore */ }
         throw new Error(msg);
       }
+      console.log("[inverse.new] generate-inverse-recipes raw response", data);
       if ((data as any)?.error) throw new Error((data as any).error);
-      const ids: string[] = (data as any)?.recipe_ids ?? [];
-      if (ids.length !== 3) throw new Error(`Expected 3 new recipes, got ${ids.length}.`);
+      const respRecipes: any[] = (data as any)?.recipes ?? [];
+      const ids: string[] = respRecipes.map((r) => r?.id).filter(Boolean);
+      if (ids.length !== 3) {
+        console.error("[inverse.new] expected 3 recipes, got", ids.length, data);
+        throw new Error(`Expected 3 new recipes, got ${ids.length}.`);
+      }
       const { data: rows, error: rowsErr } = await supabase
         .from("recipes" as any)
         .select("id,title,cuisine,time_estimate_minutes,difficulty,position,body,inverse_blurb")
@@ -92,6 +97,7 @@ function InverseNewPage() {
       const orderedRows = ids.map((id) => byId.get(id)).filter(Boolean) as GeneratedRecipe[];
       if (orderedRows.length !== 3) throw new Error(`Loaded ${orderedRows.length} of 3 new recipes.`);
       setGeneratedCelebrity((data as any)?.celebrity ?? name);
+      setGeneratedPortrait((data as any)?.portrait_url ?? null);
       setRecipes(orderedRows);
       setCelebrity("");
     } catch (e: any) {
