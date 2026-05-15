@@ -290,13 +290,18 @@ function DuelsListPage() {
   );
 }
 
-function DuelRowCard({ duel, onClick }: { duel: DuelRow; onClick: () => void }) {
+function DuelRowCard({ duel, portraitA, portraitB, onClick }: {
+  duel: DuelRow;
+  portraitA: string | null;
+  portraitB: string | null;
+  onClick: () => void;
+}) {
   const winnerSlug = (duel.winner_slug ?? "").toString().toLowerCase();
   const isAWinner = !!winnerSlug && (winnerSlug === "a" || winnerSlug === "chef_a");
   const isBWinner = winnerSlug && !isAWinner;
   return (
     <button className="duel-row" onClick={onClick} type="button">
-      <ChefAvatar src={duel.chef_a_portrait_url} name={duel.chef_a ?? "Chef A"} />
+      <ChefAvatar src={portraitA} name={duel.chef_a ?? "Chef A"} />
       <div>
         <div className="duel-name">{duel.chef_a ?? "Chef A"}</div>
         {isAWinner && <div className="duel-winner-tag">Winner ★</div>}
@@ -309,7 +314,7 @@ function DuelRowCard({ duel, onClick }: { duel: DuelRow; onClick: () => void }) 
         <div className="duel-name duel-name-b">{duel.chef_b ?? "Chef B"}</div>
         {isBWinner && <div className="duel-winner-tag" style={{ display: "block", textAlign: "right" }}>Winner ★</div>}
       </div>
-      <ChefAvatar src={duel.chef_b_portrait_url} name={duel.chef_b ?? "Chef B"} />
+      <ChefAvatar src={portraitB} name={duel.chef_b ?? "Chef B"} />
     </button>
   );
 }
