@@ -66,6 +66,7 @@ function DuelsListPage() {
   const [err, setErr] = useState<string | null>(null);
 
   const [portraitByKey, setPortraitByKey] = useState<Record<string, string | null>>({});
+  const [faceBoxByKey, setFaceBoxByKey] = useState<Record<string, FaceBox>>({});
 
   useEffect(() => {
     if (loading) return;
@@ -85,11 +86,16 @@ function DuelsListPage() {
       if (keys.length > 0) {
         const { data: personas } = await supabase
           .from("celebrity_personas" as any)
-          .select("celebrity_key, portrait_url")
+          .select("celebrity_key, portrait_url, portrait_face_box")
           .in("celebrity_key", keys);
-        const map: Record<string, string | null> = {};
-        for (const p of (personas as any[]) ?? []) map[p.celebrity_key] = p.portrait_url ?? null;
-        setPortraitByKey(map);
+        const portraitMap: Record<string, string | null> = {};
+        const faceMap: Record<string, FaceBox> = {};
+        for (const p of (personas as any[]) ?? []) {
+          portraitMap[p.celebrity_key] = p.portrait_url ?? null;
+          faceMap[p.celebrity_key] = parseFaceBox(p.portrait_face_box);
+        }
+        setPortraitByKey(portraitMap);
+        setFaceBoxByKey(faceMap);
       }
     })();
   }, [session, loading, navigate]);
