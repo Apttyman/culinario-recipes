@@ -8,8 +8,7 @@ type Conversation = {
   id: string;
   user_a_id: string;
   user_b_id: string;
-  updated_at: string | null;
-  created_at: string | null;
+  last_message_at: string | null;
 };
 
 type Message = {
@@ -46,9 +45,9 @@ export function ChatWidget() {
     if (!userId) return;
     const { data: rows, error: convErr } = await supabase
       .from("conversations" as any)
-      .select("*")
+      .select("id, user_a_id, user_b_id, last_message_at")
       .or(`user_a_id.eq.${userId},user_b_id.eq.${userId}`)
-      .order("updated_at", { ascending: false, nullsFirst: false });
+      .order("last_message_at", { ascending: false, nullsFirst: false });
     console.log("[ChatWidget] conversations query", { userId, rows, error: convErr });
     const list = (rows ?? []) as unknown as Conversation[];
     if (list.length === 0) { setConvos([]); return; }
