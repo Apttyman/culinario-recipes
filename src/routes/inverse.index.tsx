@@ -30,8 +30,12 @@ const eyebrow: React.CSSProperties = {
 };
 const hairline: React.CSSProperties = { border: 0, height: 1, background: "var(--hairline)", margin: "32px 0" };
 
+function celebrityKey(name: string): string {
+  return name.trim().toLowerCase().replace(/[^a-z0-9\s]/g, "").replace(/\s+/g, "_");
+}
+
 const infoCache = new Map<string, { portrait: string | null; bio: string | null }>();
-async function fetchPersonaInfo(name: string): Promise<{ portrait: string | null; bio: string | null }> {
+async function fetchWikipediaInfo(name: string): Promise<{ portrait: string | null; bio: string | null }> {
   if (infoCache.has(name)) return infoCache.get(name)!;
   const empty = { portrait: null, bio: null };
   try {
@@ -84,7 +88,7 @@ function InverseListPage() {
         if (!celeb) continue;
         const isInverseRow =
           !!r.inverse_celebrity || !!body.inverse_celebrity || !!body.inverse_blurb ||
-          !!body.cameo || (r.session_id == null && !!r.chef_inspiration);
+          !!body.cameo || !!r.chef_inspiration;
         if (!isInverseRow) continue;
         const blurb = r.inverse_blurb ?? body.inverse_blurb ?? body.rationale ?? null;
         const key = celeb.trim();
@@ -92,18 +96,31 @@ function InverseListPage() {
         const enriched = { ...r, body: { ...body, inverse_blurb: blurb } };
         if (!existing) {
           buckets.set(key, { celebrity: key, blurb, recipes: [enriched], lastAt: r.created_at });
-        } else if (existing.recipes.length < 3) {
+        } else {
           existing.recipes.push(enriched);
           if (!existing.blurb && blurb) existing.blurb = blurb;
         }
       }
       const list = Array.from(buckets.values());
       setPersonas(list);
+
+      // Fetch portraits from celebrity_personas (same source as duels), Wikipedia as fallback for bio.
+      const keys = list.map((p) => celebrityKey(p.celebrity));
+      const { data: personaRows } = await supabase
+        .from("celebrity_personas" as any)
+        .select("celebrity_key, portrait_url")
+        .in("celebrity_key", keys);
+      if (cancelled) return;
+      const portraitByKey = new Map<string, string | null>();
+      for (const row of (personaRows ?? []) as any[]) {
+        portraitByKey.set(row.celebrity_key, row.portrait_url ?? null);
+      }
       list.forEach(async (p) => {
-        const info = await fetchPersonaInfo(p.celebrity);
+        const stored = portraitByKey.get(celebrityKey(p.celebrity)) ?? null;
+        const wiki = await fetchWikipediaInfo(p.celebrity);
         if (cancelled) return;
-        setPortraitMap((m) => ({ ...m, [p.celebrity]: info.portrait }));
-        setBioMap((m) => ({ ...m, [p.celebrity]: info.bio }));
+        setPortraitMap((m) => ({ ...m, [p.celebrity]: stored ?? wiki.portrait }));
+        setBioMap((m) => ({ ...m, [p.celebrity]: wiki.bio }));
       });
     })();
     return () => { cancelled = true; };
