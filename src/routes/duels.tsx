@@ -5,6 +5,7 @@ import { supabase } from "@/lib/supabase-client";
 import { AppHeader } from "@/components/AppHeader";
 import { ShareButton } from "@/components/share/ShareButton";
 import { toCelebrityKey } from "@/lib/celebrity-key";
+import { getFaceCropStyle, parseFaceBox, type FaceBox } from "@/lib/face-crop";
 
 export const Route = createFileRoute("/duels")({
   head: () => ({
