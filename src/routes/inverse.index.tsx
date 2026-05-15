@@ -401,7 +401,7 @@ function PersonaRow({
   persona, portrait, faceBox, bio, onClick,
 }: { persona: PersonaSummary; portrait: string | null; faceBox?: FaceBox; bio: string | null; onClick: () => void }) {
   const initial = (persona.celebrity[0] ?? "?").toUpperCase();
-  const blurb = bio ?? persona.blurb ?? "Three dishes, in their voice.";
+  const blurb = bio ?? "Three dishes from a kitchen icon.";
   const cookedCount = persona.recipes.filter((r) => r.cooked_at).length;
   const ratedCount = persona.recipes.filter((r) => r.rating != null).length;
   const sessionId = persona.recipes[0]?.inverse_session_id ?? persona.recipes[0]?.id ?? null;
