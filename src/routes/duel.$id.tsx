@@ -27,6 +27,10 @@ const PALETTE = {
   muted: "#9a9a9a",
 };
 
+// Minimum ms between act advances. Prevents stray double-taps / bounces /
+// rapid keyboard repeats from skipping an act unintentionally.
+const ADVANCE_DEBOUNCE_MS = 700;
+
 // ---------- helpers ----------
 async function resolveImage(r: any): Promise<string | null> {
   if (!r) return null;
@@ -166,7 +170,8 @@ function Typewriter({ text, speed = 25, delay = 0, style }: { text: string; spee
   );
 }
 
-function ActShell({ children, onAdvance, scrollable = false }: { children: React.ReactNode; onAdvance: () => void; scrollable?: boolean }) {
+function ActShell({ children, onAdvance, scrollable = false, paddingBottom }: { children: React.ReactNode; onAdvance: () => void; scrollable?: boolean; paddingBottom?: string | number }) {
+  const padBottom = paddingBottom ?? (scrollable ? "calc(144px + env(safe-area-inset-bottom, 0px))" : 24);
   return (
     <div
       onClick={onAdvance}
@@ -176,7 +181,7 @@ function ActShell({ children, onAdvance, scrollable = false }: { children: React
         fontFamily: "Inter, system-ui, sans-serif",
         display: "flex", flexDirection: "column", alignItems: "center", justifyContent: scrollable ? "flex-start" : "center",
         height: "100dvh", maxHeight: "100dvh", boxSizing: "border-box",
-        padding: scrollable ? "24px 24px calc(144px + env(safe-area-inset-bottom, 0px))" : 24,
+        padding: scrollable ? `24px 24px ${padBottom}` : 24,
         overscrollBehaviorY: scrollable ? "contain" : undefined,
         touchAction: scrollable ? "pan-y" : undefined,
         WebkitOverflowScrolling: "touch",
@@ -297,6 +302,14 @@ function DuelPage() {
   const [openRecipe, setOpenRecipe] = useState<any | null>(null);
   const [winSize, setWinSize] = useState({ w: 1200, h: 800 });
 
+  // Debounce: block rapid taps/keypresses within ADVANCE_DEBOUNCE_MS of last advance
+  const lastAdvanceRef = useRef<number>(0);
+  // Block any advance for a short window when entering a new act to prevent
+  // a stray tap (especially mobile bounce) from immediately skipping it
+  useEffect(() => {
+    lastAdvanceRef.current = Date.now();
+  }, [act]);
+
   // Sync act -> URL so deep-links and back-navigation resume at the right beat
   useEffect(() => {
     navigate({
@@ -346,15 +359,17 @@ function DuelPage() {
     }).filter((t) => t.text);
   }, [duel?.trash_talk, chefA, chefB]);
 
-  // Build the act order; skip acts whose data is missing.
-  // Fixed 1..9 order so the sequence never shifts as data trickles in.
-  // Acts render placeholders if their data is missing.
   const actOrder = useMemo(() => [1, 2, 3, 4, 5, 6, 7, 8, 9], []);
 
   const currentActNum = actOrder[Math.min(act, actOrder.length - 1)];
 
   const advance = useCallback(() => {
     if (openRecipe) return; // tap on modal handled separately
+    // Debounce guard: ignore rapid repeated advances
+    const now = Date.now();
+    if (now - lastAdvanceRef.current < ADVANCE_DEBOUNCE_MS) return;
+    lastAdvanceRef.current = now;
+
     if (currentActNum === 6 && trashIdx < trashTalk.length) {
       setTrashIdx((n) => n + 1);
       return;
@@ -603,8 +618,11 @@ function Act5Dishes({
   chefA: string; chefB: string;
   onAdvance: () => void; onOpenRecipe: (r: any) => void;
 }) {
+  // Render the tap hint inline at the BOTTOM of the scroll content rather
+  // than as a fixed overlay. This stops it from overlapping the dish cards
+  // on laptop viewports where the content scrolls under a fixed hint.
   return (
-    <ActShell onAdvance={onAdvance} scrollable>
+    <ActShell onAdvance={onAdvance} scrollable paddingBottom={48}>
       <div style={{ width: "100%", maxWidth: 1200, textAlign: "center" }}>
         <motion.h2
           initial={{ opacity: 0, y: -16 }}
@@ -666,8 +684,21 @@ function Act5Dishes({
             </motion.button>
           ))}
         </div>
+        {/* Inline tap hint, lives in flow at the bottom of the scrollable content */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: [0.3, 1, 0.3] }}
+          transition={{ duration: 1.8, repeat: Infinity, delay: 0.6 }}
+          style={{
+            marginTop: 56,
+            textAlign: "center",
+            fontSize: 11, letterSpacing: "0.4em", color: PALETTE.muted,
+            pointerEvents: "none",
+          }}
+        >
+          TAP A DISH TO PEEK · TAP BACKGROUND TO CONTINUE
+        </motion.div>
       </div>
-      <TapHint label="TAP A DISH TO PEEK · TAP BACKGROUND TO CONTINUE" />
     </ActShell>
   );
 }
