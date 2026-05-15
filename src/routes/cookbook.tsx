@@ -23,6 +23,7 @@ function Cookbook() {
   const { session, loading } = useAuth();
   const navigate = useNavigate();
   const [recipes, setRecipes] = useState<any[] | null>(null);
+  const [sharedItems, setSharedItems] = useState<Array<{ kind: "recipe" | "duel"; id: string; row: any; sharedBy: string | null }>>([]);
 
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState<Status>("all");
@@ -42,11 +43,37 @@ function Cookbook() {
       .order("created_at", { ascending: false })
       .then(({ data }) => {
         setRecipes(data ?? []);
-        // eslint-disable-next-line no-console
-        console.log("[cookbook] sample recipe fields", (data ?? []).slice(0, 3).map((r: any) => ({
-          title: r.title, cuisine: r.cuisine, difficulty: r.difficulty, time: r.time_estimate_minutes,
-        })));
       });
+    // Load shared-with-me items
+    (async () => {
+      const { data: links } = await supabase
+        .from("shared_recipe_links" as any)
+        .select("*")
+        .eq("recipient_user_id", session.user.id)
+        .order("created_at", { ascending: false });
+      const rows: any[] = (links ?? []) as any[];
+      if (!rows.length) { setSharedItems([]); return; }
+      const recipeIds = rows.filter((l) => l.source_recipe_id).map((l) => l.source_recipe_id);
+      const duelIds = rows.filter((l) => l.source_duel_id).map((l) => l.source_duel_id);
+      const [{ data: rs }, { data: ds }] = await Promise.all([
+        recipeIds.length ? supabase.from("recipes").select("*").in("id", recipeIds) : Promise.resolve({ data: [] as any[] }),
+        duelIds.length ? supabase.from("duels" as any).select("*").in("id", duelIds) : Promise.resolve({ data: [] as any[] }),
+      ]);
+      const recipeMap = new Map<string, any>();
+      for (const r of (rs ?? []) as any[]) recipeMap.set(r.id, r);
+      const duelMap = new Map<string, any>();
+      for (const d of (ds ?? []) as any[]) duelMap.set(d.id, d);
+      const items = rows.flatMap((l) => {
+        if (l.source_recipe_id && recipeMap.has(l.source_recipe_id)) {
+          return [{ kind: "recipe" as const, id: l.source_recipe_id, row: recipeMap.get(l.source_recipe_id), sharedBy: l.shared_by_display_name ?? null }];
+        }
+        if (l.source_duel_id && duelMap.has(l.source_duel_id)) {
+          return [{ kind: "duel" as const, id: l.source_duel_id, row: duelMap.get(l.source_duel_id), sharedBy: l.shared_by_display_name ?? null }];
+        }
+        return [];
+      });
+      setSharedItems(items);
+    })();
   }, [session]);
 
   const stats = useMemo(() => {
