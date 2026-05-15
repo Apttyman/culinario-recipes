@@ -163,6 +163,8 @@ function DuelsListPage() {
               <div key={d.id} style={{ position: "relative" }}>
                 <DuelRowCard
                   duel={d}
+                  portraitA={portraitByKey[toCelebrityKey(d.chef_a)] ?? d.chef_a_portrait_url}
+                  portraitB={portraitByKey[toCelebrityKey(d.chef_b)] ?? d.chef_b_portrait_url}
                   onClick={() => navigate({ to: "/duel/$id", params: { id: d.id } })}
                 />
                 <div
