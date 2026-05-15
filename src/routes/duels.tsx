@@ -168,14 +168,14 @@ function DuelsListPage() {
                   onClick={() => navigate({ to: "/duel/$id", params: { id: d.id } })}
                 />
                 <div
-                  style={{ position: "absolute", top: 10, right: 18, zIndex: 2 }}
+                  style={{ position: "absolute", bottom: 8, right: 14, zIndex: 2 }}
                   onClick={(e) => e.stopPropagation()}
                 >
                   <ShareButton
                     kind="duel"
                     targetId={d.id}
                     targetLabel={`${d.chef_a ?? "Chef A"} vs ${d.chef_b ?? "Chef B"}`}
-                    label="Share ↗"
+                    variant="icon"
                   />
                 </div>
               </div>
