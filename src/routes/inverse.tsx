@@ -114,11 +114,12 @@ function InversePage() {
       }
       const list = Array.from(buckets.values());
       setPersonas(list);
-      // Fan out portrait fetches.
+      // Fan out portrait + bio fetches.
       list.forEach(async (p) => {
-        const url = await fetchPersonaPortrait(p.celebrity);
+        const info = await fetchPersonaInfo(p.celebrity);
         if (cancelled) return;
-        setPortraitMap((m) => ({ ...m, [p.celebrity]: url }));
+        setPortraitMap((m) => ({ ...m, [p.celebrity]: info.portrait }));
+        setBioMap((m) => ({ ...m, [p.celebrity]: info.bio }));
       });
     })();
     return () => { cancelled = true; };
