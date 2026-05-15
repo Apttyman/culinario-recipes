@@ -27,11 +27,8 @@ const PALETTE = {
   muted: "#9a9a9a",
 };
 
-// Minimum ms between act advances. Prevents stray double-taps / bounces /
-// rapid keyboard repeats from skipping an act unintentionally.
 const ADVANCE_DEBOUNCE_MS = 700;
 
-// ---------- helpers ----------
 async function resolveImage(r: any): Promise<string | null> {
   if (!r) return null;
   if (r.inverse_image_url) return r.inverse_image_url;
@@ -92,7 +89,6 @@ function Avatar({ src, alt, size = 96, ring = false, zoom = true, faceBox }: { s
   );
 }
 
-// Stagger-letter title reveal
 function LetterReveal({ text, perLetter = 0.08, delay = 0, style }: { text: string; perLetter?: number; delay?: number; style?: React.CSSProperties }) {
   return (
     <span style={{ display: "inline-block", ...style }} aria-label={text}>
@@ -111,7 +107,6 @@ function LetterReveal({ text, perLetter = 0.08, delay = 0, style }: { text: stri
   );
 }
 
-// Word-by-word reveal
 function WordReveal({ text, perWord = 0.18, delay = 0, style }: { text: string; perWord?: number; delay?: number; style?: React.CSSProperties }) {
   const words = text.split(/(\s+)/);
   return (
@@ -133,7 +128,6 @@ function WordReveal({ text, perWord = 0.18, delay = 0, style }: { text: string; 
   );
 }
 
-// Typewriter
 function Typewriter({ text, speed = 25, delay = 0, style }: { text: string; speed?: number; delay?: number; style?: React.CSSProperties }) {
   const [i, setI] = useState(0);
   useEffect(() => {
@@ -209,7 +203,6 @@ function TapHint({ label = "TAP TO CONTINUE" }: { label?: string }) {
   );
 }
 
-// ---------- main ----------
 function DuelPage() {
   const { id } = Route.useParams();
   const { session, loading: authLoading } = useAuth();
@@ -274,7 +267,6 @@ function DuelPage() {
     return () => { cancelled = true; };
   }, [id]);
 
-  // Poll for image updates
   useEffect(() => {
     if (!recipeA && !recipeB) return;
     if ((recipeA?.inverse_image_url || recipeA?.image_path) && (recipeB?.inverse_image_url || recipeB?.image_path)) return;
@@ -294,23 +286,18 @@ function DuelPage() {
     return () => clearInterval(t);
   }, [recipeA?.id, recipeB?.id, recipeA?.inverse_image_url, recipeB?.inverse_image_url]);
 
-  // ---------- act state ----------
   const search = Route.useSearch();
   const initialAct = typeof search.act === "number" ? search.act : 0;
-  const [act, setAct] = useState(initialAct); // 0..8
-  const [trashIdx, setTrashIdx] = useState(1); // start with first line already revealed
+  const [act, setAct] = useState(initialAct);
+  const [trashIdx, setTrashIdx] = useState(1);
   const [openRecipe, setOpenRecipe] = useState<any | null>(null);
   const [winSize, setWinSize] = useState({ w: 1200, h: 800 });
 
-  // Debounce: block rapid taps/keypresses within ADVANCE_DEBOUNCE_MS of last advance
   const lastAdvanceRef = useRef<number>(0);
-  // Block any advance for a short window when entering a new act to prevent
-  // a stray tap (especially mobile bounce) from immediately skipping it
   useEffect(() => {
     lastAdvanceRef.current = Date.now();
   }, [act]);
 
-  // Sync act -> URL so deep-links and back-navigation resume at the right beat
   useEffect(() => {
     navigate({
       to: "/duel/$id",
@@ -364,8 +351,7 @@ function DuelPage() {
   const currentActNum = actOrder[Math.min(act, actOrder.length - 1)];
 
   const advance = useCallback(() => {
-    if (openRecipe) return; // tap on modal handled separately
-    // Debounce guard: ignore rapid repeated advances
+    if (openRecipe) return;
     const now = Date.now();
     if (now - lastAdvanceRef.current < ADVANCE_DEBOUNCE_MS) return;
     lastAdvanceRef.current = now;
@@ -377,16 +363,23 @@ function DuelPage() {
     setAct((a: number) => Math.min(a + 1, actOrder.length - 1));
   }, [openRecipe, currentActNum, trashIdx, trashTalk.length, actOrder.length]);
 
-  // Ensure trash talk never shows an empty 0/N screen
   useEffect(() => {
     if (currentActNum === 6 && trashIdx < 1 && trashTalk.length > 0) setTrashIdx(1);
   }, [currentActNum, trashIdx, trashTalk.length]);
 
 
-  // keyboard: space advances
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.code === "Space" || e.key === " ") {
+        // Don't intercept space when user is typing in a form field
+        const target = e.target as HTMLElement;
+        if (
+          target?.tagName === "INPUT" ||
+          target?.tagName === "TEXTAREA" ||
+          target?.isContentEditable
+        ) {
+          return;
+        }
         e.preventDefault();
         advance();
       }
@@ -395,7 +388,6 @@ function DuelPage() {
     return () => window.removeEventListener("keydown", onKey);
   }, [advance]);
 
-  // ---------- render guards ----------
   if (authLoading || !session || loading) {
     return (
       <div style={{ position: "fixed", inset: 0, background: PALETTE.bg, color: PALETTE.gold, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "Georgia, serif", fontStyle: "italic", fontSize: 24 }}>
@@ -409,7 +401,6 @@ function DuelPage() {
 
   const reset = () => { setAct(0); setTrashIdx(1); setOpenRecipe(null); };
 
-  // ---------- acts ----------
   return (
     <>
       {currentActNum === 9 && (
@@ -472,7 +463,6 @@ function DuelPage() {
         </motion.div>
       </AnimatePresence>
 
-      {/* Recipe modal */}
       <AnimatePresence>
         {openRecipe && (
           <RecipeModal recipe={openRecipe} img={openRecipe.id === recipeA?.id ? imgA : imgB} onClose={() => setOpenRecipe(null)} />
@@ -482,7 +472,6 @@ function DuelPage() {
   );
 }
 
-// ---------- ACT 1 ----------
 function Act1Title({ chefA, chefB, onAdvance }: { chefA: string; chefB: string; onAdvance: () => void }) {
   return (
     <ActShell onAdvance={onAdvance}>
@@ -525,34 +514,51 @@ function Act1Title({ chefA, chefB, onAdvance }: { chefA: string; chefB: string; 
   );
 }
 
-// ---------- ACT 2 ----------
 function Act2Challenge({ challenge, host, onAdvance }: { challenge: string; host: string; onAdvance: () => void }) {
+  // Dynamically scale font size based on challenge length so long text fits
+  const len = (challenge ?? "").length;
+  const challengeFontSize =
+    len > 280 ? "clamp(16px, 1.9vw, 26px)" :
+    len > 200 ? "clamp(18px, 2.3vw, 32px)" :
+    len > 140 ? "clamp(22px, 2.8vw, 40px)" :
+    len > 80  ? "clamp(26px, 3.5vw, 52px)" :
+                "clamp(32px, 5vw, 64px)";
   return (
-    <ActShell onAdvance={onAdvance}>
-      <div style={{ textAlign: "center", maxWidth: 900 }}>
+    <ActShell onAdvance={onAdvance} scrollable paddingBottom={96}>
+      <div style={{
+        textAlign: "center",
+        maxWidth: 820,
+        width: "100%",
+        margin: "auto",
+        display: "flex", flexDirection: "column", justifyContent: "center",
+        minHeight: "100%",
+      }}>
         <motion.div
           initial={{ opacity: 0, letterSpacing: "0.1em" }}
           animate={{ opacity: 1, letterSpacing: "0.4em" }}
           transition={{ duration: 0.8 }}
-          style={{ fontSize: 14, color: PALETTE.red, textTransform: "uppercase", marginBottom: 28 }}
+          style={{ fontSize: 13, color: PALETTE.red, textTransform: "uppercase", marginBottom: 20 }}
         >
           Tonight's Challenge
         </motion.div>
         <h2 style={{
           fontFamily: "Georgia, serif", fontStyle: "italic", fontWeight: 700,
-          fontSize: "clamp(36px, 6vw, 72px)", lineHeight: 1.2,
-          color: PALETTE.gold, margin: "0 0 48px",
+          fontSize: challengeFontSize, lineHeight: 1.3,
+          color: PALETTE.gold, margin: "0 0 28px",
           textShadow: `0 4px 30px ${PALETTE.gold}33`,
+          wordBreak: "break-word",
+          hyphens: "auto",
+          maxWidth: "100%",
         }}>
-          <WordReveal text={challenge || "An open challenge."} perWord={0.16} delay={0.6} />
+          <WordReveal text={challenge || "An open challenge."} perWord={0.12} delay={0.4} />
         </h2>
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1.6 + ((challenge?.split(/\s+/).length ?? 1) * 0.16), duration: 0.6 }}
-          style={{ fontSize: 13, letterSpacing: "0.3em", color: PALETTE.muted, textTransform: "uppercase" }}
+          transition={{ delay: 1.2, duration: 0.6 }}
+          style={{ fontSize: 12, letterSpacing: "0.3em", color: PALETTE.muted, textTransform: "uppercase" }}
         >
-          Hosted by <span style={{ color: PALETTE.ink, fontFamily: "Georgia, serif", fontStyle: "italic", fontSize: 22, letterSpacing: 0, textTransform: "none" }}> {host}</span>
+          Hosted by <span style={{ color: PALETTE.ink, fontFamily: "Georgia, serif", fontStyle: "italic", fontSize: 20, letterSpacing: 0, textTransform: "none" }}> {host}</span>
         </motion.div>
       </div>
       <TapHint />
@@ -560,7 +566,6 @@ function Act2Challenge({ challenge, host, onAdvance }: { challenge: string; host
   );
 }
 
-// ---------- ACT 3 / 4 (walk-on) ----------
 function Act3WalkOn({ name, bio, img, faceBox, side, onAdvance }: { name: string; bio?: string | null; img?: string | null; faceBox?: FaceBox; side: "left" | "right"; onAdvance: () => void }) {
   const fromX = side === "left" ? -260 : 260;
   return (
@@ -610,7 +615,6 @@ function Act3WalkOn({ name, bio, img, faceBox, side, onAdvance }: { name: string
   );
 }
 
-// ---------- ACT 5 ----------
 function Act5Dishes({
   recipeA, recipeB, imgA, imgB, chefA, chefB, onAdvance, onOpenRecipe,
 }: {
@@ -618,24 +622,42 @@ function Act5Dishes({
   chefA: string; chefB: string;
   onAdvance: () => void; onOpenRecipe: (r: any) => void;
 }) {
-  // Render the tap hint inline at the BOTTOM of the scroll content rather
-  // than as a fixed overlay. This stops it from overlapping the dish cards
-  // on laptop viewports where the content scrolls under a fixed hint.
+  // Viewport-aware sizing: cards scale to fit available height on laptop screens
+  const [vh, setVh] = useState(800);
+  useEffect(() => {
+    const update = () => setVh(window.innerHeight);
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
+
+  // Reserve ~140px for heading + tap hint + padding, split remainder between cards
+  const cardHeightBudget = Math.max(260, Math.min(420, vh - 200));
+  // Image takes 60% of card, text takes 40%
+  const imageHeight = Math.floor(cardHeightBudget * 0.6);
+
   return (
-    <ActShell onAdvance={onAdvance} scrollable paddingBottom={48}>
-      <div style={{ width: "100%", maxWidth: 1200, textAlign: "center" }}>
+    <ActShell onAdvance={onAdvance} scrollable paddingBottom={32}>
+      <div style={{ width: "100%", maxWidth: 1100, textAlign: "center" }}>
         <motion.h2
           initial={{ opacity: 0, y: -16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
           style={{
             fontFamily: "Georgia, serif", fontStyle: "italic", fontWeight: 800,
-            fontSize: "clamp(28px, 5vw, 52px)", color: PALETTE.gold, margin: "0 0 48px",
+            fontSize: "clamp(20px, 2.8vw, 32px)", color: PALETTE.gold,
+            margin: "0 0 16px",
           }}
         >
           And here are their dishes.
         </motion.h2>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(280px, 100%), 1fr))", gap: 32 }}>
+        <div style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(min(260px, 100%), 1fr))",
+          gap: 20,
+          maxWidth: 860,
+          margin: "0 auto",
+        }}>
           {[
             { r: recipeA, img: imgA, chef: chefA, delay: 0.2 },
             { r: recipeB, img: imgB, chef: chefB, delay: 1.7 },
@@ -655,44 +677,44 @@ function Act5Dishes({
                 background: "#141414", border: `1px solid ${PALETTE.gold}55`,
                 borderRadius: 8, overflow: "hidden", textAlign: "left",
                 cursor: "pointer", padding: 0, color: "inherit", minWidth: 0,
+                display: "flex", flexDirection: "column",
               }}
             >
               {r ? (
                 img ? (
-                  <div style={{ width: "100%", aspectRatio: "4/3", background: `center/cover no-repeat url(${img})` }} />
+                  <div style={{ width: "100%", height: imageHeight, background: `center/cover no-repeat url(${img})`, flexShrink: 0 }} />
                 ) : (
-                  <div style={{ width: "100%", aspectRatio: "4/3", background: "#1a1a1a", display: "flex", alignItems: "center", justifyContent: "center", color: PALETTE.muted, fontStyle: "italic", fontSize: 13 }}>
+                  <div style={{ width: "100%", height: imageHeight, background: "#1a1a1a", display: "flex", alignItems: "center", justifyContent: "center", color: PALETTE.muted, fontStyle: "italic", fontSize: 13, flexShrink: 0 }}>
                     Plating the dish…
                   </div>
                 )
               ) : (
-                <div style={{ width: "100%", aspectRatio: "4/3", background: "#1a1a1a", display: "flex", alignItems: "center", justifyContent: "center", color: PALETTE.muted, fontStyle: "italic" }}>
+                <div style={{ width: "100%", height: imageHeight, background: "#1a1a1a", display: "flex", alignItems: "center", justifyContent: "center", color: PALETTE.muted, fontStyle: "italic", flexShrink: 0 }}>
                   Recipe unavailable
                 </div>
               )}
-              <div style={{ padding: 22 }}>
-                <div style={{ fontSize: 11, letterSpacing: "0.2em", textTransform: "uppercase", color: PALETTE.gold }}>
+              <div style={{ padding: 14 }}>
+                <div style={{ fontSize: 10, letterSpacing: "0.2em", textTransform: "uppercase", color: PALETTE.gold }}>
                   {chef}'s entry
                 </div>
-                <h3 style={{ fontFamily: "Georgia, serif", fontStyle: "italic", fontSize: 26, margin: "10px 0 10px", color: PALETTE.ink }}>
+                <h3 style={{ fontFamily: "Georgia, serif", fontStyle: "italic", fontSize: 18, margin: "4px 0 6px", color: PALETTE.ink, lineHeight: 1.2 }}>
                   {r?.title ?? "—"}
                 </h3>
-                <div style={{ fontSize: 11, letterSpacing: "0.15em", textTransform: "uppercase", color: PALETTE.muted }}>
+                <div style={{ fontSize: 10, letterSpacing: "0.15em", textTransform: "uppercase", color: PALETTE.muted }}>
                   {(r?.cuisine ?? "—").toString().toUpperCase()} · {r?.time_estimate_minutes ?? "—"} MIN · {(r?.difficulty ?? "—").toString().toUpperCase()}
                 </div>
               </div>
             </motion.button>
           ))}
         </div>
-        {/* Inline tap hint, lives in flow at the bottom of the scrollable content */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: [0.3, 1, 0.3] }}
           transition={{ duration: 1.8, repeat: Infinity, delay: 0.6 }}
           style={{
-            marginTop: 56,
+            marginTop: 24,
             textAlign: "center",
-            fontSize: 11, letterSpacing: "0.4em", color: PALETTE.muted,
+            fontSize: 10, letterSpacing: "0.4em", color: PALETTE.muted,
             pointerEvents: "none",
           }}
         >
@@ -703,7 +725,6 @@ function Act5Dishes({
   );
 }
 
-// ---------- Recipe Modal ----------
 function RecipeModal({ recipe, img, onClose }: { recipe: any; img: string | null; onClose: () => void }) {
   const navigate = useNavigate();
   const { id: duelId } = Route.useParams();
@@ -763,7 +784,6 @@ function RecipeModal({ recipe, img, onClose }: { recipe: any; img: string | null
   );
 }
 
-// ---------- ACT 6 — TRASH TALK ----------
 function Act6TrashTalk({
   lines, revealed, imgA, imgB, faceBoxA, faceBoxB, onAdvance,
 }: {
@@ -778,13 +798,12 @@ function Act6TrashTalk({
   const latestIdx = visible.length - 1;
   const latestText = latestIdx >= 0 ? visible[latestIdx].text : "";
 
-  // Typewriter for the latest line
   const [typedChars, setTypedChars] = useState(0);
   useEffect(() => {
     setTypedChars(0);
     if (!latestText) return;
     const total = latestText.length;
-    const step = Math.max(12, Math.floor(900 / Math.max(20, total))); // ~0.9s total
+    const step = Math.max(12, Math.floor(900 / Math.max(20, total)));
     const id = setInterval(() => {
       setTypedChars((n) => {
         if (n >= total) { clearInterval(id); return n; }
@@ -794,7 +813,6 @@ function Act6TrashTalk({
     return () => clearInterval(id);
   }, [latestText, revealed]);
 
-  // "tap for the verdict" prompt — appears 2s after final line is revealed
   const [showVerdictPrompt, setShowVerdictPrompt] = useState(false);
   useEffect(() => {
     setShowVerdictPrompt(false);
@@ -803,7 +821,6 @@ function Act6TrashTalk({
     return () => clearTimeout(t);
   }, [allDone]);
 
-  // Round indicator: appears briefly when entering round 2 or 3
   const lastLine = visible[latestIdx];
   const showRound =
     lastLine && lastLine.round > 1 && visible.filter((l) => l.round === lastLine.round).length === 1
@@ -934,7 +951,6 @@ function Act6TrashTalk({
   );
 }
 
-// ---------- ACT 7 — VERDICT ----------
 function Act7Verdict({
   verdict, hostName, winnerName, winnerImg, winnerFaceBox, winSize, onAdvance,
 }: {
@@ -943,9 +959,6 @@ function Act7Verdict({
   winnerFaceBox?: FaceBox;
   winSize: { w: number; h: number }; onAdvance: () => void;
 }) {
-  // 0 = "After long deliberation…" (auto → 1 after 2.2s)
-  // 1 = verdict typewriter (auto → 2 after typing + 2s hold; tap to skip)
-  // 2 = winner reveal + confetti (tap to leave act)
   const [stage, setStage] = useState(0);
   const verdictText = verdict || "The judges hesitate. The room is silent.";
   const [typedCount, setTypedCount] = useState(0);
@@ -957,7 +970,6 @@ function Act7Verdict({
     return () => { clearTimeout(t1); };
   }, []);
 
-  // Typewriter for stage 1
   useEffect(() => {
     if (stage !== 1) return;
     if (typedCount >= verdictText.length) { setDoneTyping(true); return; }
@@ -965,7 +977,6 @@ function Act7Verdict({
     return () => clearTimeout(t);
   }, [stage, typedCount, verdictText]);
 
-  // After typing finishes, hold 2s then auto-advance to winner
   useEffect(() => {
     if (stage !== 1 || !doneTyping) return;
     const t = setTimeout(() => setStage(2), 2000);
@@ -975,7 +986,6 @@ function Act7Verdict({
   const handleTap = () => {
     if (stage === 0) { setStage(1); return; }
     if (stage === 1) {
-      // skip typewriter; if already done, jump to winner
       if (!doneTyping) { setTypedCount(verdictText.length); setDoneTyping(true); return; }
       setStage(2); return;
     }
@@ -1122,7 +1132,6 @@ function Act7Verdict({
   );
 }
 
-// ---------- ACT 8 — AD BREAK ----------
 function Act8AdBreak({ adBreak, onAdvance }: { adBreak: string; onAdvance: () => void }) {
   return (
     <div
@@ -1148,19 +1157,16 @@ function Act8AdBreak({ adBreak, onAdvance }: { adBreak: string; onAdvance: () =>
         }
       `}</style>
 
-      {/* VHS scan lines */}
       <div style={{
         position: "absolute", inset: 0, pointerEvents: "none", opacity: 0.25,
         background: "repeating-linear-gradient(0deg, rgba(0,0,0,0.6) 0 2px, transparent 2px 4px)",
       }} />
-      {/* moving scan band */}
       <div style={{
         position: "absolute", left: 0, right: 0, height: "20%",
         background: "linear-gradient(180deg, transparent, rgba(255,255,255,0.12), transparent)",
         animation: "vhs-scan 4s linear infinite", pointerEvents: "none",
       }} />
 
-      {/* Corner stars */}
       {[
         { top: 16, left: 16 }, { top: 16, right: 16 }, { bottom: 16, left: 16 }, { bottom: 16, right: 16 },
       ].map((pos, i) => (
@@ -1205,7 +1211,6 @@ function Act8AdBreak({ adBreak, onAdvance }: { adBreak: string; onAdvance: () =>
   );
 }
 
-// ---------- ACT 9 — SEND-OFF ----------
 function Act9Sendoff({
   chefA, chefB, recipeA, recipeB, onReplay,
 }: {
