@@ -95,28 +95,32 @@ function InverseListPage() {
       console.log("[inverse] looking up celebrity_keys", keys, "for celebrities", list.map((p) => p.celebrity));
       const { data: personaRows, error: pErr } = await supabase
         .from("celebrity_personas" as any)
-        .select("celebrity_key, portrait_url, portrait_face_box")
+        .select("celebrity_key, portrait_url, portrait_face_box, persona_blurb, disambiguator")
         .in("celebrity_key", keys);
       console.log("[inverse] celebrity_personas rows", personaRows, "error", pErr);
       if (cancelled) return;
       const portraitByKey = new Map<string, string | null>();
       const faceByKey = new Map<string, FaceBox>();
+      const bioByKey = new Map<string, string | null>();
       for (const row of (personaRows ?? []) as any[]) {
         portraitByKey.set(row.celebrity_key, row.portrait_url ?? null);
         faceByKey.set(row.celebrity_key, parseFaceBox(row.portrait_face_box));
+        bioByKey.set(row.celebrity_key, row.persona_blurb ?? row.disambiguator ?? null);
       }
       const nextPortraits: Record<string, string | null> = {};
       const nextFaces: Record<string, FaceBox> = {};
+      const nextBios: Record<string, string | null> = {};
       for (const p of list) {
         const k = celebrityKey(p.celebrity);
         const url = portraitByKey.get(k) ?? null;
         console.log(`[inverse] portrait for "${p.celebrity}" key="${k}" -> ${url}`);
         nextPortraits[p.celebrity] = url;
         nextFaces[p.celebrity] = faceByKey.get(k) ?? null;
+        nextBios[p.celebrity] = bioByKey.get(k) ?? null;
       }
       setPortraitMap(nextPortraits);
       setFaceBoxMap(nextFaces);
-      setBioMap({});
+      setBioMap(nextBios);
     })();
     return () => { cancelled = true; };
   }, [session]);
