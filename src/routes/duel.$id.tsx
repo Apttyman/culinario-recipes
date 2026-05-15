@@ -38,7 +38,7 @@ async function resolveImage(r: any): Promise<string | null> {
   return null;
 }
 
-import { getFaceCropStyle as sharedGetFaceCropStyle, type FaceBox as SharedFaceBox } from "@/lib/face-crop";
+import { getFaceCropStyle as sharedGetFaceCropStyle, parseFaceBox, type FaceBox as SharedFaceBox } from "@/lib/face-crop";
 type FaceBox = SharedFaceBox;
 const getFaceCropStyle = sharedGetFaceCropStyle;
 
