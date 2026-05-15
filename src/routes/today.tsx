@@ -148,7 +148,7 @@ function Today() {
 
         <div style={{ marginTop: 24, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
           <button
-            onClick={() => navigate({ to: "/inverse" })}
+            onClick={() => navigate({ to: "/inverse/new" })}
             className="culinario-glass-btn culinario-glass-btn--inverse"
             style={{
               position: "relative",
