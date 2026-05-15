@@ -210,7 +210,7 @@ function InverseNewPage() {
   );
 }
 
-function NewRecipeResults({ celebrity, portrait, recipes }: { celebrity: string; portrait: string | null; recipes: GeneratedRecipe[] }) {
+function NewRecipeResults({ celebrity, portrait, faceBox, recipes }: { celebrity: string; portrait: string | null; faceBox?: FaceBox; recipes: GeneratedRecipe[] }) {
   const initial = (celebrity[0] ?? "?").toUpperCase();
   return (
     <div>
@@ -219,12 +219,12 @@ function NewRecipeResults({ celebrity, portrait, recipes }: { celebrity: string;
           aria-hidden="true"
           style={{
             width: 96, height: 96, borderRadius: "50%", flexShrink: 0,
-            backgroundImage: portrait ? `url(${portrait})` : undefined,
             backgroundColor: "color-mix(in oklab, var(--saffron) 18%, var(--surface-elev))",
-            backgroundPosition: "center 22%", backgroundSize: "cover", backgroundRepeat: "no-repeat",
+            ...(portrait ? { backgroundImage: `url(${portrait})`, ...getFaceCropStyle(faceBox, 96) } : {}),
             border: "2px solid color-mix(in oklab, var(--saffron) 65%, transparent)",
             boxShadow: "0 0 0 4px color-mix(in oklab, var(--saffron) 14%, transparent), 0 8px 24px -8px color-mix(in oklab, var(--saffron) 55%, transparent)",
             display: "flex", alignItems: "center", justifyContent: "center",
+            overflow: "hidden",
           }}
         >
           {!portrait && (
