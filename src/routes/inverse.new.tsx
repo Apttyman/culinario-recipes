@@ -123,7 +123,7 @@ function InverseNewPage() {
         </button>
 
         {recipes ? (
-          <NewRecipeResults celebrity={generatedCelebrity} recipes={recipes} />
+          <NewRecipeResults celebrity={generatedCelebrity} portrait={generatedPortrait} recipes={recipes} />
         ) : (
           <>
 
