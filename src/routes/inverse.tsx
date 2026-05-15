@@ -190,140 +190,225 @@ function InversePage() {
     }
   };
 
+  const activeCeleb = results?.celebrity ?? null;
+  useEffect(() => {
+    if (!activeCeleb) return;
+    if (portraitMap[activeCeleb] !== undefined && bioMap[activeCeleb] !== undefined) return;
+    let cancelled = false;
+    (async () => {
+      const info = await fetchPersonaInfo(activeCeleb);
+      if (cancelled) return;
+      setPortraitMap((m) => ({ ...m, [activeCeleb]: info.portrait }));
+      setBioMap((m) => ({ ...m, [activeCeleb]: info.bio }));
+    })();
+    return () => { cancelled = true; };
+  }, [activeCeleb, portraitMap, bioMap]);
+
   return (
     <div style={{ minHeight: "100vh", background: "var(--bg)", color: "var(--fg)" }}>
       <AppHeader />
       <main className="culinario-page" style={{ paddingTop: 64, paddingBottom: 240 }}>
-        <div style={eyebrow}>№ 007 — Inverse Mode</div>
-        <h1 style={{
-          fontFamily: "var(--font-display)", fontWeight: 300, fontStyle: "italic",
-          fontSize: "clamp(48px, 7vw, 80px)", lineHeight: 1.05,
-          letterSpacing: "-0.02em", margin: "16px 0 12px",
-        }}>
-          Cook as someone else.
-        </h1>
-        <p style={{
-          fontFamily: "var(--font-display)", fontStyle: "italic",
-          fontSize: 20, color: "var(--fg-muted)", margin: 0, maxWidth: 560,
-        }}>
-          Name anyone — a chef, an artist, a dead poet, your grandmother, a fictional detective.
-          We'll imagine the three dishes they would choose, in their voice, with a memoir blurb on each.
-        </p>
-
-        {personas && personas.length > 0 && (
+        {results ? (
+          <PersonaResultsView
+            celebrity={results.celebrity}
+            recipes={results.recipes}
+            portrait={portraitMap[results.celebrity] ?? null}
+            bio={bioMap[results.celebrity] ?? null}
+            onBack={() => setResults(null)}
+          />
+        ) : (
           <>
+            <div style={eyebrow}>№ 007 — Inverse Mode</div>
+            <h1 style={{
+              fontFamily: "var(--font-display)", fontWeight: 300, fontStyle: "italic",
+              fontSize: "clamp(48px, 7vw, 80px)", lineHeight: 1.05,
+              letterSpacing: "-0.02em", margin: "16px 0 12px",
+            }}>
+              Cook as someone else.
+            </h1>
+            <p style={{
+              fontFamily: "var(--font-display)", fontStyle: "italic",
+              fontSize: 20, color: "var(--fg-muted)", margin: 0, maxWidth: 560,
+            }}>
+              Name anyone — a chef, an artist, a dead poet, your grandmother, a fictional detective.
+              We'll imagine the three dishes they would choose, in their voice, with a memoir blurb on each.
+            </p>
+
+            {personas && personas.length > 0 && (
+              <>
+                <hr style={hairline} />
+                <div style={eyebrow}>Past personas — tap to revisit</div>
+                <div style={{ marginTop: 20, display: "flex", flexDirection: "column", gap: 16 }}>
+                  {personas.map((p) => (
+                    <PersonaRow
+                      key={p.celebrity}
+                      persona={p}
+                      portrait={portraitMap[p.celebrity] ?? null}
+                      bio={bioMap[p.celebrity] ?? null}
+                      loading={loadingPersona === p.celebrity}
+                      onClick={() => openPersona(p)}
+                    />
+                  ))}
+                </div>
+              </>
+            )}
+
             <hr style={hairline} />
-            <div style={eyebrow}>Past personas — tap to revisit</div>
-            <div style={{ marginTop: 20, display: "flex", flexDirection: "column", gap: 16 }}>
-              {personas.map((p) => (
-                <PersonaRow
-                  key={p.celebrity}
-                  persona={p}
-                  portrait={portraitMap[p.celebrity] ?? null}
-                  loading={loadingPersona === p.celebrity}
-                  onClick={() => openPersona(p)}
-                />
-              ))}
+
+            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+              <label style={eyebrow}>The Person</label>
+              <input
+                type="text"
+                value={celebrity}
+                onChange={(e) => setCelebrity(e.target.value)}
+                onKeyDown={(e) => { if (e.key === "Enter") conjure(); }}
+                placeholder="e.g. Anthony Bourdain, Hannibal Lecter, my dad"
+                disabled={conjuring}
+                style={{
+                  width: "100%", background: "transparent", color: "var(--fg)",
+                  border: 0, borderBottom: "1px solid var(--hairline)",
+                  fontFamily: "var(--font-display)", fontStyle: "italic",
+                  fontSize: "clamp(18px, 5vw, 28px)", padding: "8px 0", outline: "none",
+                  minWidth: 0, maxWidth: "100%", boxSizing: "border-box",
+                }}
+              />
+              <div>
+                <button
+                  type="button"
+                  onClick={conjure}
+                  disabled={!celebrity.trim() || conjuring}
+                  style={{
+                    fontFamily: "var(--font-body)", fontWeight: 600, fontSize: 12,
+                    textTransform: "uppercase", letterSpacing: "0.2em",
+                    color: !celebrity.trim() || conjuring ? "var(--fg-low)" : "var(--saffron)",
+                    background: "transparent",
+                    border: "1px solid",
+                    borderColor: !celebrity.trim() || conjuring ? "var(--hairline)" : "var(--saffron)",
+                    cursor: !celebrity.trim() || conjuring ? "not-allowed" : "pointer",
+                    padding: "14px 22px",
+                    minHeight: 48,
+                    borderRadius: 0,
+                    position: "relative",
+                    zIndex: 1,
+                  }}
+                >
+                  {conjuring ? "Conjuring three dishes…" : "Conjure their menu ↗"}
+                </button>
+              </div>
+              {error && (
+                <div style={{ ...eyebrow, color: "var(--saffron)" }}>{error}</div>
+              )}
             </div>
           </>
-        )}
-
-        <hr style={hairline} />
-
-        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-          <label style={eyebrow}>The Person</label>
-          <input
-            type="text"
-            value={celebrity}
-            onChange={(e) => setCelebrity(e.target.value)}
-            onKeyDown={(e) => { if (e.key === "Enter") conjure(); }}
-            placeholder="e.g. Anthony Bourdain, Hannibal Lecter, my dad"
-            disabled={conjuring}
-            style={{
-              width: "100%", background: "transparent", color: "var(--fg)",
-              border: 0, borderBottom: "1px solid var(--hairline)",
-              fontFamily: "var(--font-display)", fontStyle: "italic",
-              fontSize: "clamp(18px, 5vw, 28px)", padding: "8px 0", outline: "none",
-              minWidth: 0, maxWidth: "100%", boxSizing: "border-box",
-            }}
-          />
-          <div>
-            <button
-              type="button"
-              onClick={conjure}
-              disabled={!celebrity.trim() || conjuring}
-              style={{
-                fontFamily: "var(--font-body)", fontWeight: 600, fontSize: 12,
-                textTransform: "uppercase", letterSpacing: "0.2em",
-                color: !celebrity.trim() || conjuring ? "var(--fg-low)" : "var(--saffron)",
-                background: "transparent",
-                border: "1px solid",
-                borderColor: !celebrity.trim() || conjuring ? "var(--hairline)" : "var(--saffron)",
-                cursor: !celebrity.trim() || conjuring ? "not-allowed" : "pointer",
-                padding: "14px 22px",
-                minHeight: 48,
-                borderRadius: 0,
-                position: "relative",
-                zIndex: 1,
-              }}
-            >
-              {conjuring ? "Conjuring three dishes…" : results ? "Reconjure their menu ↗" : "Conjure their menu ↗"}
-            </button>
-          </div>
-          {error && (
-            <div style={{ ...eyebrow, color: "var(--saffron)" }}>{error}</div>
-          )}
-        </div>
-
-        {results && (
-          <div id="inverse-results">
-            <hr style={hairline} />
-            <div style={eyebrow}>Three dishes for {results.celebrity}</div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 32, marginTop: 24 }}>
-              {results.recipes.map((r: any) => (
-                <Link
-                  key={r.id}
-                  to="/recipes/$id"
-                  params={{ id: r.id }}
-                  style={{ textDecoration: "none", color: "inherit", display: "block" }}
-                >
-                  <div style={{ borderTop: "1px solid var(--hairline)", paddingTop: 24 }}>
-                    <div style={eyebrow}>
-                      {(r.cuisine ?? "").toUpperCase()} · {r.time_estimate_minutes ?? "—"} MIN · {(r.difficulty ?? "").toUpperCase()}
-                    </div>
-                    <h2 style={{
-                      fontFamily: "var(--font-display)", fontWeight: 300, fontStyle: "italic",
-                      fontSize: "clamp(28px, 4vw, 40px)", lineHeight: 1.1,
-                      margin: "12px 0 12px", color: "var(--fg)",
-                    }}>
-                      {r.title}
-                    </h2>
-                    {r.body?.inverse_blurb && (
-                      <p style={{
-                        fontFamily: "var(--font-body)", fontStyle: "italic",
-                        fontSize: 17, lineHeight: 1.55, color: "var(--fg-muted)",
-                        margin: 0, maxWidth: 640,
-                      }}>
-                        "{r.body.inverse_blurb}"
-                      </p>
-                    )}
-                    <div style={{
-                      marginTop: 12,
-                      fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.2em",
-                      textTransform: "uppercase", color: "var(--saffron)",
-                    }}>
-                      Open recipe ↗
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </div>
         )}
       </main>
 
       {conjuring && <ConjuringOverlay name={celebrity.trim()} phrase={phrases[phraseIdx]} />}
-      
+
+    </div>
+  );
+}
+
+function PersonaResultsView({
+  celebrity, recipes, portrait, bio, onBack,
+}: {
+  celebrity: string;
+  recipes: any[];
+  portrait: string | null;
+  bio: string | null;
+  onBack: () => void;
+}) {
+  const initial = (celebrity[0] ?? "?").toUpperCase();
+  return (
+    <div>
+      <button
+        type="button"
+        onClick={onBack}
+        style={{
+          background: "transparent", border: 0, padding: 0, cursor: "pointer",
+          fontFamily: "var(--font-mono)", fontSize: 11, letterSpacing: "0.2em",
+          textTransform: "uppercase", color: "var(--fg-muted)",
+          marginBottom: 28,
+        }}
+      >
+        ← All personas
+      </button>
+
+      <div style={{ display: "flex", alignItems: "center", gap: 24, flexWrap: "wrap" }}>
+        <div
+          aria-hidden="true"
+          className="persona-portrait"
+          style={{
+            width: 120, height: 120,
+            backgroundImage: portrait ? `url(${portrait})` : undefined,
+          }}
+        >
+          {!portrait && <span className="persona-initial" style={{ fontSize: 48 }}>{initial}</span>}
+        </div>
+        <div style={{ minWidth: 0, flex: 1 }}>
+          <div style={eyebrow}>№ 007 — Inverse Mode</div>
+          <h1 style={{
+            fontFamily: "var(--font-display)", fontWeight: 300, fontStyle: "italic",
+            fontSize: "clamp(40px, 6vw, 64px)", lineHeight: 1.05,
+            letterSpacing: "-0.02em", margin: "10px 0 0",
+          }}>
+            {celebrity}
+          </h1>
+        </div>
+      </div>
+
+      {bio && (
+        <p style={{
+          marginTop: 24,
+          fontFamily: "var(--font-body)", fontStyle: "italic",
+          fontSize: 17, lineHeight: 1.55, color: "var(--fg-muted)",
+          maxWidth: 720, whiteSpace: "pre-wrap",
+        }}>
+          {bio}
+        </p>
+      )}
+
+      <hr style={hairline} />
+      <div style={eyebrow}>Three dishes for {celebrity}</div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 32, marginTop: 24 }}>
+        {recipes.map((r: any) => (
+          <Link
+            key={r.id}
+            to="/recipes/$id"
+            params={{ id: r.id }}
+            style={{ textDecoration: "none", color: "inherit", display: "block" }}
+          >
+            <div style={{ borderTop: "1px solid var(--hairline)", paddingTop: 24 }}>
+              <div style={eyebrow}>
+                {(r.cuisine ?? "").toUpperCase()} · {r.time_estimate_minutes ?? "—"} MIN · {(r.difficulty ?? "").toUpperCase()}
+              </div>
+              <h2 style={{
+                fontFamily: "var(--font-display)", fontWeight: 300, fontStyle: "italic",
+                fontSize: "clamp(28px, 4vw, 40px)", lineHeight: 1.1,
+                margin: "12px 0 12px", color: "var(--fg)",
+              }}>
+                {r.title}
+              </h2>
+              {r.body?.inverse_blurb && (
+                <p style={{
+                  fontFamily: "var(--font-body)", fontStyle: "italic",
+                  fontSize: 17, lineHeight: 1.55, color: "var(--fg-muted)",
+                  margin: 0, maxWidth: 640,
+                }}>
+                  "{r.body.inverse_blurb}"
+                </p>
+              )}
+              <div style={{
+                marginTop: 12,
+                fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.2em",
+                textTransform: "uppercase", color: "var(--saffron)",
+              }}>
+                Open recipe ↗
+              </div>
+            </div>
+          </Link>
+        ))}
+      </div>
     </div>
   );
 }
