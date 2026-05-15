@@ -218,7 +218,7 @@ function InverseNewPage() {
   );
 }
 
-function NewRecipeResults({ celebrity, portrait, faceBox, recipes }: { celebrity: string; portrait: string | null; faceBox?: FaceBox; recipes: GeneratedRecipe[] }) {
+function NewRecipeResults({ celebrity, portrait, faceBox, blurb, recipes }: { celebrity: string; portrait: string | null; faceBox?: FaceBox; blurb: string | null; recipes: GeneratedRecipe[] }) {
   const initial = (celebrity[0] ?? "?").toUpperCase();
   return (
     <div>
