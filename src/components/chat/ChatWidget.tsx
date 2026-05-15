@@ -6,8 +6,8 @@ import { useChatSuppression } from "@/lib/chat-suppression";
 
 type Conversation = {
   id: string;
-  user_a: string;
-  user_b: string;
+  user_a_id: string;
+  user_b_id: string;
   updated_at: string | null;
   created_at: string | null;
 };
