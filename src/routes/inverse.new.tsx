@@ -40,6 +40,7 @@ function InverseNewPage() {
   const [generatedCelebrity, setGeneratedCelebrity] = useState("");
   const [generatedPortrait, setGeneratedPortrait] = useState<string | null>(null);
   const [generatedFaceBox, setGeneratedFaceBox] = useState<FaceBox>(null);
+  const [generatedBlurb, setGeneratedBlurb] = useState<string | null>(null);
   const [recipes, setRecipes] = useState<GeneratedRecipe[] | null>(null);
   const [conjuring, setConjuring] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -104,17 +105,22 @@ function InverseNewPage() {
       const celeb = (data as any)?.celebrity ?? name;
       setGeneratedCelebrity(celeb);
       setGeneratedPortrait((data as any)?.portrait_url ?? null);
-      // Look up the persona's face crop box for tight head cropping.
+      // Look up the persona's face crop box + bio for tight head cropping.
       const ck = toCelebrityKey(celeb);
+      const fnBlurb = (data as any)?.persona_blurb ?? null;
       if (ck) {
         const { data: personaRow } = await supabase
           .from("celebrity_personas" as any)
-          .select("portrait_face_box")
+          .select("portrait_face_box, persona_blurb, disambiguator")
           .eq("celebrity_key", ck)
           .maybeSingle();
         setGeneratedFaceBox(parseFaceBox((personaRow as any)?.portrait_face_box));
+        setGeneratedBlurb(
+          fnBlurb ?? (personaRow as any)?.persona_blurb ?? (personaRow as any)?.disambiguator ?? null
+        );
       } else {
         setGeneratedFaceBox(null);
+        setGeneratedBlurb(fnBlurb);
       }
       setRecipes(orderedRows);
       setCelebrity("");
@@ -141,7 +147,7 @@ function InverseNewPage() {
         </button>
 
         {recipes ? (
-          <NewRecipeResults celebrity={generatedCelebrity} portrait={generatedPortrait} faceBox={generatedFaceBox} recipes={recipes} />
+          <NewRecipeResults celebrity={generatedCelebrity} portrait={generatedPortrait} faceBox={generatedFaceBox} blurb={generatedBlurb} recipes={recipes} />
         ) : (
           <>
 
@@ -212,7 +218,7 @@ function InverseNewPage() {
   );
 }
 
-function NewRecipeResults({ celebrity, portrait, faceBox, recipes }: { celebrity: string; portrait: string | null; faceBox?: FaceBox; recipes: GeneratedRecipe[] }) {
+function NewRecipeResults({ celebrity, portrait, faceBox, blurb, recipes }: { celebrity: string; portrait: string | null; faceBox?: FaceBox; blurb: string | null; recipes: GeneratedRecipe[] }) {
   const initial = (celebrity[0] ?? "?").toUpperCase();
   return (
     <div>
@@ -258,10 +264,11 @@ function NewRecipeResults({ celebrity, portrait, faceBox, recipes }: { celebrity
         )}
       </div>
       <p style={{
-        fontFamily: "var(--font-display)", fontStyle: "italic",
-        fontSize: 18, color: "var(--fg-muted)", margin: "0 0 32px", maxWidth: 560,
+        fontFamily: "var(--font-body)", fontStyle: "italic",
+        fontSize: 20, lineHeight: 1.5, color: "var(--fg)",
+        margin: "0 0 32px", maxWidth: 720, whiteSpace: "pre-wrap",
       }}>
-        Freshly conjured — only this new batch.
+        {blurb ?? "Three dishes from a kitchen icon."}
       </p>
 
       <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
