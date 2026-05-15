@@ -20,6 +20,7 @@ import { Route as DuelsRouteImport } from './routes/duels'
 import { Route as CookbookRouteImport } from './routes/cookbook'
 import { Route as CaptureRouteImport } from './routes/capture'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as InverseIndexRouteImport } from './routes/inverse.index'
 import { Route as DuelIndexRouteImport } from './routes/duel.index'
 import { Route as SessionNewRouteImport } from './routes/session.new'
 import { Route as RecipesIdRouteImport } from './routes/recipes.$id'
@@ -81,6 +82,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const InverseIndexRoute = InverseIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => InverseRoute,
+} as any)
 const DuelIndexRoute = DuelIndexRouteImport.update({
   id: '/duel/',
   path: '/duel/',
@@ -124,13 +130,13 @@ export interface FileRoutesByFullPath {
   '/recipes/$id': typeof RecipesIdRoute
   '/session/new': typeof SessionNewRoute
   '/duel/': typeof DuelIndexRoute
+  '/inverse/': typeof InverseIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/capture': typeof CaptureRoute
   '/cookbook': typeof CookbookRoute
   '/duels': typeof DuelsRoute
-  '/inverse': typeof InverseRouteWithChildren
   '/onboarding': typeof OnboardingRoute
   '/portrait': typeof PortraitRoute
   '/settings': typeof SettingsRoute
@@ -142,6 +148,7 @@ export interface FileRoutesByTo {
   '/recipes/$id': typeof RecipesIdRoute
   '/session/new': typeof SessionNewRoute
   '/duel': typeof DuelIndexRoute
+  '/inverse': typeof InverseIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -161,6 +168,7 @@ export interface FileRoutesById {
   '/recipes/$id': typeof RecipesIdRoute
   '/session/new': typeof SessionNewRoute
   '/duel/': typeof DuelIndexRoute
+  '/inverse/': typeof InverseIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -181,13 +189,13 @@ export interface FileRouteTypes {
     | '/recipes/$id'
     | '/session/new'
     | '/duel/'
+    | '/inverse/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/capture'
     | '/cookbook'
     | '/duels'
-    | '/inverse'
     | '/onboarding'
     | '/portrait'
     | '/settings'
@@ -199,6 +207,7 @@ export interface FileRouteTypes {
     | '/recipes/$id'
     | '/session/new'
     | '/duel'
+    | '/inverse'
   id:
     | '__root__'
     | '/'
@@ -217,6 +226,7 @@ export interface FileRouteTypes {
     | '/recipes/$id'
     | '/session/new'
     | '/duel/'
+    | '/inverse/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -316,6 +326,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/inverse/': {
+      id: '/inverse/'
+      path: '/'
+      fullPath: '/inverse/'
+      preLoaderRoute: typeof InverseIndexRouteImport
+      parentRoute: typeof InverseRoute
+    }
     '/duel/': {
       id: '/duel/'
       path: '/duel'
@@ -356,10 +373,12 @@ declare module '@tanstack/react-router' {
 
 interface InverseRouteChildren {
   InverseNewRoute: typeof InverseNewRoute
+  InverseIndexRoute: typeof InverseIndexRoute
 }
 
 const InverseRouteChildren: InverseRouteChildren = {
   InverseNewRoute: InverseNewRoute,
+  InverseIndexRoute: InverseIndexRoute,
 }
 
 const InverseRouteWithChildren =
