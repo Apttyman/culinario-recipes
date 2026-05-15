@@ -181,13 +181,12 @@ export function ChatWidget() {
           </header>
 
           <div className="cw-body">
-          {view === "list" && (
-            <ConversationList
-              convos={convos}
-              onOpen={(id) => { setActiveConvId(id); setView("thread"); }}
-            />
-          )}
-          )}
+            {view === "list" && (
+              <ConversationList
+                convos={convos}
+                onOpen={(id) => { setActiveConvId(id); setView("thread"); }}
+              />
+            )}
             {view === "thread" && activeConvId && (
               <ThreadView
                 conversationId={activeConvId}
@@ -485,7 +484,6 @@ function ShareNotificationCard({ m, meId, onChange }: { m: Message; meId: string
       const { data: prof } = await supabase
         .from("profiles").select("display_name").eq("id", s.sender_id).maybeSingle();
       if (!cancelled) setSenderName((prof as any)?.display_name ?? null);
-      // Lookup preview using the correct column for each kind
       if (s.kind === "recipe" && s.recipe_id) {
         const { data: r } = await supabase
           .from("recipes").select("id, title").eq("id", s.recipe_id).maybeSingle();
