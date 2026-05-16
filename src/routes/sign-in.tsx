@@ -16,12 +16,16 @@ import {
 } from "@/components/auth-ui";
 
 export const Route = createFileRoute("/sign-in")({
+  validateSearch: (s: Record<string, unknown>) => ({
+    redirect: typeof s.redirect === "string" && s.redirect.startsWith("/") ? s.redirect : undefined,
+  }),
   head: () => ({ meta: [{ title: "Return — Culinario" }] }),
   component: SignIn,
 });
 
 function SignIn() {
   const navigate = useNavigate();
+  const { redirect } = Route.useSearch();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -43,15 +47,21 @@ function SignIn() {
         .select("onboarding_complete")
         .eq("id", data.user.id)
         .maybeSingle();
-      navigate({ to: prof?.onboarding_complete ? "/today" : "/onboarding" });
+      // Honor ?redirect=… when it's an in-app path AND the user has finished onboarding.
+      // We still gate redirects behind onboarding so brand-new accounts get the proper intro.
+      const destination = redirect && prof?.onboarding_complete
+        ? redirect
+        : (prof?.onboarding_complete ? "/today" : "/onboarding");
+      navigate({ to: destination });
     }
   };
 
   const onGoogle = async () => {
     setError(null);
+    const oauthRedirect = redirect ? `${window.location.origin}${redirect}` : `${window.location.origin}/today`;
     const { error: err } = await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: `${window.location.origin}/today` },
+      options: { redirectTo: oauthRedirect },
     });
     if (err) setError(err.message ?? "Google sign-in failed");
   };

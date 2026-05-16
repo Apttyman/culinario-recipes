@@ -16,12 +16,16 @@ import {
 } from "@/components/auth-ui";
 
 export const Route = createFileRoute("/sign-up")({
+  validateSearch: (s: Record<string, unknown>) => ({
+    redirect: typeof s.redirect === "string" && s.redirect.startsWith("/") ? s.redirect : undefined,
+  }),
   head: () => ({ meta: [{ title: "Begin — Culinario" }] }),
   component: SignUp,
 });
 
 function SignUp() {
   const navigate = useNavigate();
+  const { redirect } = Route.useSearch();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -31,10 +35,11 @@ function SignUp() {
     e.preventDefault();
     setError(null);
     setLoading(true);
+    const emailRedirect = redirect ? `${window.location.origin}${redirect}` : `${window.location.origin}/onboarding`;
     const { data, error: err } = await supabase.auth.signUp({
       email,
       password,
-      options: { emailRedirectTo: `${window.location.origin}/onboarding` },
+      options: { emailRedirectTo: emailRedirect },
     });
     // If signup fails OR returns no session (email confirm / already exists),
     // try signing in with the same credentials.
@@ -51,7 +56,11 @@ function SignUp() {
         .select("onboarding_complete")
         .eq("id", signInData.user.id)
         .maybeSingle();
-      navigate({ to: prof?.onboarding_complete ? "/today" : "/onboarding" });
+      // Brand new accounts go through onboarding first even if a redirect is set.
+      const destination = redirect && prof?.onboarding_complete
+        ? redirect
+        : (prof?.onboarding_complete ? "/today" : "/onboarding");
+      navigate({ to: destination });
       return;
     }
     setLoading(false);
@@ -60,9 +69,10 @@ function SignUp() {
 
   const onGoogle = async () => {
     setError(null);
+    const oauthRedirect = redirect ? `${window.location.origin}${redirect}` : `${window.location.origin}/onboarding`;
     const { error: err } = await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: `${window.location.origin}/onboarding` },
+      options: { redirectTo: oauthRedirect },
     });
     if (err) setError(err.message ?? "Google sign-in failed");
   };

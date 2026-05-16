@@ -23,7 +23,16 @@ function Cookbook() {
   const { session, loading } = useAuth();
   const navigate = useNavigate();
   const [recipes, setRecipes] = useState<any[] | null>(null);
-  const [sharedItems, setSharedItems] = useState<Array<{ kind: "recipe" | "duel"; id: string; row: any; sharedBy: string | null }>>([]);
+  type SharedKind = "recipe" | "inverse_set" | "duel" | "last_meal";
+  type SharedItem = {
+    kind: SharedKind;
+    key: string;            // unique row key
+    navId: string;          // id used for nav (recipe_id | session_id | duel_id | last_meal_id)
+    title: string;
+    subtitle: string | null;
+    sharedBy: string | null;
+  };
+  const [sharedItems, setSharedItems] = useState<SharedItem[]>([]);
 
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState<Status>("all");
@@ -44,32 +53,95 @@ function Cookbook() {
       .then(({ data }) => {
         setRecipes(data ?? []);
       });
-    // Load shared-with-me items
+    // Load shared-with-me items (all four kinds: recipe, inverse_set, duel, last_meal)
     (async () => {
       const { data: links } = await supabase
         .from("shared_recipe_links" as any)
-        .select("*")
-        .eq("recipient_user_id", session.user.id)
+        .select("id, recipe_id, inverse_session_id, duel_id, last_meal_id, shared_by_display_name, created_at")
+        .eq("recipient_id", session.user.id)
         .order("created_at", { ascending: false });
       const rows: any[] = (links ?? []) as any[];
       if (!rows.length) { setSharedItems([]); return; }
-      const recipeIds = rows.filter((l) => l.source_recipe_id).map((l) => l.source_recipe_id);
-      const duelIds = rows.filter((l) => l.source_duel_id).map((l) => l.source_duel_id);
-      const [{ data: rs }, { data: ds }] = await Promise.all([
-        recipeIds.length ? supabase.from("recipes").select("*").in("id", recipeIds) : Promise.resolve({ data: [] as any[] }),
-        duelIds.length ? supabase.from("duels" as any).select("*").in("id", duelIds) : Promise.resolve({ data: [] as any[] }),
+
+      const recipeIds = rows.filter((l) => l.recipe_id).map((l) => l.recipe_id);
+      const inverseSessionIds = rows.filter((l) => l.inverse_session_id).map((l) => l.inverse_session_id);
+      const duelIds = rows.filter((l) => l.duel_id).map((l) => l.duel_id);
+      const lastMealIds = rows.filter((l) => l.last_meal_id).map((l) => l.last_meal_id);
+
+      const [{ data: rs }, { data: invRs }, { data: ds }, { data: lms }] = await Promise.all([
+        recipeIds.length
+          ? supabase.from("recipes").select("id, title, cuisine, time_estimate_minutes").in("id", recipeIds)
+          : Promise.resolve({ data: [] as any[] }),
+        inverseSessionIds.length
+          ? supabase.from("recipes").select("inverse_session_id, inverse_celebrity").in("inverse_session_id", inverseSessionIds).not("inverse_celebrity", "is", null)
+          : Promise.resolve({ data: [] as any[] }),
+        duelIds.length
+          ? supabase.from("duels" as any).select("id, chef_a, chef_b, challenge").in("id", duelIds)
+          : Promise.resolve({ data: [] as any[] }),
+        lastMealIds.length
+          ? supabase.from("last_meals" as any).select("id, figure_name, epitaph").in("id", lastMealIds)
+          : Promise.resolve({ data: [] as any[] }),
       ]);
+
       const recipeMap = new Map<string, any>();
       for (const r of (rs ?? []) as any[]) recipeMap.set(r.id, r);
+
+      // For inverse sessions, group by session_id and pick the first celebrity name.
+      const inverseCelebMap = new Map<string, string>();
+      for (const r of (invRs ?? []) as any[]) {
+        if (!inverseCelebMap.has(r.inverse_session_id)) {
+          inverseCelebMap.set(r.inverse_session_id, r.inverse_celebrity);
+        }
+      }
+
       const duelMap = new Map<string, any>();
       for (const d of (ds ?? []) as any[]) duelMap.set(d.id, d);
-      type SharedItem = { kind: "recipe" | "duel"; id: string; row: any; sharedBy: string | null };
+
+      const lastMealMap = new Map<string, any>();
+      for (const m of (lms ?? []) as any[]) lastMealMap.set(m.id, m);
+
       const items: SharedItem[] = [];
       for (const l of rows) {
-        if (l.source_recipe_id && recipeMap.has(l.source_recipe_id)) {
-          items.push({ kind: "recipe", id: l.source_recipe_id, row: recipeMap.get(l.source_recipe_id), sharedBy: l.shared_by_display_name ?? null });
-        } else if (l.source_duel_id && duelMap.has(l.source_duel_id)) {
-          items.push({ kind: "duel", id: l.source_duel_id, row: duelMap.get(l.source_duel_id), sharedBy: l.shared_by_display_name ?? null });
+        if (l.recipe_id && recipeMap.has(l.recipe_id)) {
+          const r = recipeMap.get(l.recipe_id);
+          items.push({
+            kind: "recipe",
+            key: l.id,
+            navId: l.recipe_id,
+            title: r?.title ?? "Recipe",
+            subtitle: [r?.cuisine, r?.time_estimate_minutes ? `${r.time_estimate_minutes} min` : null].filter(Boolean).join(" · ") || null,
+            sharedBy: l.shared_by_display_name ?? null,
+          });
+        } else if (l.inverse_session_id && inverseCelebMap.has(l.inverse_session_id)) {
+          const celeb = inverseCelebMap.get(l.inverse_session_id)!;
+          items.push({
+            kind: "inverse_set",
+            key: l.id,
+            navId: l.inverse_session_id,
+            title: `${celeb}'s menu`,
+            subtitle: "Three dishes",
+            sharedBy: l.shared_by_display_name ?? null,
+          });
+        } else if (l.duel_id && duelMap.has(l.duel_id)) {
+          const d = duelMap.get(l.duel_id);
+          items.push({
+            kind: "duel",
+            key: l.id,
+            navId: l.duel_id,
+            title: `${d?.chef_a ?? "Chef"} vs ${d?.chef_b ?? "Chef"}`,
+            subtitle: d?.challenge ?? null,
+            sharedBy: l.shared_by_display_name ?? null,
+          });
+        } else if (l.last_meal_id && lastMealMap.has(l.last_meal_id)) {
+          const m = lastMealMap.get(l.last_meal_id);
+          items.push({
+            kind: "last_meal",
+            key: l.id,
+            navId: l.last_meal_id,
+            title: `${m?.figure_name ?? "A figure"}'s last meal`,
+            subtitle: m?.epitaph ?? null,
+            sharedBy: l.shared_by_display_name ?? null,
+          });
         }
       }
       setSharedItems(items);
@@ -220,42 +292,66 @@ function Cookbook() {
           <div style={{ marginBottom: 32 }}>
             <div style={labelMono}>Shared with you</div>
             <div style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 8 }}>
-              {sharedItems.map((it) => (
-                <button
-                  key={`${it.kind}-${it.id}`}
-                  type="button"
-                  onClick={() =>
-                    it.kind === "recipe"
-                      ? navigate({ to: "/recipes/$id", params: { id: it.id } })
-                      : navigate({ to: "/duel/$id", params: { id: it.id }, search: { act: 0 } })
+              {sharedItems.map((it) => {
+                const kindLabel =
+                  it.kind === "recipe" ? "Recipe" :
+                  it.kind === "inverse_set" ? "Inverse menu" :
+                  it.kind === "duel" ? "Duel" :
+                  "Last meal";
+                const openShared = () => {
+                  if (it.kind === "recipe") {
+                    navigate({ to: "/recipes/$id", params: { id: it.navId } });
+                  } else if (it.kind === "duel") {
+                    navigate({ to: "/duel/$id", params: { id: it.navId }, search: { act: 0 } });
+                  } else if (it.kind === "last_meal") {
+                    navigate({ to: "/last-meal/$id", params: { id: it.navId } });
+                  } else {
+                    // inverse_set — deep-link via the inverse archive with ?open=<celebrity>
+                    const celeb = it.title.replace(/'s menu$/, "");
+                    navigate({ to: "/inverse", search: { open: celeb } as any });
                   }
-                  style={{
-                    textAlign: "left", background: "transparent", color: "var(--fg)",
-                    border: "1px solid color-mix(in oklab, var(--saffron) 50%, transparent)",
-                    borderRadius: 12, padding: "12px 16px", cursor: "pointer",
-                    display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 12,
-                  }}
-                >
-                  <div style={{ minWidth: 0, flex: 1 }}>
-                    <div style={{
-                      fontFamily: "var(--font-display)", fontStyle: "italic", fontWeight: 500,
-                      fontSize: 18, color: "var(--fg)",
-                      overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-                    }}>
-                      {it.kind === "recipe"
-                        ? (it.row?.title ?? "Recipe")
-                        : `${it.row?.chef_a ?? "Chef"} vs ${it.row?.chef_b ?? "Chef"}`}
+                };
+                return (
+                  <button
+                    key={it.key}
+                    type="button"
+                    onClick={openShared}
+                    style={{
+                      textAlign: "left", background: "transparent", color: "var(--fg)",
+                      border: "1px solid color-mix(in oklab, var(--saffron) 50%, transparent)",
+                      borderRadius: 12, padding: "12px 16px", cursor: "pointer",
+                      display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 12,
+                    }}
+                  >
+                    <div style={{ minWidth: 0, flex: 1 }}>
+                      <div style={{
+                        fontFamily: "var(--font-display)", fontStyle: "italic", fontWeight: 500,
+                        fontSize: 18, color: "var(--fg)",
+                        overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+                      }}>
+                        {it.title}
+                      </div>
+                      <div style={{ ...labelMono, marginTop: 4, color: "var(--saffron)" }}>
+                        Shared by {it.sharedBy ?? "a friend"} · {kindLabel}
+                      </div>
+                      {it.subtitle && (
+                        <div style={{
+                          marginTop: 6,
+                          fontFamily: "var(--font-body)", fontStyle: "italic",
+                          fontSize: 14, color: "var(--fg-muted)",
+                          overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+                        }}>
+                          {it.subtitle}
+                        </div>
+                      )}
                     </div>
-                    <div style={{ ...labelMono, marginTop: 4, color: "var(--saffron)" }}>
-                      Shared by {it.sharedBy ?? "a friend"} · {it.kind === "duel" ? "Duel" : "Recipe"}
-                    </div>
-                  </div>
-                  <span style={{
-                    fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.2em",
-                    textTransform: "uppercase", color: "var(--saffron)",
-                  }}>Open ↗</span>
-                </button>
-              ))}
+                    <span style={{
+                      fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.2em",
+                      textTransform: "uppercase", color: "var(--saffron)",
+                    }}>Open ↗</span>
+                  </button>
+                );
+              })}
             </div>
           </div>
         )}
