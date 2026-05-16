@@ -169,27 +169,15 @@ function DuelsListPage() {
             )}
 
             {duels?.map((d) => (
-              <div key={d.id} style={{ position: "relative" }}>
-                <DuelRowCard
-                  duel={d}
-                  portraitA={portraitByKey[toCelebrityKey(d.chef_a)] ?? d.chef_a_portrait_url}
-                  portraitB={portraitByKey[toCelebrityKey(d.chef_b)] ?? d.chef_b_portrait_url}
-                  faceBoxA={faceBoxByKey[toCelebrityKey(d.chef_a)] ?? null}
-                  faceBoxB={faceBoxByKey[toCelebrityKey(d.chef_b)] ?? null}
-                  onClick={() => navigate({ to: "/duel/$id", params: { id: d.id } })}
-                />
-                <div
-                  style={{ position: "absolute", top: 12, right: 12, zIndex: 2 }}
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <ShareButton
-                    kind="duel"
-                    targetId={d.id}
-                    targetLabel={`${d.chef_a ?? "Chef A"} vs ${d.chef_b ?? "Chef B"}`}
-                    variant="icon"
-                  />
-                </div>
-              </div>
+              <DuelRowCard
+                key={d.id}
+                duel={d}
+                portraitA={portraitByKey[toCelebrityKey(d.chef_a)] ?? d.chef_a_portrait_url}
+                portraitB={portraitByKey[toCelebrityKey(d.chef_b)] ?? d.chef_b_portrait_url}
+                faceBoxA={faceBoxByKey[toCelebrityKey(d.chef_a)] ?? null}
+                faceBoxB={faceBoxByKey[toCelebrityKey(d.chef_b)] ?? null}
+                onOpen={() => navigate({ to: "/duel/$id", params: { id: d.id } })}
+              />
             ))}
           </div>
         </div>
@@ -220,7 +208,7 @@ function DuelsListPage() {
             grid-template-columns: auto 1fr auto 1fr auto;
             align-items: center;
             gap: 18px;
-            padding: 18px 28px;
+            padding: 18px 56px 18px 28px;
             border-radius: 9999px;
             border: 1px solid color-mix(in oklab, var(--fg) 12%, transparent);
             background: color-mix(in oklab, var(--surface-elev) 50%, transparent);
@@ -256,6 +244,12 @@ function DuelsListPage() {
             0% { transform: translateX(-120%); }
             100% { transform: translateX(120%); }
           }
+          .duel-share {
+            position: absolute;
+            top: 12px;
+            right: 18px;
+            z-index: 3;
+          }
           .duel-vs {
             display: flex; flex-direction: column; align-items: center; gap: 6px;
             min-width: 92px;
@@ -289,12 +283,13 @@ function DuelsListPage() {
               grid-template-areas:
                 "a vs b"
                 "na food nb";
-              padding: 16px 20px;
+              padding: 16px 44px 16px 20px;
               border-radius: 36px;
               row-gap: 8px;
             }
             .duel-vs-big { font-size: 28px; }
             .duel-name { font-size: 16px; }
+            .duel-share { top: 8px; right: 10px; }
           }
         `}</style>
       </main>
@@ -302,19 +297,30 @@ function DuelsListPage() {
   );
 }
 
-function DuelRowCard({ duel, portraitA, portraitB, faceBoxA, faceBoxB, onClick }: {
+function DuelRowCard({ duel, portraitA, portraitB, faceBoxA, faceBoxB, onOpen }: {
   duel: DuelRow;
   portraitA: string | null;
   portraitB: string | null;
   faceBoxA?: FaceBox;
   faceBoxB?: FaceBox;
-  onClick: () => void;
+  onOpen: () => void;
 }) {
   const winnerSlug = (duel.winner_slug ?? "").toString().toLowerCase();
   const isAWinner = !!winnerSlug && (winnerSlug === "a" || winnerSlug === "chef_a");
   const isBWinner = winnerSlug && !isAWinner;
   return (
-    <button className="duel-row" onClick={onClick} type="button">
+    <div
+      className="duel-row"
+      role="button"
+      tabIndex={0}
+      onClick={onOpen}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onOpen();
+        }
+      }}
+    >
       <ChefAvatar src={portraitA} name={duel.chef_a ?? "Chef A"} faceBox={faceBoxA} />
       <div>
         <div className="duel-name">{duel.chef_a ?? "Chef A"}</div>
@@ -329,6 +335,17 @@ function DuelRowCard({ duel, portraitA, portraitB, faceBoxA, faceBoxB, onClick }
         {isBWinner && <div className="duel-winner-tag" style={{ display: "block", textAlign: "right" }}>Winner ★</div>}
       </div>
       <ChefAvatar src={portraitB} name={duel.chef_b ?? "Chef B"} faceBox={faceBoxB} />
-    </button>
+      <div
+        className="duel-share"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <ShareButton
+          kind="duel"
+          targetId={duel.id}
+          targetLabel={`${duel.chef_a ?? "Chef A"} vs ${duel.chef_b ?? "Chef B"}`}
+          variant="icon"
+        />
+      </div>
+    </div>
   );
 }
