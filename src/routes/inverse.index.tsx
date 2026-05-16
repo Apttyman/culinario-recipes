@@ -57,7 +57,7 @@ function InverseListPage() {
     if (!session?.user) return;
     let cancelled = false;
     (async () => {
-      const { data: rows, error } = await supabase
+      const { data: rows, error } = await (supabase as any)
         .from("recipes")
         .select("*")
         .eq("user_id", session.user.id)
