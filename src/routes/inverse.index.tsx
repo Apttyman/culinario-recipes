@@ -57,10 +57,12 @@ function InverseListPage() {
     if (!session?.user) return;
     let cancelled = false;
     (async () => {
-      const { data: rows, error } = await supabase
+      const { data: rows, error } = await (supabase as any)
         .from("recipes")
         .select("*")
         .eq("user_id", session.user.id)
+        .eq("is_inverse", true)
+        .eq("from_duel", false)
         .order("created_at", { ascending: false })
         .limit(250);
       if (cancelled) return;
