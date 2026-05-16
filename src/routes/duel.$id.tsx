@@ -9,7 +9,27 @@ import { ShareButton } from "@/components/share/ShareButton";
 import { toCelebrityKey } from "@/lib/celebrity-key";
 
 export const Route = createFileRoute("/duel/$id")({
-  head: () => ({ meta: [{ title: "Tonight's Duel — Culinario" }] }),
+  head: ({ params }) => {
+    const ogImage = `https://upofudganvjbdhxxpfti.supabase.co/functions/v1/duel-og?id=${params.id}`;
+    const pageUrl = `https://culinario-recipes.lovable.app/duel/${params.id}`;
+    return {
+      meta: [
+        { title: "Tonight's Duel — Culinario" },
+        { name: "description", content: "Two chefs. One challenge. Conjure your own duel at Culinario." },
+        { property: "og:title", content: "Tonight's Duel — Culinario" },
+        { property: "og:description", content: "Two chefs. One challenge. Conjure your own duel at Culinario." },
+        { property: "og:image", content: ogImage },
+        { property: "og:image:width", content: "1200" },
+        { property: "og:image:height", content: "630" },
+        { property: "og:type", content: "website" },
+        { property: "og:url", content: pageUrl },
+        { name: "twitter:card", content: "summary_large_image" },
+        { name: "twitter:title", content: "Tonight's Duel — Culinario" },
+        { name: "twitter:description", content: "Two chefs. One challenge. Conjure your own duel at Culinario." },
+        { name: "twitter:image", content: ogImage },
+      ],
+    };
+  },
   validateSearch: (search: Record<string, unknown>) => {
     const raw = Number(search.act);
     const act = Number.isFinite(raw) && raw >= 0 && raw <= 8 ? Math.floor(raw) : undefined;
@@ -209,9 +229,10 @@ function DuelPage() {
   const navigate = useNavigate();
   useSuppressChatWhileMounted();
 
-  useEffect(() => {
-    if (!authLoading && !session) navigate({ to: "/sign-in" });
-  }, [authLoading, session, navigate]);
+  // Anonymous viewers can watch a duel via its UUID link (share semantic).
+  // We keep the session ref so auth-required actions show "sign up to..."
+  // CTAs instead of breaking.
+  const isAnonymous = !authLoading && !session;
 
   const [duel, setDuel] = useState<any>(null);
   const [recipeA, setRecipeA] = useState<any>(null);
@@ -388,7 +409,7 @@ function DuelPage() {
     return () => window.removeEventListener("keydown", onKey);
   }, [advance]);
 
-  if (authLoading || !session || loading) {
+  if (authLoading || loading) {
     return (
       <div style={{ position: "fixed", inset: 0, background: PALETTE.bg, color: PALETTE.gold, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "Georgia, serif", fontStyle: "italic", fontSize: 24 }}>
         Lighting the studio…
@@ -407,12 +428,28 @@ function DuelPage() {
         <div style={{
           position: "fixed", top: 16, right: 16, zIndex: 60,
         }}>
-          <ShareButton
-            kind="duel"
-            targetId={duel.id}
-            targetLabel={`${chefA} vs ${chefB}`}
-            variant="pill"
-          />
+          {isAnonymous ? (
+            <button
+              type="button"
+              onClick={() => navigate({ to: "/sign-up" })}
+              style={{
+                fontFamily: "var(--font-body)", fontWeight: 600, fontSize: 12,
+                textTransform: "uppercase", letterSpacing: "0.2em",
+                color: "var(--saffron)", background: "transparent",
+                border: "1px solid var(--saffron)",
+                padding: "10px 18px", borderRadius: 9999, cursor: "pointer",
+              }}
+            >
+              Sign up to cook this
+            </button>
+          ) : (
+            <ShareButton
+              kind="duel"
+              targetId={duel.id}
+              targetLabel={`${chefA} vs ${chefB}`}
+              variant="pill"
+            />
+          )}
         </div>
       )}
       <AnimatePresence mode="wait">
