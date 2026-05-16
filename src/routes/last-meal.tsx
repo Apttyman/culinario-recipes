@@ -33,6 +33,11 @@ type LastMealRecipe = {
   voice_intro: string;
   voice_outro: string;
 };
+type PanelMemos = {
+  biographer?: string;
+  food_writer?: string;
+  mythographer?: string;
+};
 type LastMeal = {
   id: string;
   figure_name: string;
@@ -45,6 +50,7 @@ type LastMeal = {
   epitaph: string | null;
   portrait_url: string | null;
   portrait_face_box: any;
+  panel_memos: PanelMemos | null;
   created_at: string;
 };
 
@@ -63,12 +69,14 @@ function LastMealPage() {
 
   const [phraseIdx, setPhraseIdx] = useState(0);
   const phrases = useMemo(() => [
-    "Setting the last table…",
-    "Asking the historians…",
-    "Lighting one candle…",
-    "Folding the napkin…",
+    "Calling the biographer…",
+    "Consulting the food writer…",
+    "Asking the mythographer…",
+    "Three voices, one table…",
+    "The editor pours another coffee…",
+    "Choosing the dish that says it best…",
     "Pouring something they liked…",
-    "Writing the obituary…",
+    "Setting the final table…",
   ], []);
   useEffect(() => {
     if (!busy) { setPhraseIdx(0); return; }
@@ -88,7 +96,7 @@ function LastMealPage() {
     (async () => {
       const { data, error } = await supabase
         .from("last_meals" as any)
-        .select("id, figure_name, figure_key, is_documented, historical_note, meal_description, editorial_note, recipe, epitaph, portrait_url, portrait_face_box, created_at")
+        .select("id, figure_name, figure_key, is_documented, historical_note, meal_description, editorial_note, recipe, epitaph, portrait_url, portrait_face_box, panel_memos, created_at")
         .eq("user_id", session.user.id)
         .order("created_at", { ascending: false })
         .limit(120);
@@ -131,6 +139,7 @@ function LastMealPage() {
         epitaph: (data as any).epitaph ?? null,
         portrait_url: (data as any).portrait_url ?? null,
         portrait_face_box: (data as any).portrait_face_box ?? null,
+        panel_memos: (data as any).panel_memos ?? null,
         created_at: (data as any).created_at ?? new Date().toISOString(),
       };
       setActive(meal);
@@ -367,6 +376,8 @@ function LastMealResultView({ meal, onBack }: { meal: LastMeal; onBack: () => vo
   const initial = (meal.figure_name?.[0] ?? "?").toUpperCase();
   const faceBox = parseFaceBox(meal.portrait_face_box);
   const r = meal.recipe;
+  const [showPanel, setShowPanel] = useState(false);
+  const hasPanel = !!(meal.panel_memos && (meal.panel_memos.biographer || meal.panel_memos.food_writer || meal.panel_memos.mythographer));
 
   return (
     <div>
@@ -589,6 +600,36 @@ function LastMealResultView({ meal, onBack }: { meal: LastMeal; onBack: () => vo
         </div>
       )}
 
+      {/* Three voices conferred — discreet disclosure of the panel that produced this piece */}
+      {hasPanel && (
+        <div style={{ marginTop: 48 }}>
+          <button
+            type="button"
+            onClick={() => setShowPanel((v) => !v)}
+            style={{
+              background: "transparent", border: 0, padding: 0, cursor: "pointer",
+              ...eyebrow, display: "inline-flex", alignItems: "center", gap: 10,
+              color: showPanel ? "var(--saffron)" : "var(--fg-muted)",
+            }}
+          >
+            {showPanel ? "Hide the panel ↑" : "Three voices conferred ↓"}
+          </button>
+          {showPanel && (
+            <div style={{ marginTop: 24, display: "flex", flexDirection: "column", gap: 28 }}>
+              {meal.panel_memos?.biographer && (
+                <PanelMemo role="The biographer" body={meal.panel_memos.biographer} />
+              )}
+              {meal.panel_memos?.food_writer && (
+                <PanelMemo role="The food writer" body={meal.panel_memos.food_writer} />
+              )}
+              {meal.panel_memos?.mythographer && (
+                <PanelMemo role="The mythographer" body={meal.panel_memos.mythographer} />
+              )}
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Generate another */}
       <div style={{ marginTop: 48, display: "flex", justifyContent: "center" }}>
         <button
@@ -622,6 +663,28 @@ function LastMealResultView({ meal, onBack }: { meal: LastMeal; onBack: () => vo
           font-size: 54px; color: var(--saffron);
         }
       `}</style>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Panel memo — one of the three voices conferring on the dish
+// ─────────────────────────────────────────────────────────────────────────────
+function PanelMemo({ role, body }: { role: string; body: string }) {
+  return (
+    <div style={{
+      padding: "20px 22px",
+      borderLeft: "2px solid color-mix(in oklab, var(--saffron) 65%, transparent)",
+      maxWidth: 720,
+    }}>
+      <div style={{ ...eyebrow, marginBottom: 12, color: "var(--saffron)" }}>{role}</div>
+      <div style={{
+        fontFamily: "var(--font-body)",
+        fontSize: 15, lineHeight: 1.65, color: "var(--fg)",
+        whiteSpace: "pre-wrap",
+      }}>
+        {body}
+      </div>
     </div>
   );
 }
