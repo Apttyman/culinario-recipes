@@ -19,6 +19,9 @@ type GeneratedRecipe = {
 };
 
 export const Route = createFileRoute("/inverse/new")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    celebrity: typeof search.celebrity === "string" ? search.celebrity : undefined,
+  }),
   head: () => ({
     meta: [
       { title: "Conjure a Persona — Inverse Mode" },
@@ -36,7 +39,8 @@ const eyebrow: React.CSSProperties = {
 function InverseNewPage() {
   const { session, loading } = useAuth();
   const navigate = useNavigate();
-  const [celebrity, setCelebrity] = useState("");
+  const search = Route.useSearch();
+  const [celebrity, setCelebrity] = useState(search.celebrity ?? "");
   const [generatedCelebrity, setGeneratedCelebrity] = useState("");
   const [generatedPortrait, setGeneratedPortrait] = useState<string | null>(null);
   const [generatedFaceBox, setGeneratedFaceBox] = useState<FaceBox>(null);
