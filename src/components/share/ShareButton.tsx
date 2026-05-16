@@ -2,7 +2,7 @@ import { useState } from "react";
 import { ShareDialog } from "./ShareDialog";
 
 type Props = {
-  kind: "recipe" | "inverse_set" | "duel";
+  kind: "recipe" | "inverse_set" | "duel" | "last_meal";
   targetId: string | null | undefined;
   label?: string;
   targetLabel?: string;

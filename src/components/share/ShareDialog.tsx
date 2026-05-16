@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/lib/supabase-client";
 import { useAuth } from "@/lib/auth-context";
 
-type ShareKind = "recipe" | "inverse_set" | "duel";
+type ShareKind = "recipe" | "inverse_set" | "duel" | "last_meal";
 
 type Props = {
   open: boolean;
@@ -89,7 +89,8 @@ export function ShareDialog({ open, onClose, kind, targetId, targetLabel }: Prop
 
   const labelKind =
     kind === "recipe" ? "recipe" :
-    kind === "inverse_set" ? "inverse menu" : "duel";
+    kind === "inverse_set" ? "inverse menu" :
+    kind === "duel" ? "duel" : "last meal";
 
   return (
     <div

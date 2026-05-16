@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { supabase } from "@/lib/supabase-client";
@@ -21,36 +21,15 @@ const eyebrow: React.CSSProperties = {
 };
 const hairline: React.CSSProperties = { border: 0, height: 1, background: "var(--hairline)", margin: "32px 0" };
 
-type Ingredient = { item: string; amount: string; unit?: string | null };
-type LastMealRecipe = {
-  title: string;
-  blurb: string;
-  cuisine: string;
-  time_estimate_minutes: number | null;
-  difficulty: "quick" | "weeknight" | "project" | "use-up" | string;
-  ingredients: Ingredient[];
-  steps: string[];
-  voice_intro: string;
-  voice_outro: string;
-};
-type PanelMemos = {
-  biographer?: string;
-  food_writer?: string;
-  mythographer?: string;
-};
-type LastMeal = {
+// Slim archive row type — only the fields the list needs.
+type ArchiveRow = {
   id: string;
   figure_name: string;
-  figure_key: string;
   is_documented: boolean | null;
-  historical_note: string | null;
-  meal_description: string | null;
-  editorial_note: string | null;
-  recipe: LastMealRecipe | null;
   epitaph: string | null;
+  meal_description: string | null;
   portrait_url: string | null;
   portrait_face_box: any;
-  panel_memos: PanelMemos | null;
   created_at: string;
 };
 
@@ -58,14 +37,12 @@ function LastMealPage() {
   const { session, loading } = useAuth();
   const navigate = useNavigate();
 
-  const [archive, setArchive] = useState<LastMeal[] | null>(null);
+  const [archive, setArchive] = useState<ArchiveRow[] | null>(null);
   const [archiveErr, setArchiveErr] = useState<string | null>(null);
 
   const [figure, setFigure] = useState("");
   const [busy, setBusy] = useState(false);
   const [busyError, setBusyError] = useState<string | null>(null);
-
-  const [active, setActive] = useState<LastMeal | null>(null);
 
   const [phraseIdx, setPhraseIdx] = useState(0);
   const phrases = useMemo(() => [
@@ -96,13 +73,13 @@ function LastMealPage() {
     (async () => {
       const { data, error } = await supabase
         .from("last_meals" as any)
-        .select("id, figure_name, figure_key, is_documented, historical_note, meal_description, editorial_note, recipe, epitaph, portrait_url, portrait_face_box, panel_memos, created_at")
+        .select("id, figure_name, is_documented, epitaph, meal_description, portrait_url, portrait_face_box, created_at")
         .eq("user_id", session.user.id)
         .order("created_at", { ascending: false })
         .limit(120);
       if (cancelled) return;
       if (error) { setArchiveErr(error.message); return; }
-      setArchive((data ?? []) as unknown as LastMeal[]);
+      setArchive((data ?? []) as unknown as ArchiveRow[]);
     })();
     return () => { cancelled = true; };
   }, [session]);
@@ -127,24 +104,10 @@ function LastMealPage() {
         throw new Error(msg);
       }
       if ((data as any)?.error) throw new Error((data as any).error);
-      const meal: LastMeal = {
-        id: (data as any).id,
-        figure_name: (data as any).figure_name,
-        figure_key: (data as any).figure_key,
-        is_documented: (data as any).is_documented ?? null,
-        historical_note: (data as any).historical_note ?? null,
-        meal_description: (data as any).meal_description ?? null,
-        editorial_note: (data as any).editorial_note ?? null,
-        recipe: (data as any).recipe ?? null,
-        epitaph: (data as any).epitaph ?? null,
-        portrait_url: (data as any).portrait_url ?? null,
-        portrait_face_box: (data as any).portrait_face_box ?? null,
-        panel_memos: (data as any).panel_memos ?? null,
-        created_at: (data as any).created_at ?? new Date().toISOString(),
-      };
-      setActive(meal);
-      setArchive((prev) => prev ? [meal, ...prev] : [meal]);
-      setFigure("");
+      const newId: string | undefined = (data as any)?.id;
+      if (!newId) throw new Error("No last meal id returned.");
+      // Navigate straight to the shareable permalink.
+      navigate({ to: "/last-meal/$id", params: { id: newId } });
     } catch (e: any) {
       setBusyError(e?.message ?? "The kitchen went dark.");
     } finally {
@@ -152,22 +115,10 @@ function LastMealPage() {
     }
   };
 
-  // ── Result view ─────────────────────────────────────────────────────────────
-  if (active) {
-    return (
-      <div style={{ minHeight: "100vh", background: "var(--bg)", color: "var(--fg)" }}>
-        <AppHeader />
-        <main className="culinario-page" style={{ paddingTop: 64, paddingBottom: 240 }}>
-          <LastMealResultView meal={active} onBack={() => setActive(null)} />
-        </main>
-      </div>
-    );
-  }
-
   // ── Entry + archive ─────────────────────────────────────────────────────────
   return (
     <div style={{ minHeight: "100vh", background: "var(--bg)", color: "var(--fg)" }}>
-      <AppHeader />
+      <AppHeader current="Last Meal" />
       <main className="culinario-page" style={{ paddingTop: 64, paddingBottom: 240, position: "relative" }}>
         <div className="lm-orb lm-orb-a" />
         <div className="lm-orb lm-orb-b" />
@@ -247,7 +198,7 @@ function LastMealPage() {
               </div>
             )}
             {archive?.map((m) => (
-              <LastMealArchiveRow key={m.id} meal={m} onClick={() => setActive(m)} />
+              <LastMealArchiveRow key={m.id} meal={m} />
             ))}
           </div>
         </div>
@@ -271,14 +222,19 @@ function LastMealPage() {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Archive row — portrait + name + epitaph snippet + revisit CTA
+// Archive row — portrait + name + epitaph snippet, links to /last-meal/$id
 // ─────────────────────────────────────────────────────────────────────────────
-function LastMealArchiveRow({ meal, onClick }: { meal: LastMeal; onClick: () => void }) {
+function LastMealArchiveRow({ meal }: { meal: ArchiveRow }) {
   const initial = (meal.figure_name?.[0] ?? "?").toUpperCase();
-  const faceBox = parseFaceBox(meal.portrait_face_box);
+  const faceBox: FaceBox = parseFaceBox(meal.portrait_face_box);
   const subtitle = meal.epitaph ?? meal.meal_description ?? "A last table, set.";
   return (
-    <button type="button" onClick={onClick} className="lm-row">
+    <Link
+      to="/last-meal/$id"
+      params={{ id: meal.id }}
+      className="lm-row"
+      style={{ textDecoration: "none", color: "inherit" }}
+    >
       <div
         aria-hidden="true"
         className="lm-portrait-small"
@@ -365,327 +321,7 @@ function LastMealArchiveRow({ meal, onClick }: { meal: LastMeal; onClick: () => 
         .lm-row:hover .lm-cta { opacity: 1; transform: translateX(4px); }
         @media (max-width: 640px) { .lm-cta { display: none; } }
       `}</style>
-    </button>
-  );
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Result view — portrait, scene-setting, recipe, EPITAPH as the centerpiece
-// ─────────────────────────────────────────────────────────────────────────────
-function LastMealResultView({ meal, onBack }: { meal: LastMeal; onBack: () => void }) {
-  const initial = (meal.figure_name?.[0] ?? "?").toUpperCase();
-  const faceBox = parseFaceBox(meal.portrait_face_box);
-  const r = meal.recipe;
-  const [showPanel, setShowPanel] = useState(false);
-  const hasPanel = !!(meal.panel_memos && (meal.panel_memos.biographer || meal.panel_memos.food_writer || meal.panel_memos.mythographer));
-
-  return (
-    <div>
-      <button
-        type="button"
-        onClick={onBack}
-        style={{
-          background: "transparent", border: 0, padding: 0, cursor: "pointer",
-          ...eyebrow, marginBottom: 28,
-        }}
-      >
-        ← All last meals
-      </button>
-
-      {/* Identity + badge */}
-      <div style={{ display: "flex", alignItems: "center", gap: 24, flexWrap: "wrap" }}>
-        <div
-          aria-hidden="true"
-          className="lm-portrait"
-          style={{
-            width: 132, height: 132,
-            ...(meal.portrait_url ? { backgroundImage: `url(${meal.portrait_url})`, ...getFaceCropStyle(faceBox, 132) } : {}),
-          }}
-        >
-          {!meal.portrait_url && <span className="lm-portrait-initial">{initial}</span>}
-        </div>
-        <div style={{ minWidth: 0, flex: 1 }}>
-          <div style={eyebrow}>№ 009 — Last Meal Mode</div>
-          <h1 style={{
-            fontFamily: "var(--font-display)", fontWeight: 300, fontStyle: "italic",
-            fontSize: "clamp(40px, 6vw, 64px)", lineHeight: 1.05,
-            letterSpacing: "-0.02em", margin: "10px 0 12px",
-          }}>
-            {meal.figure_name}
-          </h1>
-          <span style={{
-            display: "inline-block",
-            fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.22em",
-            textTransform: "uppercase", color: "var(--fg-muted)",
-            border: "1px solid var(--hairline)", padding: "5px 12px", borderRadius: 9999,
-          }}>
-            {meal.is_documented ? "Historically documented" : "Lovingly inferred"}
-          </span>
-        </div>
-      </div>
-
-      {/* Scene-setting paragraph (italic, larger body) */}
-      {meal.historical_note && (
-        <p style={{
-          marginTop: 28,
-          fontFamily: "var(--font-body)", fontStyle: "italic",
-          fontSize: 20, lineHeight: 1.55, color: "var(--fg)",
-          maxWidth: 720, whiteSpace: "pre-wrap",
-        }}>
-          {meal.historical_note}
-        </p>
-      )}
-
-      {/* Meal description, set apart but still narrative */}
-      {meal.meal_description && (
-        <p style={{
-          marginTop: 18,
-          fontFamily: "var(--font-body)",
-          fontSize: 17, lineHeight: 1.6, color: "var(--fg)",
-          maxWidth: 720, whiteSpace: "pre-wrap",
-        }}>
-          {meal.meal_description}
-        </p>
-      )}
-
-      {/* Editorial aside (only when inferred) — smaller, muted, set off by a hair */}
-      {meal.editorial_note && (
-        <div style={{
-          marginTop: 22, paddingLeft: 18,
-          borderLeft: "2px solid color-mix(in oklab, var(--saffron) 65%, transparent)",
-          fontFamily: "var(--font-body)", fontStyle: "italic",
-          fontSize: 14, lineHeight: 1.6, color: "var(--fg-muted)",
-          maxWidth: 600,
-        }}>
-          {meal.editorial_note}
-        </div>
-      )}
-
-      {/* The recipe block */}
-      {r && (
-        <>
-          <hr style={hairline} />
-          <div style={eyebrow}>The recipe</div>
-          <h2 style={{
-            fontFamily: "var(--font-display)", fontWeight: 300, fontStyle: "italic",
-            fontSize: "clamp(28px, 4vw, 40px)", lineHeight: 1.1,
-            margin: "14px 0 8px", color: "var(--fg)",
-          }}>
-            {r.title}
-          </h2>
-          <div style={{ ...eyebrow, marginBottom: 16 }}>
-            {(r.cuisine ?? "").toUpperCase()} · {r.time_estimate_minutes ?? "—"} MIN · {(r.difficulty ?? "").toString().toUpperCase()}
-          </div>
-          {r.blurb && (
-            <p style={{
-              fontFamily: "var(--font-body)", fontStyle: "italic",
-              fontSize: 17, lineHeight: 1.6, color: "var(--fg-muted)",
-              margin: "0 0 28px", maxWidth: 640,
-            }}>
-              "{r.blurb}"
-            </p>
-          )}
-
-          {/* Voice from beyond — intro */}
-          {r.voice_intro && (
-            <blockquote style={{
-              margin: "0 0 24px",
-              padding: "16px 20px",
-              borderLeft: "3px solid var(--saffron)",
-              background: "color-mix(in oklab, var(--saffron) 6%, transparent)",
-              fontFamily: "var(--font-body)", fontStyle: "italic",
-              fontSize: 17, lineHeight: 1.6, color: "var(--fg)",
-              maxWidth: 640,
-            }}>
-              {r.voice_intro}
-              <div style={{ ...eyebrow, marginTop: 8, color: "var(--saffron)" }}>
-                — {meal.figure_name}
-              </div>
-            </blockquote>
-          )}
-
-          {/* Ingredients */}
-          <div style={{ marginTop: 28 }}>
-            <div style={eyebrow}>Ingredients</div>
-            <ul style={{
-              listStyle: "none", padding: 0, margin: "16px 0 0",
-              display: "flex", flexDirection: "column", gap: 8,
-              maxWidth: 560,
-            }}>
-              {r.ingredients?.map((ing, i) => (
-                <li key={i} style={{
-                  display: "flex", justifyContent: "space-between", gap: 16,
-                  paddingBottom: 8, borderBottom: "1px solid var(--hairline)",
-                  fontFamily: "var(--font-body)", fontSize: 16, lineHeight: 1.5, color: "var(--fg)",
-                }}>
-                  <span style={{ fontStyle: "italic" }}>{ing.item}</span>
-                  <span style={{ color: "var(--fg-muted)", whiteSpace: "nowrap" }}>
-                    {ing.amount}{ing.unit ? ` ${ing.unit}` : ""}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Steps */}
-          <div style={{ marginTop: 36 }}>
-            <div style={eyebrow}>Method</div>
-            <ol style={{
-              listStyle: "none", padding: 0, margin: "16px 0 0",
-              counterReset: "step", display: "flex", flexDirection: "column", gap: 18,
-              maxWidth: 700,
-            }}>
-              {r.steps?.map((step, i) => (
-                <li key={i} style={{
-                  position: "relative", paddingLeft: 44,
-                  fontFamily: "var(--font-body)", fontSize: 16, lineHeight: 1.65, color: "var(--fg)",
-                }}>
-                  <span style={{
-                    position: "absolute", left: 0, top: 0,
-                    fontFamily: "var(--font-display)", fontStyle: "italic", fontWeight: 500,
-                    fontSize: 22, color: "var(--saffron)",
-                    width: 32, textAlign: "right",
-                  }}>{i + 1}.</span>
-                  {step}
-                </li>
-              ))}
-            </ol>
-          </div>
-
-          {/* Voice from beyond — outro */}
-          {r.voice_outro && (
-            <blockquote style={{
-              margin: "36px 0 0",
-              padding: "16px 20px",
-              borderLeft: "3px solid var(--saffron)",
-              background: "color-mix(in oklab, var(--saffron) 6%, transparent)",
-              fontFamily: "var(--font-body)", fontStyle: "italic",
-              fontSize: 17, lineHeight: 1.6, color: "var(--fg)",
-              maxWidth: 640,
-            }}>
-              {r.voice_outro}
-              <div style={{ ...eyebrow, marginTop: 8, color: "var(--saffron)" }}>
-                — {meal.figure_name}
-              </div>
-            </blockquote>
-          )}
-        </>
-      )}
-
-      {/* THE EPITAPH — the screenshot moment */}
-      {meal.epitaph && (
-        <div style={{
-          marginTop: 80, marginBottom: 32,
-          padding: "56px 24px",
-          textAlign: "center",
-          borderTop: "1px solid var(--hairline)",
-          borderBottom: "1px solid var(--hairline)",
-        }}>
-          <div style={{ ...eyebrow, marginBottom: 28 }}>An epitaph</div>
-          <p style={{
-            fontFamily: "var(--font-display)", fontWeight: 300, fontStyle: "italic",
-            fontSize: "clamp(28px, 4.5vw, 48px)", lineHeight: 1.25,
-            letterSpacing: "-0.01em",
-            color: "var(--fg)", margin: "0 auto", maxWidth: 820,
-          }}>
-            "{meal.epitaph}"
-          </p>
-          <div style={{
-            marginTop: 32,
-            fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.3em",
-            textTransform: "uppercase", color: "var(--fg-muted)",
-          }}>
-            For {meal.figure_name}
-          </div>
-        </div>
-      )}
-
-      {/* Three voices conferred — discreet disclosure of the panel that produced this piece */}
-      {hasPanel && (
-        <div style={{ marginTop: 48 }}>
-          <button
-            type="button"
-            onClick={() => setShowPanel((v) => !v)}
-            style={{
-              background: "transparent", border: 0, padding: 0, cursor: "pointer",
-              ...eyebrow, display: "inline-flex", alignItems: "center", gap: 10,
-              color: showPanel ? "var(--saffron)" : "var(--fg-muted)",
-            }}
-          >
-            {showPanel ? "Hide the panel ↑" : "Three voices conferred ↓"}
-          </button>
-          {showPanel && (
-            <div style={{ marginTop: 24, display: "flex", flexDirection: "column", gap: 28 }}>
-              {meal.panel_memos?.biographer && (
-                <PanelMemo role="The biographer" body={meal.panel_memos.biographer} />
-              )}
-              {meal.panel_memos?.food_writer && (
-                <PanelMemo role="The food writer" body={meal.panel_memos.food_writer} />
-              )}
-              {meal.panel_memos?.mythographer && (
-                <PanelMemo role="The mythographer" body={meal.panel_memos.mythographer} />
-              )}
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Generate another */}
-      <div style={{ marginTop: 48, display: "flex", justifyContent: "center" }}>
-        <button
-          type="button"
-          onClick={onBack}
-          style={{
-            fontFamily: "var(--font-body)", fontWeight: 600, fontSize: 12,
-            textTransform: "uppercase", letterSpacing: "0.2em",
-            color: "var(--saffron)", background: "transparent",
-            border: "1px solid var(--saffron)",
-            padding: "14px 24px", borderRadius: 9999, cursor: "pointer",
-          }}
-        >
-          Set another table ↗
-        </button>
-      </div>
-
-      <style>{`
-        .lm-portrait {
-          border-radius: 50%; flex-shrink: 0;
-          background-color: color-mix(in oklab, var(--saffron) 18%, var(--surface-elev));
-          background-position: center 22%; background-size: cover; background-repeat: no-repeat;
-          border: 2px solid color-mix(in oklab, var(--saffron) 65%, transparent);
-          box-shadow:
-            0 0 0 4px color-mix(in oklab, var(--saffron) 14%, transparent),
-            0 8px 24px -8px color-mix(in oklab, var(--saffron) 55%, transparent);
-          display: flex; align-items: center; justify-content: center;
-        }
-        .lm-portrait-initial {
-          font-family: var(--font-display); font-style: italic; font-weight: 600;
-          font-size: 54px; color: var(--saffron);
-        }
-      `}</style>
-    </div>
-  );
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Panel memo — one of the three voices conferring on the dish
-// ─────────────────────────────────────────────────────────────────────────────
-function PanelMemo({ role, body }: { role: string; body: string }) {
-  return (
-    <div style={{
-      padding: "20px 22px",
-      borderLeft: "2px solid color-mix(in oklab, var(--saffron) 65%, transparent)",
-      maxWidth: 720,
-    }}>
-      <div style={{ ...eyebrow, marginBottom: 12, color: "var(--saffron)" }}>{role}</div>
-      <div style={{
-        fontFamily: "var(--font-body)",
-        fontSize: 15, lineHeight: 1.65, color: "var(--fg)",
-        whiteSpace: "pre-wrap",
-      }}>
-        {body}
-      </div>
-    </div>
+    </Link>
   );
 }
 
