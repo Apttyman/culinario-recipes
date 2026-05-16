@@ -8,10 +8,11 @@ const NAV = [
   { label: "Inverse", to: "/inverse" },
   { label: "Duels", to: "/duels" },
   { label: "Last Meal", to: "/last-meal" },
+  { label: "Converse", to: "/converse" },
   { label: "Profile", to: "/portrait" },
 ] as const;
 
-export function AppHeader({ current }: { current?: "Today" | "Cookbook" | "Profile" | "Inverse" | "Duels" | "Last Meal" }) {
+export function AppHeader({ current }: { current?: "Today" | "Cookbook" | "Profile" | "Inverse" | "Duels" | "Last Meal" | "Converse" }) {
   const { session, signOut } = useAuth();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);

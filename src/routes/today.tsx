@@ -215,6 +215,29 @@ function Today() {
             <span className="culinario-glass-title">Set the last table.</span>
             <span className="culinario-glass-cta">Enter ↗</span>
           </button>
+
+          <button
+            onClick={() => navigate({ to: "/converse" })}
+            className="culinario-glass-btn culinario-glass-btn--converse"
+            style={{
+              position: "relative",
+              padding: "22px 24px",
+              minHeight: 96,
+              borderRadius: 18,
+              border: "1px solid color-mix(in oklab, var(--fg) 12%, transparent)",
+              background: "color-mix(in oklab, var(--surface-elev) 55%, transparent)",
+              backdropFilter: "blur(22px) saturate(160%)",
+              WebkitBackdropFilter: "blur(22px) saturate(160%)",
+              boxShadow: "0 14px 40px -18px color-mix(in oklab, var(--saffron) 50%, transparent), inset 0 1px 0 color-mix(in oklab, white 14%, transparent)",
+              cursor: "pointer",
+              display: "flex", flexDirection: "column", alignItems: "flex-start", justifyContent: "space-between",
+              gap: 10, textAlign: "left", overflow: "hidden",
+            }}
+          >
+            <span className="culinario-glass-eyebrow">Conversation Mode</span>
+            <span className="culinario-glass-title">Talk to a cook who has opinions.</span>
+            <span className="culinario-glass-cta">Enter ↗</span>
+          </button>
         </div>
         <style>{`
           @keyframes culinario-glass-sweep {
@@ -240,6 +263,10 @@ function Today() {
           .culinario-glass-btn--last-meal::after {
             background: radial-gradient(120% 80% at 50% 0%, color-mix(in oklab, var(--saffron) 18%, transparent), transparent 55%),
                         radial-gradient(120% 80% at 50% 100%, color-mix(in oklab, var(--fg) 14%, #1a0e2e), transparent 60%);
+          }
+          .culinario-glass-btn--converse::after {
+            background: radial-gradient(120% 80% at 0% 50%, color-mix(in oklab, var(--saffron) 20%, transparent), transparent 55%),
+                        radial-gradient(120% 80% at 100% 50%, color-mix(in oklab, var(--saffron) 14%, #0e2a2a), transparent 60%);
           }
           .culinario-glass-btn::before {
             content: "";
