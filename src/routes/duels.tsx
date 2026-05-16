@@ -4,7 +4,6 @@ import { useAuth } from "@/lib/auth-context";
 import { supabase } from "@/lib/supabase-client";
 import { AppHeader } from "@/components/AppHeader";
 import { ShareButton } from "@/components/share/ShareButton";
-import { SatireDisclaimer } from "@/components/SatireDisclaimer";
 import { toCelebrityKey } from "@/lib/celebrity-key";
 import { getFaceCropStyle, parseFaceBox, type FaceBox } from "@/lib/face-crop";
 
@@ -300,7 +299,6 @@ function DuelsListPage() {
             .duel-share { right: 14px; }
           }
         `}</style>
-        <SatireDisclaimer />
       </main>
     </div>
   );

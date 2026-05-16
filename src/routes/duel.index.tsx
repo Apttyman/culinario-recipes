@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { supabase } from "@/lib/supabase-client";
 import { AppHeader } from "@/components/AppHeader";
-import { SatireDisclaimer } from "@/components/SatireDisclaimer";
 
 export const Route = createFileRoute("/duel/")({
   head: () => ({
@@ -151,7 +150,6 @@ function DuelStartPage() {
           </div>
           {err && <div style={{ ...eyebrow, color: "var(--saffron)" }}>{err}</div>}
         </div>
-        <SatireDisclaimer />
       </main>
       {busy && <DuelOverlay chefA={chefA.trim()} chefB={chefB.trim()} phrase={phrases[phraseIdx]} />}
     </div>

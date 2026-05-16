@@ -4,7 +4,6 @@ import { useAuth } from "@/lib/auth-context";
 import { supabase } from "@/lib/supabase-client";
 import { AppHeader } from "@/components/AppHeader";
 import { ShareButton } from "@/components/share/ShareButton";
-import { SatireDisclaimer } from "@/components/SatireDisclaimer";
 import { getFaceCropStyle, parseFaceBox, type FaceBox } from "@/lib/face-crop";
 
 export const Route = createFileRoute("/inverse/")({
@@ -237,7 +236,6 @@ function InverseListPage() {
           .inv-list-orb-a { width: 460px; height: 460px; top: -120px; left: -100px; background: radial-gradient(circle, color-mix(in oklab, var(--saffron) 70%, transparent), transparent 65%); }
           .inv-list-orb-b { width: 520px; height: 520px; top: 30%; right: -160px; background: radial-gradient(circle, color-mix(in oklab, var(--saffron) 50%, magenta), transparent 65%); }
         `}</style>
-        <SatireDisclaimer />
       </main>
     </div>
   );

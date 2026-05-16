@@ -130,45 +130,8 @@ function RootComponent() {
         <ChatSuppressionProvider>
           <Outlet />
           <ChatWidget />
-          <GlobalFooter />
         </ChatSuppressionProvider>
       </AuthProvider>
     </QueryClientProvider>
-  );
-}
-
-function GlobalFooter() {
-  const linkStyle: React.CSSProperties = {
-    color: "var(--fg-muted)",
-    textDecoration: "none",
-    borderBottom: "1px solid transparent",
-  };
-  return (
-    <footer
-      style={{
-        borderTop: "1px solid var(--hairline)",
-        padding: "20px 24px 28px",
-        marginTop: 48,
-        maxWidth: 720,
-        marginLeft: "auto",
-        marginRight: "auto",
-        display: "flex",
-        flexWrap: "wrap",
-        alignItems: "center",
-        justifyContent: "center",
-        gap: 18,
-        fontFamily: "var(--font-mono)",
-        fontSize: 10,
-        letterSpacing: "0.18em",
-        textTransform: "uppercase",
-        color: "var(--fg-low)",
-      }}
-    >
-      <span>Culinario · EST 2026</span>
-      <span style={{ opacity: 0.5 }}>·</span>
-      <Link to="/terms" style={linkStyle}>Terms</Link>
-      <Link to="/privacy" style={linkStyle}>Privacy</Link>
-      <Link to="/takedown" style={linkStyle}>Takedown</Link>
-    </footer>
   );
 }
