@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { supabase } from "@/lib/supabase-client";
 import { useAuth } from "@/lib/auth-context";
 
@@ -57,6 +58,26 @@ export function ShareDialog({ open, onClose, kind, targetId, targetLabel }: Prop
     return () => { cancelled = true; };
   }, [query, open, picked, session?.user?.id]);
 
+  // Lock body scroll while the dialog is open. Without this, iOS Safari
+  // can scroll the underlying page when the keyboard is dismissed, leaving
+  // the modal misaligned over a different element.
+  useEffect(() => {
+    if (!open) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = prev; };
+  }, [open]);
+
+  // Close on Escape so keyboard users + desktop don't get stuck.
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open, onClose]);
+
   if (!open) return null;
 
   const send = async () => {
@@ -92,26 +113,48 @@ export function ShareDialog({ open, onClose, kind, targetId, targetLabel }: Prop
     kind === "inverse_set" ? "inverse menu" :
     kind === "duel" ? "duel" : "last meal";
 
-  return (
+  // Render via portal to document.body so the modal escapes any parent
+  // stacking context (e.g. fixed-positioned acts in /duel/$id) and any
+  // ancestor with touch-action constraints. This is what was breaking
+  // mobile interaction on some pages — clicks on the dialog were being
+  // swallowed by a parent layer's event handler.
+  if (typeof document === "undefined") return null;
+
+  const dialog = (
     <div
       role="dialog"
       aria-modal="true"
       onClick={onClose}
       style={{
-        position: "fixed", inset: 0, zIndex: 200,
+        position: "fixed", inset: 0, zIndex: 9999,
         background: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)",
+        WebkitBackdropFilter: "blur(4px)",
         display: "flex", alignItems: "center", justifyContent: "center",
-        padding: 20,
+        padding: 16,
+        // Make sure the modal owns its own scroll if the keyboard pushes
+        // content out of the viewport on mobile.
+        overflowY: "auto",
+        // Don't let touch gestures fall through to anything underneath.
+        touchAction: "manipulation",
       }}
     >
       <div
         onClick={(e) => e.stopPropagation()}
+        onTouchStart={(e) => e.stopPropagation()}
         style={{
           width: "100%", maxWidth: 460,
           background: "var(--bg)", color: "var(--fg)",
           border: "1px solid var(--hairline)", borderRadius: 12,
-          padding: 24,
+          padding: 20,
           fontFamily: "var(--font-body)",
+          // Cap height so the inner content can scroll independently when
+          // the iOS keyboard takes over half the viewport.
+          maxHeight: "calc(100dvh - 32px)",
+          overflowY: "auto",
+          // Belt-and-suspenders: ensure pointer events always reach the
+          // modal even if a parent disabled them.
+          pointerEvents: "auto",
+          WebkitOverflowScrolling: "touch",
         }}
       >
         <div style={{
@@ -237,6 +280,8 @@ export function ShareDialog({ open, onClose, kind, targetId, targetLabel }: Prop
       </div>
     </div>
   );
+
+  return createPortal(dialog, document.body);
 }
 
 const fieldLabel: React.CSSProperties = {

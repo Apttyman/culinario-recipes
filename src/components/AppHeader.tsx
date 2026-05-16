@@ -12,33 +12,61 @@ const NAV = [
   { label: "Profile", to: "/portrait" },
 ] as const;
 
-export function AppHeader({ current }: { current?: "Today" | "Cookbook" | "Profile" | "Inverse" | "Duels" | "Last Meal" | "Converse" }) {
+type CurrentNav = "Today" | "Cookbook" | "Profile" | "Inverse" | "Duels" | "Last Meal" | "Converse";
+
+export function AppHeader({ current }: { current?: CurrentNav }) {
   const { session, signOut } = useAuth();
   const navigate = useNavigate();
-  const [open, setOpen] = useState(false);
-  const wrapRef = useRef<HTMLDivElement>(null);
 
+  const [acctOpen, setAcctOpen] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  const acctRef = useRef<HTMLDivElement>(null);
+  const mobileRef = useRef<HTMLDivElement>(null);
+
+  // Close account dropdown on outside click
   useEffect(() => {
-    if (!open) return;
+    if (!acctOpen) return;
     const onDoc = (e: MouseEvent) => {
-      if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) setOpen(false);
+      if (acctRef.current && !acctRef.current.contains(e.target as Node)) setAcctOpen(false);
     };
     document.addEventListener("mousedown", onDoc);
     return () => document.removeEventListener("mousedown", onDoc);
-  }, [open]);
+  }, [acctOpen]);
+
+  // Close mobile nav on outside click + on route change (route change handled
+  // by the close-on-link-click below).
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const onDoc = (e: MouseEvent) => {
+      if (mobileRef.current && !mobileRef.current.contains(e.target as Node)) setMobileOpen(false);
+    };
+    document.addEventListener("mousedown", onDoc);
+    return () => document.removeEventListener("mousedown", onDoc);
+  }, [mobileOpen]);
+
+  // Close mobile nav on Escape
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setMobileOpen(false); };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [mobileOpen]);
 
   const email = session?.user?.email ?? "";
   const initial = (email[0] ?? "?").toUpperCase();
 
   const handleSignOut = async () => {
     await signOut();
-    setOpen(false);
+    setAcctOpen(false);
+    setMobileOpen(false);
     navigate({ to: "/" });
   };
 
   return (
     <header
       style={{
+        position: "relative",
         height: 64,
         width: "100%",
         background: "transparent",
@@ -55,9 +83,34 @@ export function AppHeader({ current }: { current?: "Today" | "Cookbook" | "Profi
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          gap: 24,
+          gap: 16,
         }}
       >
+        {/* Mobile hamburger — sits to the LEFT of the wordmark on small screens */}
+        <button
+          ref={mobileRef as any}
+          type="button"
+          className="culinario-mobile-toggle"
+          aria-label={mobileOpen ? "Close menu" : "Open menu"}
+          aria-expanded={mobileOpen}
+          onClick={() => setMobileOpen((o) => !o)}
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            {mobileOpen ? (
+              <>
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </>
+            ) : (
+              <>
+                <line x1="3" y1="6" x2="21" y2="6" />
+                <line x1="3" y1="12" x2="21" y2="12" />
+                <line x1="3" y1="18" x2="21" y2="18" />
+              </>
+            )}
+          </svg>
+        </button>
+
         <Link
           to="/today"
           className="culinario-wordmark"
@@ -73,7 +126,9 @@ export function AppHeader({ current }: { current?: "Today" | "Cookbook" | "Profi
         >
           Culinario
         </Link>
-        <nav className="culinario-header-nav" style={{ display: "flex", gap: 28, alignItems: "center" }}>
+
+        {/* Desktop horizontal nav — hidden on small screens */}
+        <nav className="culinario-header-nav" style={{ display: "flex", gap: 22, alignItems: "center" }}>
           {NAV.map((item) => (
             <Link
               key={item.label}
@@ -87,6 +142,7 @@ export function AppHeader({ current }: { current?: "Today" | "Cookbook" | "Profi
                 textDecoration: "none",
                 fontFeatureSettings: '"smcp"',
                 paddingBottom: 4,
+                whiteSpace: "nowrap",
                 borderBottom:
                   current === item.label
                     ? "1px solid var(--saffron)"
@@ -97,10 +153,11 @@ export function AppHeader({ current }: { current?: "Today" | "Cookbook" | "Profi
             </Link>
           ))}
         </nav>
+
         {session && (
-          <div ref={wrapRef} style={{ position: "relative" }}>
+          <div ref={acctRef} style={{ position: "relative", flexShrink: 0 }}>
             <button
-              onClick={() => setOpen((o) => !o)}
+              onClick={() => setAcctOpen((o) => !o)}
               aria-label="Account"
               className="culinario-avatar-tap"
               style={{
@@ -127,7 +184,7 @@ export function AppHeader({ current }: { current?: "Today" | "Cookbook" | "Profi
                 {initial}
               </span>
             </button>
-            {open && (
+            {acctOpen && (
               <div
                 className="culinario-avatar-menu"
                 style={{
@@ -157,7 +214,7 @@ export function AppHeader({ current }: { current?: "Today" | "Cookbook" | "Profi
                 </div>
                 <Link
                   to="/settings"
-                  onClick={() => setOpen(false)}
+                  onClick={() => setAcctOpen(false)}
                   className="culinario-signout"
                   style={{
                     display: "block",
@@ -198,6 +255,86 @@ export function AppHeader({ current }: { current?: "Today" | "Cookbook" | "Profi
           </div>
         )}
       </div>
+
+      {/* Mobile dropdown panel — full-width, anchored to header bottom */}
+      {mobileOpen && (
+        <div
+          className="culinario-mobile-panel"
+          role="menu"
+          style={{
+            position: "absolute",
+            top: "100%",
+            left: 0,
+            right: 0,
+            background: "var(--bg)",
+            borderBottom: "1px solid var(--hairline)",
+            boxShadow: "0 16px 32px -16px rgba(0,0,0,0.5)",
+            zIndex: 40,
+          }}
+        >
+          <div style={{ display: "flex", flexDirection: "column", padding: "8px 0" }}>
+            {NAV.map((item) => {
+              const isCurrent = current === item.label;
+              return (
+                <Link
+                  key={item.label}
+                  to={item.to}
+                  onClick={() => setMobileOpen(false)}
+                  role="menuitem"
+                  style={{
+                    display: "block",
+                    padding: "14px 24px",
+                    fontFamily: "var(--font-display)",
+                    fontStyle: "italic",
+                    fontWeight: 400,
+                    fontSize: 18,
+                    color: isCurrent ? "var(--saffron)" : "var(--fg)",
+                    textDecoration: "none",
+                    borderLeft: isCurrent
+                      ? "3px solid var(--saffron)"
+                      : "3px solid transparent",
+                  }}
+                >
+                  {item.label}
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      <style>{`
+        /* Default: desktop layout (nav visible, hamburger hidden) */
+        .culinario-mobile-toggle {
+          display: none;
+          align-items: center;
+          justify-content: center;
+          width: 40px;
+          height: 40px;
+          padding: 0;
+          margin-left: -8px;
+          background: transparent;
+          border: 0;
+          color: var(--fg);
+          cursor: pointer;
+          border-radius: 8px;
+        }
+        .culinario-mobile-toggle:hover { background: color-mix(in oklab, var(--saffron) 10%, transparent); }
+
+        /* Mobile breakpoint — desktop nav exceeds available width once we hit
+           seven items on most phones. Hide it and reveal the hamburger. */
+        @media (max-width: 760px) {
+          .culinario-header-nav { display: none !important; }
+          .culinario-mobile-toggle { display: inline-flex; }
+          .culinario-header-inner {
+            justify-content: flex-start !important;
+            gap: 12px !important;
+          }
+          /* Wordmark scoots over a bit on mobile so the hamburger sits left of it,
+             then avatar gets pushed to the right via margin-left:auto. */
+          .culinario-wordmark { margin-right: auto; }
+        }
+      `}</style>
     </header>
   );
 }
