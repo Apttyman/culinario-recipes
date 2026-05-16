@@ -105,6 +105,20 @@ function SignUp() {
           <button type="submit" disabled={loading} style={ctaStyle} className="culinario-cta">
             {loading ? "Beginning…" : "Begin"} <ArrowUpRight />
           </button>
+          <p style={{
+            marginTop: 18,
+            fontFamily: "var(--font-mono)",
+            fontSize: 10,
+            letterSpacing: "0.12em",
+            textTransform: "uppercase",
+            color: "var(--fg-low)",
+            lineHeight: 1.6,
+          }}>
+            By signing up you agree to our{" "}
+            <Link to="/terms" style={{ color: "var(--saffron)", textDecoration: "none" }}>Terms</Link>
+            {" "}and{" "}
+            <Link to="/privacy" style={{ color: "var(--saffron)", textDecoration: "none" }}>Privacy Policy</Link>.
+          </p>
         </form>
 
         <div style={{ marginTop: 48 }}>

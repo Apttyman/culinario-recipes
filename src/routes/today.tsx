@@ -116,7 +116,7 @@ function Today() {
         {session?.user && <DailyQuestionCard userId={session.user.id} />}
 
         <button
-          onClick={() => navigate({ to: "/capture" })}
+          onClick={() => navigate({ to: "/session/new" })}
           className="culinario-glass-btn culinario-glass-btn--begin"
           style={{
             position: "relative",

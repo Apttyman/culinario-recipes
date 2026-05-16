@@ -76,15 +76,15 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "Culinario" },
-      { name: "description", content: "Culinario is a Vite + React + TypeScript web application for managing recipes." },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Culinario" },
-      { property: "og:description", content: "Culinario is a Vite + React + TypeScript web application for managing recipes." },
+      { name: "description", content: "A cooking app that treats every meal as theatre. Conjure a chef. Stage a duel. Cook what they would have cooked." },
+      { name: "author", content: "Culinario" },
+      { property: "og:title", content: "Culinario — Cooking as theatre" },
+      { property: "og:description", content: "Conjure a chef. Stage a duel. Cook what they would have cooked. A cooking app that treats every meal as theatre." },
       { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
-      { name: "twitter:site", content: "@Lovable" },
-      { name: "twitter:title", content: "Culinario" },
-      { name: "twitter:description", content: "Culinario is a Vite + React + TypeScript web application for managing recipes." },
+      { property: "og:site_name", content: "Culinario" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "Culinario — Cooking as theatre" },
+      { name: "twitter:description", content: "Conjure a chef. Stage a duel. Cook what they would have cooked." },
       { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/7bec2f39-fb07-4a90-a83c-d7a66d417eeb/id-preview-d15c20ba--4c8fe348-6945-4de5-a506-86129859ef8e.lovable.app-1778330944359.png" },
       { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/7bec2f39-fb07-4a90-a83c-d7a66d417eeb/id-preview-d15c20ba--4c8fe348-6945-4de5-a506-86129859ef8e.lovable.app-1778330944359.png" },
     ],
@@ -130,8 +130,45 @@ function RootComponent() {
         <ChatSuppressionProvider>
           <Outlet />
           <ChatWidget />
+          <GlobalFooter />
         </ChatSuppressionProvider>
       </AuthProvider>
     </QueryClientProvider>
+  );
+}
+
+function GlobalFooter() {
+  const linkStyle: React.CSSProperties = {
+    color: "var(--fg-muted)",
+    textDecoration: "none",
+    borderBottom: "1px solid transparent",
+  };
+  return (
+    <footer
+      style={{
+        borderTop: "1px solid var(--hairline)",
+        padding: "20px 24px 28px",
+        marginTop: 48,
+        maxWidth: 720,
+        marginLeft: "auto",
+        marginRight: "auto",
+        display: "flex",
+        flexWrap: "wrap",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 18,
+        fontFamily: "var(--font-mono)",
+        fontSize: 10,
+        letterSpacing: "0.18em",
+        textTransform: "uppercase",
+        color: "var(--fg-low)",
+      }}
+    >
+      <span>Culinario · EST 2026</span>
+      <span style={{ opacity: 0.5 }}>·</span>
+      <Link to="/terms" style={linkStyle}>Terms</Link>
+      <Link to="/privacy" style={linkStyle}>Privacy</Link>
+      <Link to="/takedown" style={linkStyle}>Takedown</Link>
+    </footer>
   );
 }

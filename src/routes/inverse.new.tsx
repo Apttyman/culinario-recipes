@@ -6,6 +6,7 @@ import { AppHeader } from "@/components/AppHeader";
 import { getFaceCropStyle, parseFaceBox, type FaceBox } from "@/lib/face-crop";
 import { toCelebrityKey } from "@/lib/celebrity-key";
 import { ShareButton } from "@/components/share/ShareButton";
+import { SatireDisclaimer } from "@/components/SatireDisclaimer";
 
 type GeneratedRecipe = {
   id: string;
@@ -211,6 +212,7 @@ function InverseNewPage() {
         </div>
           </>
         )}
+        <SatireDisclaimer />
       </main>
 
       {conjuring && <ConjuringOverlay name={celebrity.trim()} phrase={phrases[phraseIdx]} />}

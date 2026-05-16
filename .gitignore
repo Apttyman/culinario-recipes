@@ -32,3 +32,6 @@ dist-ssr
 *.sw?
 
 
+
+# Local audit artifacts (intentionally not pushed)
+docs/
