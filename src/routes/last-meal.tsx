@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { supabase } from "@/lib/supabase-client";
 import { AppHeader } from "@/components/AppHeader";
+import { ShareButton } from "@/components/share/ShareButton";
 import { getFaceCropStyle, parseFaceBox, type FaceBox } from "@/lib/face-crop";
 
 export const Route = createFileRoute("/last-meal")({
@@ -229,6 +230,7 @@ function LastMealArchiveRow({ meal }: { meal: ArchiveRow }) {
   const faceBox: FaceBox = parseFaceBox(meal.portrait_face_box);
   const subtitle = meal.epitaph ?? meal.meal_description ?? "A last table, set.";
   return (
+    <div style={{ position: "relative" }}>
     <Link
       to="/last-meal/$id"
       params={{ id: meal.id }}
@@ -322,6 +324,20 @@ function LastMealArchiveRow({ meal }: { meal: ArchiveRow }) {
         @media (max-width: 640px) { .lm-cta { display: none; } }
       `}</style>
     </Link>
+    {/* Share icon, absolutely positioned in the corner; stops propagation so it
+        doesn't trigger the Link navigation underneath. */}
+    <div
+      style={{ position: "absolute", top: 12, right: 12, zIndex: 2 }}
+      onClick={(e) => e.stopPropagation()}
+    >
+      <ShareButton
+        kind="last_meal"
+        targetId={meal.id}
+        targetLabel={`${meal.figure_name}'s last meal`}
+        variant="icon"
+      />
+    </div>
+    </div>
   );
 }
 
