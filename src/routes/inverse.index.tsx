@@ -57,10 +57,14 @@ function InverseListPage() {
     if (!session?.user) return;
     let cancelled = false;
     (async () => {
+      // Only pull TRUE inverse-mode recipes. Duel-sourced recipes also have
+      // is_inverse=true but they belong on /duels, not here.
       const { data: rows, error } = await supabase
         .from("recipes")
         .select("*")
         .eq("user_id", session.user.id)
+        .eq("is_inverse", true)
+        .eq("from_duel", false)
         .order("created_at", { ascending: false })
         .limit(250);
       if (cancelled) return;
@@ -68,12 +72,13 @@ function InverseListPage() {
       const buckets = new Map<string, PersonaSummary>();
       for (const r of (rows ?? []) as any[]) {
         const body = (r.body && typeof r.body === "object" && !Array.isArray(r.body)) ? r.body : {};
+
+        // Belt-and-suspenders: skip anything that still looks duel-sourced
+        // by the body marker, even if the column is wrong.
+        if (body.from_duel === true || body.from_duel === "true") continue;
+
         const celeb: string | null = r.inverse_celebrity ?? body.inverse_celebrity ?? r.chef_inspiration ?? null;
         if (!celeb) continue;
-        const isInverseRow =
-          !!r.inverse_celebrity || !!body.inverse_celebrity || !!body.inverse_blurb ||
-          !!body.cameo || !!r.chef_inspiration;
-        if (!isInverseRow) continue;
         const blurb = r.inverse_blurb ?? body.inverse_blurb ?? body.rationale ?? null;
         const key = celeb.trim();
         const existing = buckets.get(key);
@@ -112,7 +117,7 @@ function InverseListPage() {
         faceByKey.set(row.celebrity_key, parseFaceBox(row.portrait_face_box));
         const pb = clean(row.persona_blurb);
         const dis = clean(row.disambiguator);
-        console.log(`[inverse] bio for ${row.celebrity_key}: persona_blurb=${pb ? "✓" : "∅"} disambiguator=${dis ? "✓" : "∅"}`);
+        console.log(`[inverse] bio for ${row.celebrity_key}: persona_blurb=${pb ? "yes" : "no"} disambiguator=${dis ? "yes" : "no"}`);
         bioByKey.set(row.celebrity_key, pb ?? dis ?? null);
       }
       const nextPortraits: Record<string, string | null> = {};
@@ -168,7 +173,7 @@ function InverseListPage() {
         <div className="inv-list-orb inv-list-orb-b" />
 
         <div style={{ position: "relative", zIndex: 1 }}>
-          <div style={eyebrow}>№ 007 — Inverse Mode Archive</div>
+          <div style={eyebrow}>No 007 — Inverse Mode Archive</div>
           <h1 style={{
             fontFamily: "var(--font-display)", fontWeight: 300, fontStyle: "italic",
             fontSize: "clamp(48px, 7vw, 80px)", lineHeight: 1.05,
@@ -195,13 +200,13 @@ function InverseListPage() {
                 borderRadius: 9999,
               }}
             >
-              Conjure a new persona ↗
+              Conjure a new persona
             </Link>
           </div>
 
           <div style={{ marginTop: 40, display: "flex", flexDirection: "column", gap: 16 }}>
             {err && <div style={{ ...eyebrow, color: "var(--saffron)" }}>{err}</div>}
-            {!err && personas === null && <div style={eyebrow}>Loading the archive…</div>}
+            {!err && personas === null && <div style={eyebrow}>Loading the archive...</div>}
             {!err && personas && personas.length === 0 && (
               <div style={{
                 padding: "44px 28px", textAlign: "center",
@@ -295,7 +300,7 @@ function PersonaResultsView({
           ...eyebrow, marginBottom: 28,
         }}
       >
-        ← All personas
+        &larr; All personas
       </button>
 
       <div style={{ display: "flex", alignItems: "center", gap: 24, flexWrap: "wrap" }}>
@@ -310,7 +315,7 @@ function PersonaResultsView({
           {!portrait && <span className="persona-initial" style={{ fontSize: 48 }}>{initial}</span>}
         </div>
         <div style={{ minWidth: 0, flex: 1 }}>
-          <div style={eyebrow}>№ 007 — Inverse Mode</div>
+          <div style={eyebrow}>No 007 — Inverse Mode</div>
           <h1 style={{
             fontFamily: "var(--font-display)", fontWeight: 300, fontStyle: "italic",
             fontSize: "clamp(40px, 6vw, 64px)", lineHeight: 1.05,
@@ -376,7 +381,7 @@ function PersonaResultsView({
                 fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.2em",
                 textTransform: "uppercase", color: "var(--saffron)",
               }}>
-                Open recipe ↗
+                Open recipe
               </div>
             </div>
           </Link>
@@ -452,7 +457,7 @@ function PersonaRow({
           fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.2em",
           textTransform: "uppercase", color: "var(--saffron)", whiteSpace: "nowrap",
         }}>
-          Revisit menu&nbsp;↗
+          Revisit menu
         </span>
       </div>
       <style>{`
