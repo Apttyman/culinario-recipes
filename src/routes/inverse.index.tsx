@@ -61,6 +61,8 @@ function InverseListPage() {
         .from("recipes")
         .select("*")
         .eq("user_id", session.user.id)
+        .eq("is_inverse", true)
+        .eq("from_duel", false)
         .order("created_at", { ascending: false })
         .limit(250);
       if (cancelled) return;
