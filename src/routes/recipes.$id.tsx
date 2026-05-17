@@ -6,6 +6,8 @@ import { insertSignal, ratingWeight } from "@/lib/preference-signals";
 import { AppHeader } from "@/components/AppHeader";
 import { triggerPortraitSynthesis } from "@/lib/portrait";
 import { ShareButton } from "@/components/share/ShareButton";
+import { ServingsStepper } from "@/components/ServingsStepper";
+import { scaleAmount } from "@/lib/scale-amount";
 
 export const Route = createFileRoute("/recipes/$id")({
   head: () => ({ meta: [{ title: "Recipe — Culinario" }] }),
@@ -163,8 +165,22 @@ function RecipePage() {
   const metaValue = hasFromMeta
     ? `${fridgeCount} ingredients`
     : `${ingredients.length} ingredients`;
+  // Servings stepper state. The recipe row carries the canonical baseline
+  // (recipes.servings, default 4); the user can locally adjust the target,
+  // which scales ingredient amounts proportionally. Resets on each navigation.
+  const baseServings = Number(recipe?.servings) > 0 ? Number(recipe.servings) : 4;
+  const [currentServings, setCurrentServings] = useState<number | null>(null);
+  useEffect(() => {
+    setCurrentServings(baseServings);
+    // Only re-sync when we load a new recipe (id changes) or the baseline shifts.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [recipe?.id, baseServings]);
+  const displayServings = currentServings ?? baseServings;
+  const scaleRatio = baseServings > 0 ? displayServings / baseServings : 1;
+
   const formatAmount = (ing: any) => {
-    const amt = (ing?.amount ?? "").toString().trim();
+    const rawAmt = (ing?.amount ?? "").toString().trim();
+    const amt = scaleAmount(rawAmt, scaleRatio);
     const unit = (ing?.unit ?? "").toString().trim();
     if (amt && unit) return `${amt} ${unit}`;
     return amt || unit;
@@ -337,7 +353,18 @@ function RecipePage() {
           </>
         )}
 
-        <h2 style={sectionHeader}>Ingredients</h2>
+        <div style={{
+          display: "flex", alignItems: "center", justifyContent: "space-between",
+          gap: 20, flexWrap: "wrap",
+          margin: "0 0 24px",
+        }}>
+          <h2 style={{ ...sectionHeader, margin: 0 }}>Ingredients</h2>
+          <ServingsStepper
+            value={displayServings}
+            baseServings={baseServings}
+            onChange={setCurrentServings}
+          />
+        </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           {ingredients.map((ing, i) => (
             <div key={i} style={{ display: "grid", gridTemplateColumns: "120px 1fr auto", gap: 16, alignItems: "baseline" }}>

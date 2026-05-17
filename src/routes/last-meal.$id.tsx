@@ -4,6 +4,8 @@ import { useAuth } from "@/lib/auth-context";
 import { supabase } from "@/lib/supabase-client";
 import { AppHeader } from "@/components/AppHeader";
 import { ShareButton } from "@/components/share/ShareButton";
+import { ServingsStepper } from "@/components/ServingsStepper";
+import { scaleAmount } from "@/lib/scale-amount";
 import { getFaceCropStyle, parseFaceBox, type FaceBox } from "@/lib/face-crop";
 
 export const Route = createFileRoute("/last-meal/$id")({
@@ -44,6 +46,7 @@ type LastMealRecipe = {
   cuisine: string;
   time_estimate_minutes: number | null;
   difficulty: string;
+  servings?: number | null;
   ingredients: Ingredient[];
   steps: string[];
   voice_intro: string;
@@ -133,6 +136,15 @@ function LastMealDetailPage() {
   const r = meal.recipe;
   const isOwner = !!session?.user && session.user.id === meal.user_id;
   const hasPanel = !!(meal.panel_memos && (meal.panel_memos.biographer || meal.panel_memos.food_writer || meal.panel_memos.mythographer));
+
+  // Servings stepper state for the last-meal recipe. Last meals predating
+  // the servings rollout default to 4; new ones will carry their generated
+  // servings count.
+  const baseServings = Number(r?.servings) > 0 ? Number(r!.servings) : 4;
+  const [currentServings, setCurrentServings] = useState<number | null>(null);
+  useEffect(() => { setCurrentServings(baseServings); }, [meal.id, baseServings]);
+  const displayServings = currentServings ?? baseServings;
+  const scaleRatio = baseServings > 0 ? displayServings / baseServings : 1;
 
   return (
     <div style={{ minHeight: "100vh", background: "var(--bg)", color: "var(--fg)" }}>
@@ -286,9 +298,20 @@ function LastMealDetailPage() {
             )}
 
             <div style={{ marginTop: 28 }}>
-              <div style={eyebrow}>Ingredients</div>
+              <div style={{
+                display: "flex", alignItems: "center", justifyContent: "space-between",
+                gap: 20, flexWrap: "wrap",
+                marginBottom: 16,
+              }}>
+                <div style={eyebrow}>Ingredients</div>
+                <ServingsStepper
+                  value={displayServings}
+                  baseServings={baseServings}
+                  onChange={setCurrentServings}
+                />
+              </div>
               <ul style={{
-                listStyle: "none", padding: 0, margin: "16px 0 0",
+                listStyle: "none", padding: 0, margin: 0,
                 display: "flex", flexDirection: "column", gap: 8,
                 maxWidth: 560,
               }}>
@@ -300,7 +323,7 @@ function LastMealDetailPage() {
                   }}>
                     <span style={{ fontStyle: "italic" }}>{ing.item}</span>
                     <span style={{ color: "var(--fg-muted)", whiteSpace: "nowrap" }}>
-                      {ing.amount}{ing.unit ? ` ${ing.unit}` : ""}
+                      {scaleAmount(ing.amount, scaleRatio)}{ing.unit ? ` ${ing.unit}` : ""}
                     </span>
                   </li>
                 ))}
