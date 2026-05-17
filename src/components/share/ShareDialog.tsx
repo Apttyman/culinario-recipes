@@ -59,6 +59,10 @@ export function ShareDialog({ open, onClose, kind, targetId, targetLabel }: Prop
   }, [query, open, picked, session?.user?.id]);
 
   const [linkCopied, setLinkCopied] = useState(false);
+  const [linkShared, setLinkShared] = useState(false);
+  const [imageBusy, setImageBusy] = useState(false);
+  const [imageShared, setImageShared] = useState(false);
+  const [imageError, setImageError] = useState<string | null>(null);
 
   // Compute the direct permalink + OG image URL for this share target.
   // Duel + Last Meal have public viewers (anon-readable by uuid) so the
@@ -95,23 +99,115 @@ export function ShareDialog({ open, onClose, kind, targetId, targetLabel }: Prop
     return () => { document.body.style.overflow = prev; };
   }, [open]);
 
-  // Reset copied state when dialog closes/reopens
+  // Reset transient feedback when dialog closes/reopens
   useEffect(() => {
-    if (!open) setLinkCopied(false);
+    if (!open) {
+      setLinkCopied(false);
+      setLinkShared(false);
+      setImageBusy(false);
+      setImageShared(false);
+      setImageError(null);
+    }
   }, [open]);
 
-  const copyLink = async () => {
+  // Share the link. On mobile (and any device that exposes Web Share API)
+  // we trigger the native share sheet — that's the right primitive for
+  // "text this to someone" because the user picks Messages / Mail / WhatsApp /
+  // AirDrop from the OS. On desktop we fall back to the clipboard.
+  const shareLink = async () => {
     if (!permalink) return;
+    const hasWebShare = typeof navigator !== "undefined" && typeof navigator.share === "function";
+    if (hasWebShare) {
+      try {
+        await navigator.share({
+          title: targetLabel ?? "From Culinario",
+          text: targetLabel ?? undefined,
+          url: permalink,
+        });
+        setLinkShared(true);
+        setTimeout(() => setLinkShared(false), 1800);
+        return;
+      } catch (err: any) {
+        // User dismissed the share sheet — not an error, no feedback needed.
+        if (err?.name === "AbortError") return;
+        // Anything else: fall through to clipboard.
+      }
+    }
     try {
       await navigator.clipboard.writeText(permalink);
       setLinkCopied(true);
       setTimeout(() => setLinkCopied(false), 1800);
     } catch {
-      // Fallback for browsers that block clipboard API in non-secure contexts —
-      // open the URL in a new tab so the user can copy from the address bar.
       window.prompt("Copy this link:", permalink);
     }
   };
+
+  // Save (or share) the OG image. On mobile we prefer the share sheet with
+  // the PNG as a file — that lets users hit "Save to Photos", "Messages",
+  // "Mail", etc. natively. The <a download> attribute is unreliable on iOS
+  // Safari (it ignores it and displays the PNG inline) so we never rely on
+  // it. On desktop we fetch the blob and trigger a download via createObjectURL
+  // so we don't depend on cross-origin Content-Disposition headers.
+  const saveImage = async () => {
+    if (!ogImageUrl || imageBusy) return;
+    setImageBusy(true);
+    setImageError(null);
+    try {
+      const resp = await fetch(ogImageUrl, { cache: "no-store" });
+      if (!resp.ok) throw new Error(`Image not available (${resp.status})`);
+      const blob = await resp.blob();
+      const fileName = ogFileName ?? "culinario.png";
+
+      // Try the share sheet with files first (best mobile UX)
+      const hasShareFiles =
+        typeof navigator !== "undefined" &&
+        typeof navigator.share === "function" &&
+        typeof navigator.canShare === "function";
+      if (hasShareFiles) {
+        try {
+          const file = new File([blob], fileName, { type: blob.type || "image/png" });
+          if (navigator.canShare({ files: [file] })) {
+            await navigator.share({
+              title: targetLabel ?? "From Culinario",
+              files: [file],
+            });
+            setImageShared(true);
+            setTimeout(() => setImageShared(false), 1800);
+            return;
+          }
+        } catch (err: any) {
+          if (err?.name === "AbortError") return;
+          // fall through to download
+        }
+      }
+
+      // Desktop / unsupported mobile: trigger a download via object URL
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = fileName;
+      a.rel = "noopener";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 1500);
+    } catch (err: any) {
+      // Last-ditch: open in new tab so the user can long-press / right-click → save
+      try { window.open(ogImageUrl, "_blank"); } catch {/* ignore */}
+      setImageError(err?.message ?? "Couldn't fetch the image. Opened it in a new tab.");
+      setTimeout(() => setImageError(null), 4000);
+    } finally {
+      setImageBusy(false);
+    }
+  };
+
+  // Detect Web Share API once so the button label matches the actual behavior.
+  const [hasWebShare, setHasWebShare] = useState(false);
+  useEffect(() => {
+    if (typeof navigator !== "undefined" && typeof navigator.share === "function") {
+      setHasWebShare(true);
+    }
+  }, []);
 
   // Close on Escape so keyboard users + desktop don't get stuck.
   useEffect(() => {
@@ -225,36 +321,57 @@ export function ShareDialog({ open, onClose, kind, targetId, targetLabel }: Prop
         {(permalink || ogImageUrl) && (
           <div style={{
             marginTop: 18,
-            display: "flex", gap: 8, flexWrap: "wrap",
+            display: "grid",
+            gridTemplateColumns: permalink && ogImageUrl ? "1fr 1fr" : "1fr",
+            gap: 8,
           }}>
             {permalink && (
               <button
                 type="button"
-                onClick={copyLink}
-                style={quickActionBtn(linkCopied)}
+                onClick={shareLink}
+                style={quickActionBtn(linkCopied || linkShared)}
+                aria-label={hasWebShare ? "Share link" : "Copy link"}
               >
-                {linkCopied ? "Copied ✓" : "Copy link"}
+                {linkShared ? "Shared ✓"
+                  : linkCopied ? "Copied ✓"
+                  : hasWebShare ? "Share link ↗" : "Copy link"}
               </button>
             )}
             {ogImageUrl && (
-              <a
-                href={ogImageUrl}
-                download={ogFileName ?? "culinario.png"}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={quickActionBtn(false)}
+              <button
+                type="button"
+                onClick={saveImage}
+                disabled={imageBusy}
+                style={{
+                  ...quickActionBtn(imageShared),
+                  ...(imageBusy ? { opacity: 0.6, cursor: "wait" } : {}),
+                }}
+                aria-label={hasWebShare ? "Share image" : "Save image"}
               >
-                Save image ↓
-              </a>
+                {imageBusy ? "Fetching…"
+                  : imageShared ? "Shared ✓"
+                  : hasWebShare ? "Share image ↗" : "Save image ↓"}
+              </button>
             )}
+          </div>
+        )}
+        {imageError && (
+          <div style={{
+            marginTop: 10,
+            fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.16em",
+            textTransform: "uppercase", color: "var(--saffron)",
+          }}>
+            {imageError}
           </div>
         )}
         {permalink && (
           <div style={{
-            marginTop: 8,
-            fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.18em",
+            marginTop: 10,
+            fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.16em",
             textTransform: "uppercase", color: "var(--fg-low)",
             wordBreak: "break-all",
+            userSelect: "all",
+            WebkitUserSelect: "all",
           }}>
             {permalink.replace(/^https?:\/\//, "")}
           </div>
