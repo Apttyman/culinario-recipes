@@ -60,41 +60,23 @@ export function ShareDialog({ open, onClose, kind, targetId, targetLabel }: Prop
 
   const [linkCopied, setLinkCopied] = useState(false);
   const [linkShared, setLinkShared] = useState(false);
-  const [imageBusy, setImageBusy] = useState(false);
-  const [imageShared, setImageShared] = useState(false);
-  const [imageError, setImageError] = useState<string | null>(null);
 
-  // Compute the direct permalink + OG image URL for this share target.
-  // - Duel + Last Meal: public viewers (anon-readable by uuid), direct URLs
-  //   work for anyone.
-  // - Recipe: permalink works for `from_duel` recipes (publicly readable) and
-  //   for own / share-granted recipes; private recipes still 404 for strangers.
-  //   OG image is always renderable since recipe-og uses service-role.
-  // - Inverse set: per-session viewer route doesn't exist yet so permalink
-  //   stays null; OG image is renderable.
-  const SUPA_FN_BASE = "https://upofudganvjbdhxxpfti.supabase.co/functions/v1";
+  // Compute the direct permalink for this share target. Every mode now has
+  // a public viewer (Duel, Last Meal, Inverse Set are anon-readable by uuid;
+  // Recipe permalinks work for own / share-granted / from_duel recipes).
+  // OG images are still produced server-side by the *-og edge functions and
+  // attached via per-route head() meta for social unfurling — we just no
+  // longer expose a "save image" button in the dialog.
   const origin = typeof window !== "undefined" ? window.location.origin : "https://culinario-recipes.lovable.app";
-  const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 60);
   let permalink: string | null = null;
-  let ogImageUrl: string | null = null;
-  let ogFileName: string | null = null;
   if (kind === "duel") {
     permalink = `${origin}/duel/${targetId}`;
-    ogImageUrl = `${SUPA_FN_BASE}/duel-og?id=${targetId}`;
-    ogFileName = `culinario-duel-${slugify(targetLabel ?? "duel") || "duel"}.png`;
   } else if (kind === "last_meal") {
     permalink = `${origin}/last-meal/${targetId}`;
-    ogImageUrl = `${SUPA_FN_BASE}/last-meal-og?id=${targetId}`;
-    ogFileName = `culinario-last-meal-${slugify(targetLabel ?? "last-meal") || "last-meal"}.png`;
   } else if (kind === "recipe") {
     permalink = `${origin}/recipes/${targetId}`;
-    ogImageUrl = `${SUPA_FN_BASE}/recipe-og?id=${targetId}`;
-    ogFileName = `culinario-recipe-${slugify(targetLabel ?? "recipe") || "recipe"}.png`;
   } else if (kind === "inverse_set") {
-    // No per-session public viewer yet — permalink stays null so the
-    // Share-link button hides. Image still works for posting/saving.
-    ogImageUrl = `${SUPA_FN_BASE}/inverse-og?session=${targetId}`;
-    ogFileName = `culinario-inverse-${slugify(targetLabel ?? "menu") || "menu"}.png`;
+    permalink = `${origin}/inverse-set/${targetId}`;
   }
 
   // Lock body scroll while the dialog is open. Without this, iOS Safari
@@ -112,9 +94,6 @@ export function ShareDialog({ open, onClose, kind, targetId, targetLabel }: Prop
     if (!open) {
       setLinkCopied(false);
       setLinkShared(false);
-      setImageBusy(false);
-      setImageShared(false);
-      setImageError(null);
     }
   }, [open]);
 
@@ -147,65 +126,6 @@ export function ShareDialog({ open, onClose, kind, targetId, targetLabel }: Prop
       setTimeout(() => setLinkCopied(false), 1800);
     } catch {
       window.prompt("Copy this link:", permalink);
-    }
-  };
-
-  // Save (or share) the OG image. On mobile we prefer the share sheet with
-  // the PNG as a file — that lets users hit "Save to Photos", "Messages",
-  // "Mail", etc. natively. The <a download> attribute is unreliable on iOS
-  // Safari (it ignores it and displays the PNG inline) so we never rely on
-  // it. On desktop we fetch the blob and trigger a download via createObjectURL
-  // so we don't depend on cross-origin Content-Disposition headers.
-  const saveImage = async () => {
-    if (!ogImageUrl || imageBusy) return;
-    setImageBusy(true);
-    setImageError(null);
-    try {
-      const resp = await fetch(ogImageUrl, { cache: "no-store" });
-      if (!resp.ok) throw new Error(`Image not available (${resp.status})`);
-      const blob = await resp.blob();
-      const fileName = ogFileName ?? "culinario.png";
-
-      // Try the share sheet with files first (best mobile UX)
-      const hasShareFiles =
-        typeof navigator !== "undefined" &&
-        typeof navigator.share === "function" &&
-        typeof navigator.canShare === "function";
-      if (hasShareFiles) {
-        try {
-          const file = new File([blob], fileName, { type: blob.type || "image/png" });
-          if (navigator.canShare({ files: [file] })) {
-            await navigator.share({
-              title: targetLabel ?? "From Culinario",
-              files: [file],
-            });
-            setImageShared(true);
-            setTimeout(() => setImageShared(false), 1800);
-            return;
-          }
-        } catch (err: any) {
-          if (err?.name === "AbortError") return;
-          // fall through to download
-        }
-      }
-
-      // Desktop / unsupported mobile: trigger a download via object URL
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = fileName;
-      a.rel = "noopener";
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      setTimeout(() => URL.revokeObjectURL(url), 1500);
-    } catch (err: any) {
-      // Last-ditch: open in new tab so the user can long-press / right-click → save
-      try { window.open(ogImageUrl, "_blank"); } catch {/* ignore */}
-      setImageError(err?.message ?? "Couldn't fetch the image. Opened it in a new tab.");
-      setTimeout(() => setImageError(null), 4000);
-    } finally {
-      setImageBusy(false);
     }
   };
 
@@ -326,50 +246,18 @@ export function ShareDialog({ open, onClose, kind, targetId, targetLabel }: Prop
             sit at the top because they're the fastest path for "text it
             to someone" or "post the image" and don't require entering
             a recipient. */}
-        {(permalink || ogImageUrl) && (
-          <div style={{
-            marginTop: 18,
-            display: "grid",
-            gridTemplateColumns: permalink && ogImageUrl ? "1fr 1fr" : "1fr",
-            gap: 8,
-          }}>
-            {permalink && (
-              <button
-                type="button"
-                onClick={shareLink}
-                style={quickActionBtn(linkCopied || linkShared)}
-                aria-label={hasWebShare ? "Share link" : "Copy link"}
-              >
-                {linkShared ? "Shared ✓"
-                  : linkCopied ? "Copied ✓"
-                  : hasWebShare ? "Share link ↗" : "Copy link"}
-              </button>
-            )}
-            {ogImageUrl && (
-              <button
-                type="button"
-                onClick={saveImage}
-                disabled={imageBusy}
-                style={{
-                  ...quickActionBtn(imageShared),
-                  ...(imageBusy ? { opacity: 0.6, cursor: "wait" } : {}),
-                }}
-                aria-label={hasWebShare ? "Share image" : "Save image"}
-              >
-                {imageBusy ? "Fetching…"
-                  : imageShared ? "Shared ✓"
-                  : hasWebShare ? "Share image ↗" : "Save image ↓"}
-              </button>
-            )}
-          </div>
-        )}
-        {imageError && (
-          <div style={{
-            marginTop: 10,
-            fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.16em",
-            textTransform: "uppercase", color: "var(--saffron)",
-          }}>
-            {imageError}
+        {permalink && (
+          <div style={{ marginTop: 18 }}>
+            <button
+              type="button"
+              onClick={shareLink}
+              style={{ ...quickActionBtn(linkCopied || linkShared), width: "100%", justifyContent: "center" }}
+              aria-label={hasWebShare ? "Share link" : "Copy link"}
+            >
+              {linkShared ? "Shared ✓"
+                : linkCopied ? "Copied ✓"
+                : hasWebShare ? "Share link ↗" : "Copy link"}
+            </button>
           </div>
         )}
         {permalink && (
@@ -385,7 +273,7 @@ export function ShareDialog({ open, onClose, kind, targetId, targetLabel }: Prop
           </div>
         )}
 
-        {(permalink || ogImageUrl) && (
+        {permalink && (
           <hr style={{ border: 0, height: 1, background: "var(--hairline)", margin: "20px 0 0" }} />
         )}
 
