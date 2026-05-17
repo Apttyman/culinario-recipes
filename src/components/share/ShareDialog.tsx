@@ -58,6 +58,33 @@ export function ShareDialog({ open, onClose, kind, targetId, targetLabel }: Prop
     return () => { cancelled = true; };
   }, [query, open, picked, session?.user?.id]);
 
+  const [linkCopied, setLinkCopied] = useState(false);
+
+  // Compute the direct permalink + OG image URL for this share target.
+  // Duel + Last Meal have public viewers (anon-readable by uuid) so the
+  // direct URL works for anyone. Recipe permalinks require sign-in but the
+  // copy-link is still useful for sending to other Culinario users.
+  // Inverse sets don't have a clean per-session viewer URL yet.
+  const SUPA_FN_BASE = "https://upofudganvjbdhxxpfti.supabase.co/functions/v1";
+  const origin = typeof window !== "undefined" ? window.location.origin : "https://culinario-recipes.lovable.app";
+  let permalink: string | null = null;
+  let ogImageUrl: string | null = null;
+  let ogFileName: string | null = null;
+  if (kind === "duel") {
+    permalink = `${origin}/duel/${targetId}`;
+    ogImageUrl = `${SUPA_FN_BASE}/duel-og?id=${targetId}`;
+    ogFileName = `culinario-duel-${(targetLabel ?? "duel").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 60) || "duel"}.png`;
+  } else if (kind === "last_meal") {
+    permalink = `${origin}/last-meal/${targetId}`;
+    ogImageUrl = `${SUPA_FN_BASE}/last-meal-og?id=${targetId}`;
+    ogFileName = `culinario-last-meal-${(targetLabel ?? "last-meal").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 60) || "last-meal"}.png`;
+  } else if (kind === "recipe") {
+    permalink = `${origin}/recipes/${targetId}`;
+    // Recipes don't have an OG generator (their own image is on the recipe row,
+    // not derived from a Supabase edge function).
+  }
+  // kind === "inverse_set": no clean per-session URL yet; copy link disabled.
+
   // Lock body scroll while the dialog is open. Without this, iOS Safari
   // can scroll the underlying page when the keyboard is dismissed, leaving
   // the modal misaligned over a different element.
@@ -67,6 +94,24 @@ export function ShareDialog({ open, onClose, kind, targetId, targetLabel }: Prop
     document.body.style.overflow = "hidden";
     return () => { document.body.style.overflow = prev; };
   }, [open]);
+
+  // Reset copied state when dialog closes/reopens
+  useEffect(() => {
+    if (!open) setLinkCopied(false);
+  }, [open]);
+
+  const copyLink = async () => {
+    if (!permalink) return;
+    try {
+      await navigator.clipboard.writeText(permalink);
+      setLinkCopied(true);
+      setTimeout(() => setLinkCopied(false), 1800);
+    } catch {
+      // Fallback for browsers that block clipboard API in non-secure contexts —
+      // open the URL in a new tab so the user can copy from the address bar.
+      window.prompt("Copy this link:", permalink);
+    }
+  };
 
   // Close on Escape so keyboard users + desktop don't get stuck.
   useEffect(() => {
@@ -173,8 +218,54 @@ export function ShareDialog({ open, onClose, kind, targetId, targetLabel }: Prop
           </div>
         )}
 
+        {/* Quick actions — copy link + save image (when available). These
+            sit at the top because they're the fastest path for "text it
+            to someone" or "post the image" and don't require entering
+            a recipient. */}
+        {(permalink || ogImageUrl) && (
+          <div style={{
+            marginTop: 18,
+            display: "flex", gap: 8, flexWrap: "wrap",
+          }}>
+            {permalink && (
+              <button
+                type="button"
+                onClick={copyLink}
+                style={quickActionBtn(linkCopied)}
+              >
+                {linkCopied ? "Copied ✓" : "Copy link"}
+              </button>
+            )}
+            {ogImageUrl && (
+              <a
+                href={ogImageUrl}
+                download={ogFileName ?? "culinario.png"}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={quickActionBtn(false)}
+              >
+                Save image ↓
+              </a>
+            )}
+          </div>
+        )}
+        {permalink && (
+          <div style={{
+            marginTop: 8,
+            fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.18em",
+            textTransform: "uppercase", color: "var(--fg-low)",
+            wordBreak: "break-all",
+          }}>
+            {permalink.replace(/^https?:\/\//, "")}
+          </div>
+        )}
+
+        {(permalink || ogImageUrl) && (
+          <hr style={{ border: 0, height: 1, background: "var(--hairline)", margin: "20px 0 0" }} />
+        )}
+
         <div style={{ marginTop: 20 }}>
-          <label style={fieldLabel}>Send to</label>
+          <label style={fieldLabel}>Or send to</label>
           {picked ? (
             <div style={{
               display: "flex", justifyContent: "space-between", alignItems: "center",
@@ -314,3 +405,16 @@ const chipBtn: React.CSSProperties = {
   textTransform: "uppercase", color: "var(--fg-muted)",
   background: "transparent", border: 0, cursor: "pointer",
 };
+// Used by both <button> and <a> at the top of the dialog (copy link / save image).
+// `active` flips the visual feedback ("Copied ✓" gets a saffron-tinted state).
+const quickActionBtn = (active: boolean): React.CSSProperties => ({
+  display: "inline-flex", alignItems: "center", gap: 8,
+  fontFamily: "var(--font-mono)", fontSize: 11, letterSpacing: "0.18em",
+  textTransform: "uppercase",
+  color: active ? "var(--fg)" : "var(--saffron)",
+  background: active ? "color-mix(in oklab, var(--saffron) 18%, transparent)" : "transparent",
+  border: "1px solid var(--saffron)",
+  padding: "10px 16px", borderRadius: 9999,
+  cursor: "pointer", textDecoration: "none",
+  transition: "background 180ms ease, color 180ms ease",
+});
