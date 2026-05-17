@@ -63,7 +63,15 @@ function RecipePage() {
   const [imgLoading, setImgLoading] = useState(false);
   const [imgError, setImgError] = useState<string | null>(null);
   const [imgHover, setImgHover] = useState(false);
-  
+
+  // Servings stepper state. MUST live up here with the other hooks (above any
+  // early returns) to satisfy React's Rules of Hooks — render order matters.
+  // The baseline + ratio derive from `recipe` below the early-return guard.
+  const [currentServings, setCurrentServings] = useState<number | null>(null);
+  useEffect(() => {
+    const s = Number(recipe?.servings) > 0 ? Number(recipe!.servings) : 4;
+    setCurrentServings(s);
+  }, [recipe?.id, recipe?.servings]);
 
   const load = async () => {
     const { data: r } = await supabase.from("recipes").select("*").eq("id", id).single();
@@ -165,16 +173,10 @@ function RecipePage() {
   const metaValue = hasFromMeta
     ? `${fridgeCount} ingredients`
     : `${ingredients.length} ingredients`;
-  // Servings stepper state. The recipe row carries the canonical baseline
-  // (recipes.servings, default 4); the user can locally adjust the target,
-  // which scales ingredient amounts proportionally. Resets on each navigation.
+  // The baseline + ratio derive from `recipe`, which is non-null here because
+  // we passed the early-return guard above. The useState/useEffect for
+  // `currentServings` live at the top of the component (Rules of Hooks).
   const baseServings = Number(recipe?.servings) > 0 ? Number(recipe.servings) : 4;
-  const [currentServings, setCurrentServings] = useState<number | null>(null);
-  useEffect(() => {
-    setCurrentServings(baseServings);
-    // Only re-sync when we load a new recipe (id changes) or the baseline shifts.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [recipe?.id, baseServings]);
   const displayServings = currentServings ?? baseServings;
   const scaleRatio = baseServings > 0 ? displayServings / baseServings : 1;
 

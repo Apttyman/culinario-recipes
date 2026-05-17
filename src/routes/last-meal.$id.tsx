@@ -86,6 +86,14 @@ function LastMealDetailPage() {
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState<string | null>(null);
   const [showPanel, setShowPanel] = useState(false);
+  // Servings stepper state MUST live up here with the other hooks (above any
+  // early returns) — React's Rules of Hooks require stable render order.
+  const [currentServings, setCurrentServings] = useState<number | null>(null);
+  useEffect(() => {
+    const r = meal?.recipe;
+    const s = Number(r?.servings) > 0 ? Number(r!.servings) : 4;
+    setCurrentServings(s);
+  }, [meal?.id, meal?.recipe?.servings]);
 
   useEffect(() => {
     let cancelled = false;
@@ -137,12 +145,10 @@ function LastMealDetailPage() {
   const isOwner = !!session?.user && session.user.id === meal.user_id;
   const hasPanel = !!(meal.panel_memos && (meal.panel_memos.biographer || meal.panel_memos.food_writer || meal.panel_memos.mythographer));
 
-  // Servings stepper state for the last-meal recipe. Last meals predating
-  // the servings rollout default to 4; new ones will carry their generated
-  // servings count.
+  // Last meals predating the servings rollout default to 4. The
+  // useState/useEffect for currentServings lives at the top of the
+  // component above the early returns.
   const baseServings = Number(r?.servings) > 0 ? Number(r!.servings) : 4;
-  const [currentServings, setCurrentServings] = useState<number | null>(null);
-  useEffect(() => { setCurrentServings(baseServings); }, [meal.id, baseServings]);
   const displayServings = currentServings ?? baseServings;
   const scaleRatio = baseServings > 0 ? displayServings / baseServings : 1;
 
