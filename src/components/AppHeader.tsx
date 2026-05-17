@@ -22,7 +22,8 @@ export function AppHeader({ current }: { current?: CurrentNav }) {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const acctRef = useRef<HTMLDivElement>(null);
-  const mobileRef = useRef<HTMLDivElement>(null);
+  const mobileToggleRef = useRef<HTMLButtonElement>(null);
+  const mobilePanelRef = useRef<HTMLDivElement>(null);
 
   // Close account dropdown on outside click
   useEffect(() => {
@@ -34,12 +35,19 @@ export function AppHeader({ current }: { current?: CurrentNav }) {
     return () => document.removeEventListener("mousedown", onDoc);
   }, [acctOpen]);
 
-  // Close mobile nav on outside click + on route change (route change handled
-  // by the close-on-link-click below).
+  // Close mobile nav on outside click. We must check BOTH the toggle button
+  // AND the dropdown panel, because they're separate elements in the DOM
+  // tree. If we only checked the toggle, tapping a Link inside the panel
+  // would fire setMobileOpen(false) on mousedown, the panel would re-render
+  // away, and the Link's click never fires → no navigation. That's the bug
+  // the avatar dropdown doesn't have (its ref wraps both button + menu).
   useEffect(() => {
     if (!mobileOpen) return;
     const onDoc = (e: MouseEvent) => {
-      if (mobileRef.current && !mobileRef.current.contains(e.target as Node)) setMobileOpen(false);
+      const t = e.target as Node;
+      const inToggle = mobileToggleRef.current?.contains(t);
+      const inPanel = mobilePanelRef.current?.contains(t);
+      if (!inToggle && !inPanel) setMobileOpen(false);
     };
     document.addEventListener("mousedown", onDoc);
     return () => document.removeEventListener("mousedown", onDoc);
@@ -88,7 +96,7 @@ export function AppHeader({ current }: { current?: CurrentNav }) {
       >
         {/* Mobile hamburger — sits to the LEFT of the wordmark on small screens */}
         <button
-          ref={mobileRef as any}
+          ref={mobileToggleRef}
           type="button"
           className="culinario-mobile-toggle"
           aria-label={mobileOpen ? "Close menu" : "Open menu"}
@@ -259,6 +267,7 @@ export function AppHeader({ current }: { current?: CurrentNav }) {
       {/* Mobile dropdown panel — full-width, anchored to header bottom */}
       {mobileOpen && (
         <div
+          ref={mobilePanelRef}
           className="culinario-mobile-panel"
           role="menu"
           style={{
