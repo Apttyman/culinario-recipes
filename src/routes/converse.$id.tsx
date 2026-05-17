@@ -2,6 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { supabase } from "@/lib/supabase-client";
+import { useSuppressChatWhileMounted } from "@/lib/chat-suppression";
 import { AppHeader } from "@/components/AppHeader";
 import { getFaceCropStyle, parseFaceBox, type FaceBox } from "@/lib/face-crop";
 
@@ -59,6 +60,11 @@ function ConversationPage() {
   const { id } = Route.useParams();
   const navigate = useNavigate();
   const { session, loading: authLoading } = useAuth();
+
+  // Hide the global Culinario chat widget while this route is mounted —
+  // otherwise its floating bubble parks on top of the conversation send
+  // button on mobile. Restores automatically on unmount.
+  useSuppressChatWhileMounted();
 
   const [conv, setConv] = useState<Conversation | null>(null);
   const [loading, setLoading] = useState(true);
