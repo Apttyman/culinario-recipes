@@ -38,16 +38,47 @@ function NotFoundComponent() {
 function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   console.error(error);
   const router = useRouter();
+  // Surface the actual error text on the page itself — the previous generic
+  // "Something went wrong on our end" message hides every clue and forces
+  // users to open dev tools on mobile (which isn't realistic). Showing the
+  // message + first lines of the stack makes any production failure
+  // diagnosable from the screen.
+  const message = error?.message ?? String(error ?? "Unknown error");
+  const stack = (error?.stack ?? "").split("\n").slice(0, 6).join("\n");
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
-      <div className="max-w-md text-center">
+      <div className="max-w-2xl w-full text-center">
         <h1 className="text-xl font-semibold tracking-tight text-foreground">
           This page didn't load
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Something went wrong on our end. You can try refreshing or head back home.
+          The error is below. Take a screenshot or copy it so we can fix it.
         </p>
+        <pre
+          style={{
+            marginTop: 18,
+            padding: "14px 16px",
+            background: "var(--surface-elev, #1a1a1a)",
+            border: "1px solid var(--hairline, #2a2a24)",
+            borderRadius: 8,
+            color: "var(--saffron, #d97a1b)",
+            fontFamily: "var(--font-mono, 'JetBrains Mono', monospace)",
+            fontSize: 12,
+            lineHeight: 1.5,
+            textAlign: "left",
+            whiteSpace: "pre-wrap",
+            wordBreak: "break-word",
+            overflowX: "auto",
+            maxHeight: 320,
+            overflowY: "auto",
+            userSelect: "text",
+            WebkitUserSelect: "text",
+          }}
+        >
+          {message}
+          {stack ? `\n\n${stack}` : ""}
+        </pre>
         <div className="mt-6 flex flex-wrap justify-center gap-2">
           <button
             onClick={() => {
@@ -57,6 +88,17 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
             className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
           >
             Try again
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              try {
+                navigator.clipboard?.writeText(`${message}\n\n${stack}`);
+              } catch {/* ignore */}
+            }}
+            className="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent"
+          >
+            Copy error
           </button>
           <a
             href="/"
