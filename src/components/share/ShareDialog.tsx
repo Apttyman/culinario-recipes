@@ -65,29 +65,37 @@ export function ShareDialog({ open, onClose, kind, targetId, targetLabel }: Prop
   const [imageError, setImageError] = useState<string | null>(null);
 
   // Compute the direct permalink + OG image URL for this share target.
-  // Duel + Last Meal have public viewers (anon-readable by uuid) so the
-  // direct URL works for anyone. Recipe permalinks require sign-in but the
-  // copy-link is still useful for sending to other Culinario users.
-  // Inverse sets don't have a clean per-session viewer URL yet.
+  // - Duel + Last Meal: public viewers (anon-readable by uuid), direct URLs
+  //   work for anyone.
+  // - Recipe: permalink works for `from_duel` recipes (publicly readable) and
+  //   for own / share-granted recipes; private recipes still 404 for strangers.
+  //   OG image is always renderable since recipe-og uses service-role.
+  // - Inverse set: per-session viewer route doesn't exist yet so permalink
+  //   stays null; OG image is renderable.
   const SUPA_FN_BASE = "https://upofudganvjbdhxxpfti.supabase.co/functions/v1";
   const origin = typeof window !== "undefined" ? window.location.origin : "https://culinario-recipes.lovable.app";
+  const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 60);
   let permalink: string | null = null;
   let ogImageUrl: string | null = null;
   let ogFileName: string | null = null;
   if (kind === "duel") {
     permalink = `${origin}/duel/${targetId}`;
     ogImageUrl = `${SUPA_FN_BASE}/duel-og?id=${targetId}`;
-    ogFileName = `culinario-duel-${(targetLabel ?? "duel").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 60) || "duel"}.png`;
+    ogFileName = `culinario-duel-${slugify(targetLabel ?? "duel") || "duel"}.png`;
   } else if (kind === "last_meal") {
     permalink = `${origin}/last-meal/${targetId}`;
     ogImageUrl = `${SUPA_FN_BASE}/last-meal-og?id=${targetId}`;
-    ogFileName = `culinario-last-meal-${(targetLabel ?? "last-meal").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 60) || "last-meal"}.png`;
+    ogFileName = `culinario-last-meal-${slugify(targetLabel ?? "last-meal") || "last-meal"}.png`;
   } else if (kind === "recipe") {
     permalink = `${origin}/recipes/${targetId}`;
-    // Recipes don't have an OG generator (their own image is on the recipe row,
-    // not derived from a Supabase edge function).
+    ogImageUrl = `${SUPA_FN_BASE}/recipe-og?id=${targetId}`;
+    ogFileName = `culinario-recipe-${slugify(targetLabel ?? "recipe") || "recipe"}.png`;
+  } else if (kind === "inverse_set") {
+    // No per-session public viewer yet — permalink stays null so the
+    // Share-link button hides. Image still works for posting/saving.
+    ogImageUrl = `${SUPA_FN_BASE}/inverse-og?session=${targetId}`;
+    ogFileName = `culinario-inverse-${slugify(targetLabel ?? "menu") || "menu"}.png`;
   }
-  // kind === "inverse_set": no clean per-session URL yet; copy link disabled.
 
   // Lock body scroll while the dialog is open. Without this, iOS Safari
   // can scroll the underlying page when the keyboard is dismissed, leaving
